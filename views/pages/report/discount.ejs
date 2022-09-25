@@ -1,0 +1,1026 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <style>
+                body {
+                    padding-right: 0px !important;
+                }
+
+                .dtp .p10>a {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .dtp>.dtp-content>.dtp-date-view>header.dtp-header {
+                    background: #7e6990;
+                    color: #fff;
+                    text-align: center;
+                    padding: 0.3em;
+                }
+
+                .dtp div.dtp-date,
+                .dtp div.dtp-time {
+                    background: #7e6990;
+                    text-align: center;
+                    color: #fff;
+                    padding: 10px;
+                }
+
+                .dtp table.dtp-picker-days tr>td>a.selected {
+                    background: #7e6990;
+                    color: #fff;
+                }
+            </style>
+
+            <!-- Main Content -->
+            <section class="content">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid" id="add_data_section">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="header">
+                                        <h2><strong>Create</strong> Discount Report</h2>
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <p class="text-center text-primary">Your current branch is :
+                                                    <strong>{{branch.name}}</strong>
+                                                </p>
+                                                <button @click="changeBranch" class="btn btn-primary">Change
+                                                    Branch</button>
+                                            </div>
+                                        </div>
+                                        <br />
+                                    </div>
+                                    <div class="body">
+                                        <div class="row">
+                                            <div class="col-lg-6 offset-lg-3">
+                                                <% include ../notification/message %>
+                                            </div>
+                                        </div>
+
+                                        <form @submit.prevent="downloadPaymentMethodWiseDiscountReport">
+                                            <h4 class="text-center">Payment Method Wise Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="fromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="toDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Cards</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="card">
+                                                            <option value="all">All</option>
+                                                            <option v-if="type != 'summery' " :value="{name: card}"
+                                                                v-for="(card, index) in cards" :key="index"
+                                                                class="text-capitalize">{{card}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="type">
+                                                            <option value="summery" class="text-capitalize">Summery
+                                                            </option>
+                                                            <option value="details" class="text-capitalize">Details
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadPointDiscountReport">
+                                            <h4 class="text-center mt-5">User Point Wise Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="pointDiscountFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="pointDiscountToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadFractionalDiscountReport">
+                                            <h4 class="text-center mt-5">Fractional Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="fractionalDiscountFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="fractionalDiscountToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadSpecialDiscountReport">
+                                            <h4 class="text-center mt-5">Special Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="specialDiscountFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="specialDiscountToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadCategoryDiscountReport">
+                                            <h4 class="text-center mt-5">Category Wise Product Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="categoryProductDiscountFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="categoryProductDiscountToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Category</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="category">
+                                                            <option value="all">All</option>
+                                                            <option :value="{id: category._id, name: category.name}"
+                                                                v-for="(category, index) in allCategory" :key="index"
+                                                                class="text-capitalize">{{category.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="type">
+                                                            <option value="summery" class="text-capitalize">Summery
+                                                            </option>
+                                                            <option value="details" class="text-capitalize">Details
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadSupplierDiscountReport">
+                                            <h4 class="text-center mt-5">Supplier Wise Product Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="supplierProductDiscountFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="supplierProductDiscountToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Supplier</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="supplier">
+                                                            <option value="all">All</option>
+                                                            <option :value="{id: supplier._id, name: supplier.name}"
+                                                                v-for="(supplier, index) in allSupplier" :key="index"
+                                                                class="text-capitalize">{{supplier.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="type">
+                                                            <option value="summery" class="text-capitalize">Summery
+                                                            </option>
+                                                            <option value="details" class="text-capitalize">Details
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadProductDiscountReport">
+                                            <h4 class="text-center mt-5">Product Wise Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="productDiscountFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="productDiscountToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadCashMemoReport">
+                                            <h4 class="text-center mt-5">Personal Discount Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="personalDiscountFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="personalDiscountToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+                integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+                crossorigin="anonymous"></script>
+
+            <script>
+                new Vue({
+                    el: '#add_data_section',
+                    data: {
+                        branch: '',
+                        allCardsInfo: [],
+                        allMobileBankingInfo: [],
+                        cards: [],
+                        card: 'all',
+                        type: 'summery',
+                        allCategory: [],
+                        category: 'all',
+                        allSupplier: [],
+                        supplier: 'all',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: false,
+                        reportType: 'pdf',
+                        adminAccess: [],
+                    },
+                    mounted() {
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                        this.checkBranchInfo()
+                        this.getBranchInfo()
+                        this.getSupplierInfo()
+                        this.getCategoryInfo()
+                        this.getCardsData()
+                    },
+                    methods: {
+                        getSupplierInfo() {
+                            let requestLink = '/api/supplier?branch=' + localStorage.getItem('branch')
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSupplier = result.response.data
+                                }
+                            })
+                        },
+                        getCategoryInfo() {
+                            let requestLink = '/api/category?branch=' + localStorage.getItem('branch')
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCategory = result.response.data
+                                }
+                            })
+                        },
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            name: result.response.data.name
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        getCardsData() {
+                            let requestLink = '/api/lookup/info/data/search/card_name'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCardsInfo = result.response.data
+                                    result.response.data.map(purposeInfo => {
+                                        this.cards.push(purposeInfo.title)
+                                    })
+                                }
+                            })
+
+                            let requestLink2 = '/api/lookup/info/data/search/mobile_banking'
+                            getType(requestLink2).then((result) => {
+                                if (result.auth === true) {
+                                    this.allMobileBankingInfo = result.response.data
+                                    result.response.data.map(purposeInfo => {
+                                        this.cards.push(purposeInfo.title)
+                                    })
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        clear_fields() {
+                            $("#fromDate").val("")
+                            $("#toDate").val("")
+                        },
+                        downloadPaymentMethodWiseDiscountReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#fromDate").val(),
+                                to: $("#toDate").val()
+                            }
+
+                            let requestLink = '/api/report/'
+                            let filename = ''
+
+                            if (this.card != 'all') {
+                                itemInfo.card = this.card.name
+                            } else {
+                                itemInfo.card = 'all'
+                            }
+                            if (this.type == 'summery') {
+                                requestLink += 'payment_method/discount/summery/report'
+                                filename += 'payment_method_wise_discount_report_summery'
+                            } else {
+                                requestLink += 'payment_method/discount/details/report'
+                                filename += 'payment_method_wise_discount_report_details'
+                            }
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+
+                                if (this.type == 'summery') {
+                                    link.href = "/api/report/payment_method/discount/summery/report/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+                                } else {
+                                    link.href = "/api/report/payment_method/discount/details/report/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.card + "?branch=" + localStorage.getItem('branch');
+                                }
+
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename + '.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+                            }
+                        },
+                        downloadPointDiscountReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#pointDiscountFromDate").val(),
+                                to: $("#pointDiscountToDate").val()
+                            }
+
+                            let requestLink = '/api/report/point/discount/report'
+                            let filename = 'point_discount_report'
+
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/point/discount/report/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename + '.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+                            }
+                        },
+                        downloadCategoryDiscountReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#categoryProductDiscountFromDate").val(),
+                                to: $("#categoryProductDiscountToDate").val()
+                            }
+
+                            if (this.category != 'all') {
+                                itemInfo.category = this.category.id
+                            } else {
+                                itemInfo.category = 'all'
+                            }
+
+                            let requestLink = '/api/report/'
+                            let filename = ''
+
+                            if (this.type == 'summery') {
+                                requestLink += 'category/discount/summery'
+                                filename += 'category_discount_summery_report'
+                            } else {
+                                requestLink += 'category/discount/details'
+                                filename += 'category_discount_details_report'
+                            }
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+
+                                if (this.type == 'summery') {
+                                    link.href = "/api/report/category/discount/summery/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.category + "?branch=" + localStorage.getItem('branch');
+                                } else {
+                                    link.href = "/api/report/category/discount/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.category + "?branch=" + localStorage.getItem('branch');
+                                }
+
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename + '.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+                            }
+                        },
+                        downloadCashMemoReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/report/personal-discount/all?branch=' + localStorage.getItem('branch')
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#personalDiscountFromDate").val(),
+                                to: $("#personalDiscountToDate").val()
+                            }
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/personal-discount/all/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+
+                                // if (this.supplier == '') {
+                                //     if (this.type == 'summery') {
+                                //         link.href = "/api/report/all/supplier-receiving/summery/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+                                //     } else {
+                                //         link.href = "/api/report/all/supplier-receiving/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+                                //     }
+                                // } else {
+                                //     itemInfo.supplier = this.supplier.id
+                                //     if (this.type == 'summery') {
+                                //         link.href = "/api/report/single/supplier-receiving/summery/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + this.supplier.id + "?branch=" + localStorage.getItem('branch');
+                                //     } else {
+                                //         link.href = "/api/report/single/supplier-receiving/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + this.supplier.id + "?branch=" + localStorage.getItem('branch');
+                                //     }
+                                // }
+
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = 'person_wise_discount.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    //this.isDisable = false
+                                })
+                            }
+
+                        },
+                        downloadFractionalDiscountReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#fractionalDiscountFromDate").val(),
+                                to: $("#fractionalDiscountToDate").val()
+                            }
+
+                            let requestLink = '/api/report/fractional/discount/report'
+                            let filename = 'fractional_discount_report'
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/fractional/discount/report/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename + '.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+
+
+                            }
+
+                        },
+                        downloadSpecialDiscountReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#specialDiscountFromDate").val(),
+                                to: $("#specialDiscountToDate").val()
+                            }
+
+                            let requestLink = '/api/report/special/discount/report'
+                            let filename = 'special_discount_report'
+
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/special/discount/report/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename + '.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+
+                            }
+                        },
+                        downloadSupplierDiscountReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#supplierProductDiscountFromDate").val(),
+                                to: $("#supplierProductDiscountToDate").val()
+                            }
+
+                            let fromDate = $("#supplierProductDiscountFromDate").val()
+                            fromDate = new Date(fromDate)
+                            let startDate = fromDate.getDate()
+                            let startMonth = fromDate.getMonth() + 1
+                            let startYear = fromDate.getFullYear()
+
+                            let toDate = $("#supplierProductDiscountToDate").val()
+                            toDate = new Date(toDate)
+                            let endDate = toDate.getDate()
+                            let endMonth = toDate.getMonth() + 1
+                            let endYear = toDate.getFullYear()
+
+                            if (this.reportType == 'pdf' && this.supplier == 'all') {
+                                if ((endMonth - startMonth) > 1 || ((startMonth != endMonth) && endDate > startDate) || (startYear != endYear)) {
+                                    alert('Please select only 1 Month.')
+                                    this.isDisable = false
+                                    return
+                                }
+                            }
+
+                            if (this.supplier != 'all') {
+                                itemInfo.supplier = this.supplier.id
+                            } else {
+                                itemInfo.supplier = 'all'
+                            }
+
+                            let requestLink = '/api/report/'
+                            let filename = ''
+
+                            if (this.type == 'summery') {
+                                requestLink += 'supplier/discount/summery'
+                                filename += 'supplier_discount_summery_report'
+                            } else {
+                                requestLink += 'supplier/discount/details'
+                                filename += 'supplier_discount_details_report'
+                            }
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+
+                                if (this.type == 'summery') {
+                                    link.href = "/api/report/supplier/discount/summery/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.supplier + "?branch=" + localStorage.getItem('branch');
+                                } else {
+                                    link.href = "/api/report/supplier/discount/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.supplier + "?branch=" + localStorage.getItem('branch');
+                                }
+
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename + '.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+                            }
+                        },
+                        downloadProductDiscountReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#productDiscountFromDate").val(),
+                                to: $("#productDiscountToDate").val()
+                            }
+
+                            let requestLink = '/api/report/product/discount'
+                            let filename = 'product_discount_report'
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/product/discount/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        console.log(result)
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename + '.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+
+                            }
+                        },
+
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>
+
+                <script>
+                    $(function () {
+                        //Datetimepicker plugin
+                        $('.datetimepicker').bootstrapMaterialDatePicker({
+                            format: 'YYYY-MM-DD',
+                            clearButton: true,
+                            weekStart: 1,
+                            time: false
+                        });
+                    });
+                </script>

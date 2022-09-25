@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <mate charest="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Wise Customer Contribution</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-size: 7px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+
+        .bg-grey {
+            background-color: #f3f5f7;
+        }
+
+        .bg-white {
+            background-color: #fff;
+        }
+
+        /* .header {
+            background-color: #f0f0f0;
+        } */
+
+        /* global classes start */
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* global classes end */
+    </style>
+</head>
+
+<body>
+    <table cellspacing=0 cellpadding=0 width="100%">
+        <tr>
+            <td>
+                <table class="center bg-white" cellspacing=0 cellpadding=0 width="800"
+                    style="min-width: 800px; max-width: 800px;">
+                    <!-- header start -->
+                    <tr>
+                        <td>
+                            <table class="header" cellspacing=0 cellpadding=0 style="width: 100%;">
+                                <tr>
+                                    <td style="line-height: 2px;">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="center header" cellspacing=0 cellpadding=0 style="">
+                                            <tr>
+                                                <td style="width: 38%; text-align: center;">
+                                                    <img src={{company_logo}} width="100" height="48" alt="Company image">
+                                                </td>
+                                                <td>
+                                                    <h1
+                                                        style="font-size: 16px; text-align: left; text-transform: uppercase; margin-bottom: 5px;">
+                                                        <span>{{company_name}}</span>
+                                                    </h1>
+                                                    <p style="font-size: 9px; text-align: left; text-transform: capitalize; font-weight: bold; margin-bottom: 5px; width: 250px;">{{branch_name}}, {{branch_address}}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="line-height: 10px;">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="center header" cellspacing=0 cellpadding=0 width="780" style="">
+                                            <tr>
+                                                <td>
+                                                    <h1
+                                                        style="font-size: 12px; text-align: center; text-transform: uppercase;">
+                                                        Category Wise Customer Contribution </h1>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="line-height: 5px;">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- header end -->
+                    <!-- shop info part start -->
+                    <tr>
+                        <td>
+                            <table class="center bg-white" cellspacing=0 cellpadding=0 width="100%" style="">
+                                <tr>
+                                    <td>
+                                        <table class="center" cellspacing=0 cellpadding=0 width="780" style="">
+                                            <tr>
+                                                <td style="line-height: 5px;">&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <h2>Shop Information</h2>
+                                                    <hr>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table class="two-column" cellspacing=0 cellpadding=0 width="100%">
+                                                        <tr>
+                                                            <td style="line-height: 5px;">&nbsp;</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!-- column item start -->
+                                                            <td width="50%">
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%">
+                                                                    <tr>
+                                                                        <td width="100">
+                                                                            <b>Shop Code</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="147">{{branch_id}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;" colspan="3">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td width="100">
+                                                                            <b>Phone</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="147">{{branch_phone}}
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <!-- column item start -->
+                                                            <!-- column item end -->
+                                                            <td width="50%">
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%" style="text-align: right;">
+                                                                    <tr>
+                                                                        <td width="120">
+                                                                            <b>Date From</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="127">{{fromDate}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;" colspan="3">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td width="120">
+                                                                            <b>Date To</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="127">{{toDate}}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <!-- column item end -->
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="line-height: 5px;" colspan="2">
+                                                                &nbsp;</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- shop info part end -->
+                    <tr>
+                        <td style="line-height: 10px;">&nbsp;</td>
+                    </tr>
+                    <!-- Payment method info part start -->
+                    <tr>
+                        <td>
+                            <table class="center bg-white" cellspacing=0 cellpadding=0 width="100%" style="">
+                                <!-- user info and payment info start -->
+                                <tr>
+                                    <td>
+                                        <table class="center" cellspacing=0 cellpadding=0 width="780" style="">
+
+                                            <!-- payment information start -->
+                                            <tr>
+                                                <td>
+                                                    <table cellspacing=0 cellpadding=2 width="100%">
+                                                        <tr>
+                                                            <th style="text-align: left;width: 20px;">Name</th>
+                                                            <th style="text-align: left;width: 20px;">Phone</th>
+                                                            <th style="text-align: center; width: 5px;">cosmetics</th>
+                                                            <th style="text-align: left; width: 5px;">food&snacks
+                                                            </th>
+                                                            <th style="text-align: left; width: 5px;">clock&glass
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">commodities
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">leather&bag
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">babyCare
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">toiletries
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">shari&others
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">garments
+                                                            </th>
+                                                        </tr>
+                                                        <!-- hr divider start -->
+                                                        <tr>
+                                                            <td colspan="11">
+                                                                <hr>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- hr divider end -->
+
+                                                        {{#each data}}
+                                                        <!-- records start  -->
+                                                        {{#each reportDataOne}}
+                                                        <tr>
+                                                            <td
+                                                                style="border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px;width: 5px">
+                                                                {{name}}
+                                                            </td>
+                                                            <td
+                                                                style="border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{number}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: center;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{cosmetics}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: center;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{food_snacks}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: center;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{clock_glass}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{commodities}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{leather_bag}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{baby_care}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{toiletries}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{shari_others}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{garments}}
+                                                            </td>
+                                                        
+                                                        </tr>
+                                                        <!-- records end -->
+                                                        {{/each}}
+                                                        {{/each}}
+
+                                                        <tr>
+                                                            <td colspan="5" style="line-height: 7px;">
+                                                                &nbsp;
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="11">
+                                                                <hr>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- hr divider end -->
+                                                        <tr>
+                                                            <td style="text-align: left; text-transform: capitalize; font-weight: bold;"
+                                                                colspan="2">
+                                                                Grand total
+                                                            </td>
+                                                            <td style="text-align: center; font-weight: bold;">
+                                                                {{grandTotal.cosmetics}}
+                                                            </td>
+                                                            <td style="text-align: center; font-weight: bold;">
+                                                                {{grandTotal.food_snacks}}
+                                                            </td>
+                                                            <td style="text-align: center; font-weight: bold;">
+                                                                {{grandTotal.clock_glass}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.commodities}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.leather_bag}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.baby_care}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.toiletries}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.shari_others}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.garments}}
+                                                            </td>
+                                                        
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="5" style="line-height: 7px;">
+                                                                &nbsp;
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <th style="text-align: right; width: 5px;">petCare
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">dairy
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">stationary
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">personalCare
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">electronics
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">toys&sports
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">footwear
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">frozenItem
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">food_snacks
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">crockeries
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">juice&beverage
+                                                            </th>
+                                                        </tr>
+                                                        <!-- hr divider start -->
+                                                        <tr>
+                                                            <td colspan="10">
+                                                                <hr>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- hr divider end -->
+
+                                                        {{#each data}}
+                                                        {{#each reportDataTwo}}
+                                                        <!-- records start  -->
+                                                        <tr>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{pet_care}}
+                                                                </td>
+                                                                <td style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{dairy}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{stationary}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{personal_care}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{electronics_home_appli_}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{toys_sports}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{footwear}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{frozen_item}}
+                                                            </td>
+                                                            <td
+                                                            style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                            {{food_snacks}}
+                                                            </td>
+                                                            
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{crockeries}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{juice_beverage}}
+                                                            </td>
+                                                            
+                                                        </tr>
+                                                        <!-- records end -->
+                                                        {{/each}}
+                                                        
+                                                        {{/each}}
+                                                        
+                                                        <!-- hr divider start -->
+                                                        <tr>
+                                                            <td colspan="10">
+                                                                <hr>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- hr divider end -->
+                                                        <tr>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.pet_care}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.dairy}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.stationary}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.personal_care}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.electronics_home_appli_}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.toys_sports}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.footwear}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.frozen_item}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.food_snacks}}
+                                                                </td>
+                                                                <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.crockeries}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.juice_beverage}}
+                                                            </td>
+                                                        </tr>
+                                                        
+                                                        <tr>
+                                                            <td colspan="5" style="line-height: 7px;">
+                                                                &nbsp;
+                                                            </td>
+                                                        </tr>
+                                                        
+                                                        <tr>
+                                                            <th style="text-align: right; width: 5px;">fish&meat
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">babyFood
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">household
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">medicine
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">offer
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">grocery
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">showpiece
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">jewlery
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">fruits
+                                                            </th>
+                                                            <th style="text-align: right; width: 5px;">Total
+                                                            </th>
+                                                        </tr>
+                                                        <!-- hr divider start -->
+                                                        <tr>
+                                                            <td colspan="10">
+                                                                <hr>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- hr divider end -->
+                                                        
+                                                        {{#each data}}
+                                                        {{#each reportDataThree}}
+                                                        <!-- records start  -->
+                                                        <tr>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{fish_meat}}
+                                                                </td>
+                                                                <td style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{baby_food}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{house_hold}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{medicine}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{offer}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{grocery}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{showpiece}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{jewlery}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{fruits_vegetables}}
+                                                            </td>
+                                                            <td
+                                                                style="text-align: right;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px; width: 5px">
+                                                                {{total}}
+                                                            </td>
+                                                        </tr>
+                                                        <!-- records end -->
+                                                        {{/each}}
+
+                                                        {{/each}}
+
+                                                        <!-- hr divider start -->
+                                                        <tr>
+                                                            <td colspan="10">
+                                                                <hr>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- hr divider end -->
+                                                        <tr>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.fish_meat}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.baby_food}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.house_hold}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.medicine}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.offer}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.grocery}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.showpiece}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.jewlery}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandTotal.fruits_vegetables}}
+                                                            </td>
+                                                            <td style="text-align: right; font-weight: bold;">
+                                                                {{grandCustomerTotal}}
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <!-- payment information end -->
+                                        </table>
+                                    </td>
+                                </tr>
+                                <!-- user info and payment info end -->
+                                <tr>
+                                    <td style="line-height: 10px;">
+                                        &nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                          <table cellspacing="0" cellpadding="10" width="100%">
+                            <tr>
+                              <td class="text-left"><span>Printed on</span> - <span>{{today}}  {{createTime}}</span> </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; text-align: center;"><span>' This is a Computer Generated Report Hence No Signature Will Not Be Required. '</span> </td>
+                              </tr>
+                          </table>
+                        </td>
+                    </tr>
+                    <!-- Payment method info part end -->
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

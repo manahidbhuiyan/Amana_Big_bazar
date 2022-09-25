@@ -1,0 +1,1358 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content" id="property_type_section">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body" v-on:scroll="handleScroll">
+                        <div class="container" v-if="type_section === 'add'">
+                            <div class="row clearfix">
+                                <div class="col-lg-12">
+                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                        <div class="header">
+                                            <h2><strong>Create</strong> New Branch </h2>
+                                            <ul class="header-dropdown m-r--5">
+                                                <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                        role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                            class="material-icons">close</i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="body">
+                                            <div v-if="errorResponse!==null">
+                                                <div class="alert alert-danger" v-for="error in errorResponse">
+                                                    {{error.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div v-if="successResponse!==null">
+                                                <div class="alert alert-success">
+                                                    {{successResponse.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="name" class="form-control"
+                                                            placeholder="Branch Name">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">Branch Location</h6>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="division"
+                                                            @change="getZillaList(division)">
+                                                            <option value="" :selected="division == ''">-- Division --
+                                                            </option>
+                                                            <option :value="{ id: division.id, name: division.name }"
+                                                                v-for="division in divisionList">{{division.name}}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="district"
+                                                            @change="getThanaList(district)">
+                                                            <option value="" :selected="district == ''">-- District --
+                                                            </option>
+                                                            <option :value="{ id: zilla.id, name: zilla.name }"
+                                                                v-for="zilla in zillaList">{{zilla.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="location">
+                                                            <option value="" :selected="location == ''">-- Thana --
+                                                            </option>
+                                                            <option :value="{ id: thana.id, name: thana.name }"
+                                                                v-for="thana in thanaList">{{thana.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" v-model="address"
+                                                            placeholder="Address">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            @keyup="getPhoneNumber($event, phoneNumber)"
+                                                            v-model="phoneNumber" placeholder="Phone no.">
+                                                    </div>
+                                                    <span class="badge badge-primary"
+                                                        style="font-size: 12px; cursor: pointer;margin-right: 5px;"
+                                                        v-for="(number, index) in phone" :key="index">{{number}} <span
+                                                            aria-hidden="true"
+                                                            @click="removePhoneNumber(index)">&times;</span></span>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            @keyup="getSDCNumber($event, sdcIPNumber)"
+                                                            v-model="sdcIPNumber" placeholder="nbr device ip (ex. 172.172.16.21)">
+                                                    </div>
+                                                    <span class="badge badge-primary"
+                                                        style="font-size: 12px; cursor: pointer;margin-right: 5px;"
+                                                        v-for="(number, index) in nbr_sdc_ips" :key="index">{{number}} <span
+                                                            aria-hidden="true"
+                                                            @click="removeSDCNumber(index)">&times;</span></span>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            v-model="facebook_page_id" placeholder="Facebook page id">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">First Order Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="add_first_1"
+                                                                        v-model="first_order_activity" value="true">
+                                                                    <label for="add_first_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio"
+                                                                        id="add_first_0" v-model="first_order_activity"
+                                                                        value="false" class="with-gap"> <label
+                                                                        for="add_first_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <ul class="list-unstyled pl-3">
+                                                            <li v-for="(data, index) in first_order_discount_data "
+                                                                :key="index">
+                                                                <strong>Discount:</strong>
+                                                                {{data.discount}}{{data.isFlatAmount==false?'%':'TK'}}
+                                                                -
+                                                                <strong>Min.
+                                                                    Amount:</strong> {{data.min_amount}} <button
+                                                                    @click="remove_first_order_discount(index)"
+                                                                    type="button"
+                                                                    class="btn btn-white btn-icon btn-round btn-xs"
+                                                                    :data-id="index"><i
+                                                                        class="zmdi zmdi-minus"></i></button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="row">
+
+                                                        <div class="col-md-4">
+                                                            <p>Discount({{isFirstOrderFlatAmount.toString()=='false'?'%':'TK'}})
+                                                            </p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="first_order_discount" class="form-control"
+                                                                    placeholder="First order discount">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Min. Amount</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="first_order_min_amount"
+                                                                    class="form-control" placeholder="Min. Amount">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <p>Type</p>
+                                                            <input type="radio" v-model="isFirstOrderFlatAmount"
+                                                                value="false" />
+                                                            % <br>
+                                                            <input type="radio" v-model="isFirstOrderFlatAmount"
+                                                                value="true" />
+                                                            TK
+                                                        </div>
+                                                        <div class="col-md-2" @click="add_first_order_discount">
+                                                            <p></p>
+                                                            <button type="button"
+                                                                class="btn btn-white btn-icon btn-round mt-4"><i
+                                                                    class="zmdi zmdi-plus"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">All Order Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="form-group">
+                                                                    <div class="radio inlineblock m-r-20"><input
+                                                                            type="radio" class="with-gap"
+                                                                            v-model="flat_order_activity"
+                                                                            id="add_flat_1" value="true">
+                                                                        <label for="add_flat_1">Yes</label></div>
+                                                                    <div class="radio inlineblock"><input type="radio"
+                                                                            v-model="flat_order_activity"
+                                                                            id="add_flat_0" value="false"
+                                                                            class="with-gap"> <label
+                                                                            for="add_flat_0">No</label></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <ul class="list-unstyled pl-3">
+                                                            <li v-for="(data, index) in flat_order_discount_data"
+                                                                :key="index">
+                                                                <strong>Discount:</strong>
+                                                                {{data.discount}}{{data.isFlatAmount==false?'%':'TK'}}
+                                                                -
+                                                                <strong>Min.
+                                                                    Amount:</strong> {{data.min_amount}} <button
+                                                                    @click="remove_flat_order_discount(index)"
+                                                                    type="button"
+                                                                    class="btn btn-white btn-icon btn-round btn-xs"
+                                                                    :data-id="index"><i
+                                                                        class="zmdi zmdi-minus"></i></button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <p>Discount({{isAllOrderFlatAmount.toString()=='false'?'%':'TK'}})
+                                                            </p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="flat_order_discount" class="form-control"
+                                                                    placeholder="Flat discount on order">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Min. Amount</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="flat_order_min_amount" class="form-control"
+                                                                    placeholder="Min. Amount">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <p>Type</p>
+                                                            <input type="radio" v-model="isAllOrderFlatAmount"
+                                                                value="false" />
+                                                            % <br>
+                                                            <input type="radio" v-model="isAllOrderFlatAmount"
+                                                                value="true" />
+                                                            TK
+                                                        </div>
+                                                        <div class="col-md-2" @click="add_flat_order_discount">
+                                                            <p></p>
+                                                            <button type="button"
+                                                                class="btn btn-white btn-icon btn-round mt-4"><i
+                                                                    class="zmdi zmdi-plus"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">Each Point Earning</h6>
+
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <p>Purchase Amount(TK)</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="purchase"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Expand Amount(TK)</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="expand"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Activation Bench Mark(TK)</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="bench_mark"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Use Points On</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="use_points_on"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Tax Identification No.</p>
+                                                            <div class="form-group">
+                                                                <input type="text" v-model="taxIdentificationNo"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Point For Client</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="add_point_apply_1"
+                                                                        v-model="point_apply_active" value="true">
+                                                                    <label for="add_point_apply_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="add_point_apply_0" v-model="point_apply_active" value="false" class="with-gap"> <label
+                                                                        for="add_point_apply_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Personal Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="add_personal_discount_1"
+                                                                        v-model="personal_discount_active" value="true">
+                                                                    <label for="add_personal_discount_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="add_personal_discount_0" v-model="personal_discount_active" value="false" class="with-gap"> <label
+                                                                        for="add_personal_discount_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Special Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="add_special_discount_1"
+                                                                        v-model="special_discount_active" value="true">
+                                                                    <label for="add_special_discount_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="add_special_discount_0" v-model="special_discount_active" value="false" class="with-gap"> <label
+                                                                        for="add_special_discount_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Sales Person</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap"
+                                                                        v-model="sales_person_active" id="add_sales_person_1" value="true">
+                                                                    <label for="add_sales_person_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="add_sales_person_0" v-model="sales_person_active" value="false" class="with-gap"> <label
+                                                                        for="add_sales_person_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">VAT On Warehouse Receiving</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap"
+                                                                        v-model="vat_applicable_warehouse_receiving" id="vat_applicable_warehouse_receiving_add_1" value="true">
+                                                                    <label for="vat_applicable_warehouse_receiving_add_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="vat_applicable_warehouse_receiving_add_0" v-model="vat_applicable_warehouse_receiving" value="false" class="with-gap"> <label
+                                                                        for="vat_applicable_warehouse_receiving_add_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">POS Slip Note</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <textarea name="pos_slip_notes" v-model="pos_slip_notes" class="form-control"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">Ecommerce Topbar Note:</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <textarea name="branch_notice" v-model="branch_notice" class="form-control"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable" @click="addItem"
+                                                        class="btn btn-primary btn-round">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container" v-if="type_section == 'edit'">
+                            <div class="row clearfix">
+                                <div class="col-lg-12">
+                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                        <div class="header">
+                                            <h2><strong>Edit</strong> Branch Info </h2>
+                                            <ul class="header-dropdown m-r--5">
+                                                <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                        role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                            class="material-icons">close</i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="body">
+                                            <div v-if="errorResponse!==null">
+                                                <div class="alert alert-danger" v-for="error in errorResponse">
+                                                    {{error.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div v-if="successResponse!==null">
+                                                <div class="alert alert-success">
+                                                    {{successResponse.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" v-model="name"
+                                                            placeholder="Project Type">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">Branch Location</h6>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="division"
+                                                            @change="getZillaList(division)">
+                                                            <option value="" :selected="division == ''">-- Division --
+                                                            </option>
+                                                            <option :value="{ id: division.id, name: division.name }"
+                                                                v-for="division in divisionList">{{division.name}}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="district"
+                                                            @change="getThanaList(district)">
+                                                            <option value="" :selected="district == ''">-- District --
+                                                            </option>
+                                                            <option :value="{ id: zilla.id, name: zilla.name }"
+                                                                v-for="zilla in zillaList">{{zilla.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="location">
+                                                            <option value="" :selected="location == ''">-- Thana --
+                                                            </option>
+                                                            <option :value="{ id: thana.id, name: thana.name }"
+                                                                v-for="thana in thanaList">{{thana.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" v-model="address"
+                                                            placeholder="Address">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            @keyup="getPhoneNumber($event, phoneNumber)"
+                                                            v-model="phoneNumber"
+                                                            placeholder="Phone no.(Ex. 01924XXXXXX,)">
+                                                    </div>
+                                                    <span class="badge badge-primary"
+                                                        style="font-size: 12px; cursor: pointer;margin-right: 5px;"
+                                                        v-for="(number, index) in phone" :key="index">{{number}} <span
+                                                            aria-hidden="true"
+                                                            @click="removePhoneNumber(index)">&times;</span></span>
+                                                </div>
+
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            @keyup="getSDCNumber($event, sdcIPNumber)"
+                                                            v-model="sdcIPNumber" placeholder="nbr device ip (ex. 172.172.16.21)">
+                                                    </div>
+                                                    <span class="badge badge-primary"
+                                                        style="font-size: 12px; cursor: pointer;margin-right: 5px;"
+                                                        v-for="(number, index) in nbr_sdc_ips" :key="index">{{number}} <span
+                                                            aria-hidden="true"
+                                                            @click="removeSDCNumber(index)">&times;</span></span>
+                                                </div>
+                                                
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            v-model="facebook_page_id" placeholder="Facebook page id">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">First Order Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap"
+                                                                        v-model="first_order_activity"
+                                                                        id="update_first_1" value="true">
+                                                                    <label for="update_first_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio"
+                                                                        v-model="first_order_activity"
+                                                                        id="update_first_0" value="false"
+                                                                        class="with-gap"> <label
+                                                                        for="update_first_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <ul class="list-unstyled pl-3">
+                                                                <li v-for="(data, index) in first_order_discount_data"
+                                                                    :key="index">
+                                                                    <strong>Discount:</strong> {{data.discount}}
+                                                                    {{data.isFlatAmount==false?'%':'TK'}} -
+                                                                    <strong>Min.
+                                                                        Amount:</strong> {{data.min_amount}} <button
+                                                                        @click="remove_first_order_discount(index)"
+                                                                        type="button"
+                                                                        class="btn btn-white btn-icon btn-round btn-xs"
+                                                                        :data-id="index"><i
+                                                                            class="zmdi zmdi-minus"></i></button></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <p>Discount({{isFirstOrderFlatAmount.toString()=='false'?'%':'TK'}})
+                                                            </p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="first_order_discount" class="form-control"
+                                                                    placeholder="First order discount">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Min. Amount</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="first_order_min_amount"
+                                                                    class="form-control" placeholder="Min. Amount">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <p>Type</p>
+                                                            <input type="radio" v-model="isFirstOrderFlatAmount"
+                                                                value="false" />
+                                                            % <br>
+                                                            <input type="radio" v-model="isFirstOrderFlatAmount"
+                                                                value="true" />
+                                                            TK
+                                                        </div>
+                                                        <div class="col-md-2" @click="add_first_order_discount">
+                                                            <p></p>
+                                                            <button type="button"
+                                                                class="btn btn-white btn-icon btn-round mt-4"><i
+                                                                    class="zmdi zmdi-plus"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">All Order Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="update_flat_1"
+                                                                        v-model="flat_order_activity" value="true">
+                                                                    <label for="update_flat_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio"
+                                                                        id="update_flat_0" value="false"
+                                                                        class="with-gap" v-model="flat_order_activity">
+                                                                    <label for="update_flat_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <ul class="list-unstyled pl-3">
+                                                            <li v-for="(data, index) in flat_order_discount_data"
+                                                                :key="index">
+                                                                <strong>Discount:</strong>
+                                                                {{data.discount}}{{data.isFlatAmount==false?'%':'TK'}} -
+                                                                <strong>Min.
+                                                                    Amount:</strong> {{data.min_amount}} <button
+                                                                    @click="remove_flat_order_discount(index)"
+                                                                    type="button"
+                                                                    class="btn btn-white btn-icon btn-round btn-xs"
+                                                                    :data-id="index"><i
+                                                                        class="zmdi zmdi-minus"></i></button></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <p>Discount({{isAllOrderFlatAmount.toString()=='false'?'%':'TK'}})
+                                                            </p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="flat_order_discount" class="form-control"
+                                                                    placeholder="Flat discount on order">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Min. Amount</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any"
+                                                                    v-model="flat_order_min_amount" class="form-control"
+                                                                    placeholder="Min. Amount">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-2">
+                                                            <p>Type</p>
+                                                            <input type="radio" v-model="isAllOrderFlatAmount"
+                                                                value="false" />
+                                                            % <br>
+                                                            <input type="radio" v-model="isAllOrderFlatAmount"
+                                                                value="true" />
+                                                            TK
+                                                        </div>
+                                                        <div class="col-md-2" @click="add_flat_order_discount">
+                                                            <p></p>
+                                                            <button type="button"
+                                                                class="btn btn-white btn-icon btn-round mt-4"><i
+                                                                    class="zmdi zmdi-plus"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">Each Point Earning</h6>
+
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <p>Purchase Amount(TK)</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="purchase"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Expand Amount(TK)</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="expand"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Activation Bench Mark(TK)</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="bench_mark"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Use Points On</p>
+                                                            <div class="form-group">
+                                                                <input type="number" step="any" v-model="use_points_on"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <p>Tax Identification No.</p>
+                                                            <div class="form-group">
+                                                                <input type="text" v-model="taxIdentificationNo"
+                                                                    class="form-control" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Point For Client</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="update_point_apply_1"
+                                                                        v-model="point_apply_active" value="true">
+                                                                    <label for="update_point_apply_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="update_point_apply_0" v-model="point_apply_active" value="false" class="with-gap"> <label
+                                                                        for="update_point_apply_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Personal Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="update_personal_discount_1"
+                                                                        v-model="personal_discount_active" value="true">
+                                                                    <label for="update_personal_discount_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="update_personal_discount_0" v-model="personal_discount_active" value="false" class="with-gap"> <label
+                                                                        for="update_personal_discount_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Special Discount</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap" id="update_special_discount_1"
+                                                                        v-model="special_discount_active" value="true">
+                                                                    <label for="update_special_discount_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="update_special_discount_0" v-model="special_discount_active" value="false" class="with-gap"> <label
+                                                                        for="update_special_discount_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">Apply Sales Person</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap"
+                                                                        v-model="sales_person_active" id="update_sales_person_1" value="true">
+                                                                    <label for="update_sales_person_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="update_sales_person_0" v-model="sales_person_active" value="false" class="with-gap"> <label
+                                                                        for="update_sales_person_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <h6 class="mt-2 mb-2">VAT On Warehouse Receiving</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <p>Active</p>
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20"><input
+                                                                        type="radio" class="with-gap"
+                                                                        v-model="vat_applicable_warehouse_receiving" id="vat_applicable_warehouse_receiving_update_1" value="true">
+                                                                    <label for="vat_applicable_warehouse_receiving_update_1">Yes</label></div>
+                                                                <div class="radio inlineblock"><input type="radio" id="vat_applicable_warehouse_receiving_update_0" v-model="vat_applicable_warehouse_receiving" value="false" class="with-gap"> <label
+                                                                        for="vat_applicable_warehouse_receiving_update_0">No</label></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">POS Slip Note</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <textarea name="pos_slip_notes" v-model="pos_slip_notes" class="form-control"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">Ecommerce Topbar Note</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <textarea name="branch_notice" v-model="branch_notice" class="form-control"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        @click="updateProjectType"
+                                                        class="btn btn-primary btn-round">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center clearfix">
+                            <div class="col-lg-5">
+                                <div v-if="type_section === 'delete'">
+                                    <div v-if="errorResponse!==null">
+                                        <div class="alert alert-danger" v-for="error in errorResponse">
+                                            {{error.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-if="successResponse!==null">
+                                        <div class="alert alert-success">
+                                            {{successResponse.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-show="adminAccess.length>0?adminAccess.includes('create branch'):false">
+                            <div class="col-lg-12">
+                                <button class="btn btn-primary float-right btn-xs" type="button" @click="add_type_section">Add New</button>
+                            </div>
+                        </div>    
+                        <div class="row">
+                            <div class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                <div class="form-group">
+                                    <select class="form-control" v-model="searchType">
+                                        <option value="name">Branch Name</option>
+                                        <option value="division.name">Division</option>
+                                        <option value="district.name">District</option>
+                                        <option value="thana.name">Thana</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                <div class="form-group">
+                                    <input type="text" @keyup="searchData($event)" class="form-control"
+                                        v-model="searchText" placeholder="Search Keyword">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-if="isLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive" v-else>
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                id="infoListTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Address</th>
+                                        <th>Thana</th>
+                                        <th>District</th>
+                                        <th>Division</th>
+                                        <th>Contact</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-if="allListItem.length > 0">
+                                    <tr v-for="(item, index) in allListItem" :key="item._id">
+                                        <td>{{ index + 1 }}</td>
+                                        <td style="text-transform: capitalize;">{{item.name}}</td>
+                                        <td style="text-transform: capitalize;">{{item.address}}</td>
+                                        <td style="text-transform: capitalize;">{{item.thana.name}}</td>
+                                        <td style="text-transform: capitalize;">{{item.district.name}}</td>
+                                        <td style="text-transform: capitalize;">{{item.division.name}}</td>
+                                        <td style="text-transform: capitalize;"><span class="badge badge-primary"
+                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;"
+                                                v-for="(phoneNo, index) in item.phone" :key="index">{{phoneNo}}</span>
+                                        </td>
+                                        <td>
+                                            <!-- <button title="Selected default shop" :disabled="isDisable"
+                                                class="btn btn-icon btn-neutral btn-icon-mini"
+                                                v-if="item.isDefaultShop"><i class="zmdi zmdi-star"></i></button>
+                                            <button title="Make as default shop" :disabled="isDisable"
+                                                @click="setDefaultBranch(item._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini" v-else><i
+                                                    class="zmdi zmdi-star-border"></i></button> -->
+                                            <button :disabled="isDisable" @click="edit_item_section(item._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini" v-show="adminAccess.length>0?adminAccess.includes('update branch'):false"><i
+                                                    class="zmdi zmdi-edit"></i></button>
+                                            <button :disabled="isDisable" @click="deleteItem(item._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini" v-show="adminAccess.length>0?adminAccess.includes('delete branch'):false"><i
+                                                    class="zmdi zmdi-delete"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody v-else>
+                                    <tr>
+                                        <td class="text-center" colspan="8">No data found here</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+<script src="<%= host %>/data/location.js"></script>
+
+<script>
+    var pageNo = 1
+
+    new Vue({
+        el: '#property_type_section',
+        data: {
+            searchType: 'name',
+            searchText: '',
+            allListItem: [],
+            divisionList: [],
+            zillaList: [],
+            thanaList: [],
+            phone: [],
+            nbr_sdc_ips: [],
+            division: '',
+            location: '',
+            phoneNumber: '',
+            sdcIPNumber: '',
+            district: '',
+            address: '',
+            name: '',
+            first_order_discount_data: [],
+            flat_order_discount_data: [],
+            flat_order_activity: true,
+            first_order_activity: true,
+            point_apply_active: false,
+            personal_discount_active: false,
+            special_discount_active: false,
+            sales_person_active: false,
+            vat_applicable_warehouse_receiving: false,
+            first_order_discount: 1,
+            first_order_min_amount: 1,
+            flat_order_discount: 1,
+            flat_order_min_amount: 1,
+            isFirstOrderFlatAmount: false,
+            isAllOrderFlatAmount: false,
+            purchase: 0,
+            expand: 0,
+            bench_mark: 0,
+            use_points_on: 0,
+            facebook_page_id: null,
+            type_section: null,
+            addTypeValue: '',
+            editItemID: '',
+            editItemValue: '',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: true,
+            isNextDataLastEmpty: false,
+            searchQueryString: '',
+            taxIdentificationNo: '',
+            pos_slip_notes: '',
+            branch_notice: '',
+            adminAccess: [],
+        },
+        mounted() {
+            this.getAllItemData()
+            this.divisionList = divisionListInfo
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        created() {
+            window.addEventListener('scroll', this.handleScroll);
+        },
+        destroyed() {
+            window.removeEventListener('scroll', this.handleScroll);
+        },
+        methods: {
+            remove_first_order_discount(index) {
+                this.first_order_discount_data.splice(index, 1)
+            },
+            add_first_order_discount() {
+                this.first_order_discount_data.push({
+                    discount: this.first_order_discount,
+                    min_amount: this.first_order_min_amount,
+                    isFlatAmount: this.isFirstOrderFlatAmount
+                })
+                this.first_order_discount = 1
+                this.first_order_min_amount = 1
+                console.log(this.first_order_discount_data)
+            },
+            remove_flat_order_discount(index) {
+                this.flat_order_discount_data.splice(index, 1)
+            },
+            add_flat_order_discount() {
+                this.flat_order_discount_data.push({
+                    discount: this.flat_order_discount,
+                    min_amount: this.flat_order_min_amount,
+                    isFlatAmount: this.isAllOrderFlatAmount
+                })
+                this.flat_order_discount = 1
+                this.flat_order_min_amount = 1
+                console.log(this.first_order_discount_data)
+            },
+            searchData(e) {
+                if (e.keyCode === 13) {
+                    pageNo = 1
+                    this.allListItem = []
+                    if (this.searchText == '') {
+                        this.searchQueryString = ''
+                    } else {
+                        this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                    }
+                    this.getAllItemData()
+                }
+            },
+            getPositionHeight(element) {
+                var rect = element.getBoundingClientRect();
+                return (rect.y + 100) < $(window).height()
+            },
+            handleScroll(event) {
+                // Any code to be executed when the window is scrolled
+                if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                    .isNextDataLastEmpty === false) {
+                    if (!this.isNextDataLastEmpty) {
+                        pageNo++
+                        this.isNextDataLastEmpty = true
+                        this.getAllItemData()
+                    }
+                }
+            },
+            getAllItemData() {
+                let requestLink = '/api/branch/' + pageNo + '?' + this.searchQueryString
+                console.log(requestLink)
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        if (result.response.data.length === 0) {
+                            this.isNextDataLastEmpty = true
+                        } else {
+                            console.log(result.response.data)
+                            result.response.data.map((data) => {
+                                this.allListItem.push(data)
+                            })
+                            this.isNextDataLastEmpty = false
+                        }
+                        this.isLoading = false
+                    }
+                })
+            },
+            getZillaList(division) {
+                this.zillaList = districtListInfo.filter(district => district.division_id == division.id)
+                this.district = ''
+            },
+            getThanaList(district) {
+                this.thanaList = thanaListInfo.filter(thana => thana.district_id == district.id)
+                this.location = ''
+            },
+            getPhoneNumber(e, phoneNo) {
+                if (e.keyCode == 188) {
+                    let phoneNumberData = phoneNo.trim().split(',')[0]
+                    this.phone.push(phoneNumberData)
+                    this.phoneNumber = ''
+                }
+            },
+            getSDCNumber(e, sdcIPNumber) {
+                if (e.keyCode == 188) {
+                    let sdcIPNumberData = sdcIPNumber.trim().split(',')[0]
+                    this.nbr_sdc_ips.push(sdcIPNumberData)
+                    this.sdcIPNumber = ''
+                }
+            },
+            removeSDCNumber(removeindex) {
+                this.nbr_sdc_ips = this.nbr_sdc_ips.filter((value, index) => index !== removeindex)
+            },
+            removePhoneNumber(removeindex) {
+                this.phone = this.phone.filter((value, index) => index !== removeindex)
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            add_type_section() {
+                this.remove_type_section()
+                this.type_section = 'add'
+            },
+            edit_item_section(ItemID) {
+                this.editItemID = ItemID
+                this.remove_type_section()
+                this.isDisable = true
+                this.type_section = 'edit'
+                let requestLink = '/api/branch/data/' + ItemID
+
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        console.log(result.response.data)
+                        this.name = result.response.data.name
+                        this.address = result.response.data.address
+                        this.division = result.response.data.division
+                        this.getZillaList(this.division)
+                        this.district = result.response.data.district
+                        this.getThanaList(this.district)
+                        this.location = result.response.data.thana
+                        this.phone = result.response.data.phone
+                        this.nbr_sdc_ips = result.response.data.nbr_sdc_ips
+                        this.facebook_page_id = result.response.data.facebook_page_id
+                        this.purchase = result.response.data.point_settings.purchase
+                        this.expand = result.response.data.point_settings.expand
+                        this.bench_mark = result.response.data.point_settings.bench_mark
+                        this.use_points_on = result.response.data.point_settings.use_points_on
+                        this.first_order_discount_data = result.response.data.first_order.data
+                        this.flat_order_discount_data = result.response.data.flat_order.data
+                        this.flat_order_activity = result.response.data.flat_order.activity
+                        this.first_order_activity = result.response.data.first_order.activity
+                        this.taxIdentificationNo = result.response.data.taxIdentificationNo
+                        this.point_apply_active = result.response.data.point_apply_active
+                        this.personal_discount_active = result.response.data.personal_discount_active
+                        this.special_discount_active = result.response.data.special_discount_active
+                        this.sales_person_active = result.response.data.sales_person_active
+                        this.pos_slip_notes = result.response.data.pos_slip_notes
+                        this.branch_notice = result.response.data.branch_notice
+                        this.vat_applicable_warehouse_receiving = result.response.data.vat_applicable_warehouse_receiving
+
+                        $('html, body').animate({
+                            scrollTop: 0
+                        }, 'slow', function () {});
+                    }
+                    this.isDisable = false
+                })
+            },
+            remove_type_section() {
+                this.clear_notifications()
+                this.type_section = null
+                this.division = ''
+                this.location = ''
+                this.phoneNumber = ''
+                this.district = ''
+                this.address = ''
+                this.pos_slip_notes = ''
+                this.branch_notice = ''
+                this.purchase = 0
+                this.expand = 0
+                this.bench_mark = 0
+                this.use_points_on = 0
+                this.phone = []
+                this.nbr_sdc_ips = []
+                this.name = ''
+                this.taxIdentificationNo= ''
+                this.first_order_discount_data = []
+                this.flat_order_discount_data = []
+                this.flat_order_activity = true
+                this.first_order_activity = true
+                this.isFirstOrderFlatAmount = false
+                this.isAllOrderFlatAmount = false
+                this.personal_discount_active = false
+                this.special_discount_active = false
+                this.vat_applicable_warehouse_receiving = false
+            },
+            addItem() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/branch'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    name: this.name,
+                    address: this.address,
+                    thana: this.location,
+                    district: this.district,
+                    division: this.division,
+                    phone: this.phone,
+                    nbr_sdc_ips: this.nbr_sdc_ips,
+                    first_order_data: {
+                        activity: this.first_order_activity,
+                        data: this.first_order_discount_data
+                    },
+                    flat_order_data: {
+                        activity: this.flat_order_activity,
+                        data: this.flat_order_discount_data
+                    },
+                    first_order_discount: this.first_order_discount,
+                    first_order_min_amount: this.first_order_min_amount,
+                    flat_order_discount: this.flat_order_discount,
+                    flat_order_min_amount: this.flat_order_min_amount,
+                    facebook_page_id: this.facebook_page_id,
+                    purchase: this.purchase,
+                    expand: this.expand,
+                    bench_mark: this.bench_mark,
+                    use_points_on: this.use_points_on,
+                    taxIdentificationNo: this.taxIdentificationNo,
+                    point_apply_active: this.point_apply_active,
+                    personal_discount_active: this.personal_discount_active,
+                    special_discount_active: this.special_discount_active,
+                    sales_person_active: this.sales_person_active,
+                    pos_slip_notes: this.pos_slip_notes,
+                    branch_notice: this.branch_notice,
+                    vat_applicable_warehouse_receiving: this.vat_applicable_warehouse_receiving
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.allListItem = []
+                        pageNo = 1
+                        this.addTypeValue = ''
+                        this.successResponse = result.response
+                        this.getAllItemData()
+                    }
+                    this.isDisable = false
+                    this.isLoading = false
+                })
+            },
+            updateProjectType() {
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/branch'
+                let token = localStorage.getItem('token')
+
+                updateTypeInfo(requestLink, {
+                    branch: this.editItemID,
+                    name: this.name,
+                    address: this.address,
+                    thana: this.location,
+                    district: this.district,
+                    division: this.division,
+                    phone: this.phone,
+                    nbr_sdc_ips: this.nbr_sdc_ips,
+                    first_order_data: {
+                        activity: this.first_order_activity,
+                        data: this.first_order_discount_data
+                    },
+                    flat_order_data: {
+                        activity: this.flat_order_activity,
+                        data: this.flat_order_discount_data
+                    },
+                    facebook_page_id: this.facebook_page_id,
+                    purchase: this.purchase,
+                    expand: this.expand,
+                    bench_mark: this.bench_mark,
+                    use_points_on: this.use_points_on,
+                    taxIdentificationNo: this.taxIdentificationNo,
+                    point_apply_active: this.point_apply_active,
+                    personal_discount_active: this.personal_discount_active,
+                    special_discount_active: this.special_discount_active,
+                    sales_person_active: this.sales_person_active,
+                    pos_slip_notes: this.pos_slip_notes,
+                    branch_notice: this.branch_notice,
+                    vat_applicable_warehouse_receiving: this.vat_applicable_warehouse_receiving,
+                }, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.allListItem = []
+                        pageNo = 1
+                        this.successResponse = result.response
+                        this.getAllItemData()
+                    }
+                    this.isDisable = false
+                })
+            },
+            setDefaultBranch(branchID) {
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/branch/default'
+                let token = localStorage.getItem('token')
+                updateTypeInfo(requestLink, {
+                    branch: branchID
+                }, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.allListItem = []
+                        pageNo = 1
+                        this.successResponse = result.response
+                        this.getAllItemData()
+                    }
+                    this.isDisable = false
+                })
+            },
+            deleteItem(ItemID) {
+                showDeleteConfirmationMessage().then((value) => {
+                    if (value === true) {
+                        this.remove_type_section()
+                        this.isDisable = true
+                        this.isLoading = true
+                        let requestLink = '/api/branch/'
+                        let token = localStorage.getItem('token')
+                        deleteType(requestLink, ItemID, token).then((result) => {
+                            this.type_section = 'delete'
+                            if (result.auth === false) {
+                                this.errorResponse = result.response
+                            } else {
+                                this.allListItem = []
+                                pageNo = 1
+                                this.getAllItemData()
+                                this.successResponse = result.response
+                                $('html, body').animate({
+                                    scrollTop: 0
+                                }, 'slow', function () {});
+                            }
+                            this.isLoading = false
+                            this.isDisable = false
+                        })
+                    }
+                })
+
+
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

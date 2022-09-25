@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Single supplier wise receiving summary</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-size: 11px;
+        font-family: helvetica;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+      .wrapper {
+        width: 530px;
+        min-width: 530px;
+        max-width: 530px;
+      }
+      .inner-wrapper {
+        width: 510px;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-uppercase {
+        text-transform: uppercase;
+      }
+      .text-left {
+        text-align: left;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .title {
+        font-size: 16px;
+      }
+      .address,
+      .date {
+        font-size: 12px;
+        color: #222;
+      }
+      .mb-5 {
+        margin-bottom: 5px;
+      }
+      .mb-10 {
+        margin-bottom: 10px;
+      }
+      .mb-15 {
+        margin-bottom: 15px;
+      }
+      .record-table-nested tr th,
+      .record-table-nested tr td {
+        border-top: 1px solid #ddd;
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+      .font-bold {
+        font-weight: bold;
+      }
+      .center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+  </head>
+  <body>
+    <table width="100" align="center" cellspacing="0" cellpadding="0">
+      <tr>
+        <td>
+          <!-- wrapper start -->
+          <table class="wrapper">
+            <!-- header tr start -->
+            <tr>
+              <td>
+                <table
+                  class="inner-wrapper"
+                  align="center"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                >
+                  <tr>
+                    <td style="line-height: 10px">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td>
+                        <table class="center header" cellspacing=0 cellpadding=0 style="">
+                            <tr>
+                              <td style="width: 38%; text-align: center;">
+                                <img src={{company_logo}} width="100" height="48" alt="Company image">
+                            </td>
+                                <td>
+                                    <h1
+                                        style="font-size: 16px; text-align: left; text-transform: uppercase; margin-top: 5px;">
+                                        <span>{{company_name}}</span>
+                                    </h1>
+                                    <!-- <p style="font-size: 9px; text-align: left; text-transform: capitalize; font-weight: bold; margin-bottom: 5px; width: 250px;">{{branchName}}, {{branchAddress}}
+                                    </p> -->
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="line-height: 10px">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td align="center">
+                      <h2 class="text-capitalize">
+                        {{title}}
+                      </h2>
+                      <p style="text-align: center; text-transform: capitalize;">({{receivingPlace}})</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- header tr end -->
+            <tr>
+              <td style="line-height: 5px">&nbsp;</td>
+            </tr>
+            <tr>
+              <td>
+                <table class="center inner-wrapper" cellspacing=0 cellpadding=0
+                    style="border-bottom: 1px solid #000000; margin-left: 7px;">
+                    <tr>
+                      <td style="width: 50%;">
+                        <table class="two-column" cellspacing=0 cellpadding=0 width="100%">
+                            <tr>
+                                <td style="line-height: 10px;">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <!-- <td><b>Shop Code : </b>S001</td> -->
+                                <td>
+                                    <table cellspacing=0 cellpadding=0 width="100%">
+                                        <tr>
+                                            <td style="width: 70px; text-align: left;">
+                                                <b>From</b>
+                                            </td>
+                                            <td style="width: 30px; text-align: left;">
+                                                <b>:</b>
+                                            </td>
+                                            <td style="text-align: left;">{{fromDate}}</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="line-height: 10px;">&nbsp;</td>
+                            </tr>
+                        </table>
+                      </td>
+                      <td style="width: 50%;">
+                        <table class="two-column" cellspacing=0 cellpadding=0 width="100%">
+
+                          <tr>
+                              <td style="line-height: 10px;">&nbsp;</td>
+                          </tr>
+                          <tr>
+                              <!-- <td><b>Shop Name: </b> Uttara Branch.</td> -->
+                              <td>
+                                  <table cellspacing=0 cellpadding=0 width="100%">
+                                      <tr>
+                                          <td style="width: 120px; text-align: right;">
+                                              <b>To </b>
+                                          </td>
+                                          <td style="width: 30px; text-align: right;">
+                                              <b>:</b>
+                                          </td>
+                                          <td style="text-align: right;">{{toDate}}
+                                          </td>
+                                      </tr>
+                                  </table>
+                              </td>
+                          </tr>
+
+                          <tr>
+                              <td style="line-height: 5px;">&nbsp;</td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="line-height: 5px">&nbsp;</td>
+            </tr>
+            <tr>
+              <td>
+                  <table cellspacing=0 cellpadding=0 width="100%">
+                      <tr>
+                          <td style="width: 20%; text-align: center;"> Rec = Receive</td>
+                          <td style="width: 20%; text-align: center;"> T = Total</td>
+                          <td style="width: 20%; text-align: center;"> F.W = From Warehouse</td>
+                      </tr>
+                  </table>
+              </td>
+          
+          </tr>
+          <tr>
+              <td style="line-height: 5px;">&nbsp;</td>
+          </tr>
+            <!-- content tr start -->
+            <tr>
+              <td>
+                <table
+                  class="inner-wrapper"
+                  align="center"
+                  cellspacing="0"
+                  cellpadding="0"
+                >
+                  <tr>
+                    <td>
+                      <!-- record table start -->
+                      <table
+                        class="record-table"
+                        cellspacing="0"
+                        cellpadding="0"
+                        width="100%"
+                      >
+                        <tr>
+                          <table
+                            class="record-table-nested"
+                            cellspacing="0"
+                            cellpadding="0"
+                            width="100%"
+                          >
+                            <!-- record table header start -->
+                            <tr>
+                              <th class="text-left">Supplier</th>
+                              <th class="text-right">Rec No</th>
+                              <th class="text-right">Rec Date</th>
+                              <th class="text-right">Rec Quantity</th>
+                              <th class="text-right">T Cost</th>
+                              <th class="text-right">T Sell</th>
+                              <th class="text-right">Gp(%)</th>
+                              <th class="text-center">F.W</th>
+                            </tr>
+                            <!-- record table header end -->
+
+                            {{#each branchWiseReceiving}}
+                            <tr>
+                              <td class="text-capitalize text-left" style="text-transform: capitalize;" colspan="2">
+                                <b>{{branch_name}}</b> 
+                               </td>
+                               <td class="text-capitalize text-left" colspan="2">
+                                <b>Branch Code</b> : {{branch_serialNo}}
+                               </td>
+                               <td class="text-capitalize text-left" colspan="2">
+                                  <b>Phone</b> : {{branch_phone}}
+                                </td>
+                                <td class="text-capitalize text-left" colspan="2"></td>
+                            </tr>
+                            {{#each allSupplierData}}
+                            <!-- record row start -->
+                            <!-- supplier name start -->
+                            <tr>
+                              <td colspan="8" class="font-bold">
+                                {{this.supplier}}
+                              </td>
+                            </tr>
+                            <!-- supplier name end -->
+                            {{#each this.data}}
+                            <!-- inner record start -->
+                            <tr>
+                              <td class="text-center">&nbsp;</td>
+                              {{#each this}}
+                              <td class="text-right">{{this}}</td>
+                              {{/each}}
+                            </tr>
+                            <!-- inner record end -->
+                            {{/each}}
+                            <!-- inner record footer start -->
+                            <tr>
+                              <td class="text-left font-bold">Subtotal</td>
+                              <td class="text-left"></td>
+                              <td class="text-left"></td>
+                              <td class="text-right font-bold">
+                                {{this.supplierTotalQuantity}}
+                              </td>
+                              <td class="text-right font-bold">
+                                {{this.supplierTotalAmount}}
+                              </td>
+                              <td class="text-right font-bold">
+                                {{this.supplierTotalSellAmount}}
+                              </td>
+                              <td class="text-right font-bold">
+                                {{this.supplierGP}}
+                              </td>
+                              <td class="text-left"></td>
+                            </tr>
+                            <!-- inner record footer end -->
+                            <!-- record row end -->
+                            {{/each}}
+                            {{/each}}
+
+                            <!-- record footer start -->
+                            <tr>
+                              <td class="text-left font-bold">-Discount</td>
+                              <td class="text-left font-bold"></td>
+                              <td class="text-left font-bold"></td>
+                              <td class="text-center font-bold"></td>
+                              <td class="text-center font-bold text-right">
+                                {{grandTotalDiscount}}
+                              </td>
+                              <td class="text-left font-bold"></td>
+                              <td class="text-center font-bold"></td>
+                              <td class="text-center font-bold"></td>
+                            </tr>
+                            <tr>
+                              <td class="text-left font-bold">Grand Total</td>
+                              <td class="text-left font-bold"></td>
+                              <td class="text-left font-bold"></td>
+                              <th class="text-capitalize text-right">
+                                {{this.grandTotalQuantity}}
+                              </th>
+                              <th class="text-capitalize text-right">
+                                {{this.grandTotalAmount}}
+                              </th>
+                              <th class="text-capitalize text-right">
+                                {{this.grandTotalSellAmount}}
+                              </th>
+                              <th class="text-capitalize text-right">
+                                {{this.grandGP}}
+                              </th>
+                              <td class="text-center font-bold"></td>
+                            </tr>
+                            <!-- record footer end -->
+                          </table>
+                        </tr>
+                        <tr>
+                          <td style="line-height: 10px">&nbsp;</td>
+                        </tr>
+                      </table>
+                      <!-- record table end -->
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <table cellspacing="0" cellpadding="10" width="100%">
+                  <tr>
+                    <td class="text-left"><span>Printed on</span> - <span>{{today}}  {{createTime}}</span> </td>
+                  </tr>
+                  <tr>
+                      <td style="font-weight: bold; text-align: center;"><span>' This is a Computer Generated Report Hence No Signature Will Not Be Required. '</span> </td>
+                    </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- content tr end -->
+          </table>
+          <!-- wrapper start -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

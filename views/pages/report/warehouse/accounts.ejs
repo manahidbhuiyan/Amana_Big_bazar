@@ -1,0 +1,823 @@
+<% include ../../../partials/header %>
+
+<% include ../../../partials/nav %>
+
+<% include ../../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+
+    .dtp .p10 > a {
+    color: white;
+    text-decoration: none;
+}
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #7e6990;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #7e6990;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #7e6990;
+    color: #fff;
+}
+.dropdown-menu {
+    min-width: 100% !important;
+}
+
+.dropdown-custom {
+    width: 100%;
+}
+
+.dropdown-content-custom {
+    background-color: #fff;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    border: 1px solid #f1f1f1;
+    z-index: 1;
+    max-height: 250px;
+    overflow-y: scroll;
+    top: 38px !important;
+}
+
+</style>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Create</strong> Warehouse Accounts Report</h2>
+                        <br />
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../../notification/message %>
+                            </div>
+                        </div>
+
+                        <!-- Ledger Statement Report -->
+                        <form @submit.prevent="downloadLedgerStatementReport">
+                            <h4 class="text-center">Ledger Statement Report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="ledgerStatementFromDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="ledgerStatementToDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Group<span style="color: red;">*</span></h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="groupName"
+                                            @keyup="filterGroupList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown" placeholder="select a Group">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="groupSearchData({id: group._id, name: group.name})"
+                                                v-for="(group, index) in groupFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{group.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">SubGroup</h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="subgroupName"
+                                            @keyup="filterSubGroupList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            placeholder="select a SubGroup">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="subgroupSearchData({id: subgroup._id, name: subgroup.name})"
+                                                v-for="(subgroup, index) in subgroupFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{subgroup.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Category</h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="categoryName"
+                                            @keyup="filterCategoryList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            placeholder="select a Category">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="categorySearchData({id: category._id, name: category.name, pay_to_supplier: category.pay_to_supplier})"
+                                                v-for="(category, index) in categoryFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{category.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" v-if="supplierShow==false">
+                                    <h6 class="mt-2 mb-2">Particular</h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="subcategoryName"
+                                            @keyup="filterSubCategoryList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            placeholder="select a Debit Particular">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="subcategorySearchData({id: subcategory._id, name: subcategory.name})"
+                                                v-for="(subcategory, index) in subcategoryFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{subcategory.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" v-if="supplierShow==true">
+                                    <h6 class="mt-2 mb-2">Supplier</h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="supplierName"
+                                            @keyup="filterSupplierList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown" placeholder="Supplier Name">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="supplierSearchData({id: supplier._id, name: supplier.name})"
+                                                v-for="(supplier, index) in supplierFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{supplier.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- Trial Balance Report -->
+                        <form @submit.prevent="downloadTrialBalanceReport">
+                            <h4 class="text-center">Trial Balance Report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="trialBalanceFromDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="trialBalanceToDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" v-if="trialBalanceType == 'details'">
+                                    <h6 class="mt-2 mb-2">Group<span style="color: red;">*</span></h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="groupName"
+                                            @keyup="filterGroupList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown" placeholder="select a Group">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="groupSearchData({id: group._id, name: group.name})"
+                                                v-for="(group, index) in groupFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{group.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" v-if="trialBalanceType == 'details'">
+                                    <h6 class="mt-2 mb-2">SubGroup</h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="subgroupName"
+                                            @keyup="filterSubGroupList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            placeholder="select a SubGroup">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="subgroupSearchData({id: subgroup._id, name: subgroup.name})"
+                                                v-for="(subgroup, index) in subgroupFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{subgroup.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" v-if="trialBalanceType == 'details'">
+                                    <h6 class="mt-2 mb-2">Category</h6>
+                                    <div class="form-group  dropdown dropdown-custom">
+                                        <input type="text" v-model="categoryName"
+                                            @keyup="filterCategoryList()"
+                                            class="form-control searchField dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            placeholder="select a Category">
+
+                                        <div class="dropdown-menu dropdown-content-custom">
+                                            <a @click.prevent="categorySearchData({id: category._id, name: category.name, pay_to_supplier: category.pay_to_supplier})"
+                                                v-for="(category, index) in categoryFilter"
+                                                :key="index"
+                                                class="dropdown-item text-capitalize"
+                                                href="">{{category.name}}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Trial Balance Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="trialBalanceType">
+                                            <option value="details" class="text-capitalize">Details</option>
+                                            <option value="summary" class="text-capitalize">Summary</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- Statement of Finantial Position -->
+                        <form @submit.prevent="downloadFinantialPositionReport">
+                            <h4 class="text-center">Statement of Finantial Position</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="finantialPositionFromDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="finantialPositionToDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- STATEMENT OF PROFIT OR LOSS & OTHER COMPREHENSIVE INCOME -->
+                        <form @submit.prevent="downloadStatementOfProfitLossReport">
+                            <h4 class="text-center">Statement of Profit or Loss & Other Comprehensive Income</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="statementProfitLossFromDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date<span style="color: red;">*</span></h6>
+                                    <div class="form-group">
+                                        <input type="text" id="statementProfitLossToDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+    integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+    crossorigin="anonymous"></script>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            branch: '',
+            name: '',
+            allSupplier: [],
+            allCategory: [],
+            allSubcategory: [],
+            allGroup: [],
+            allSubgroup: [],
+            allBranch: [],
+            type: 'all',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            adminAccess: [],
+            reportType: 'pdf',
+            groupFilter: [],
+            subgroupFilter: [],
+            groupName: "",
+            group: "",
+            subgroupName: "",
+            subgroup: "",
+            categoryName: "",
+            category: "",
+            subcategoryName: "",
+            subcategory: "",
+            supplierName: "",
+            supplier: "",
+            supplierFilter: [],
+            categoryFilter: [],
+            subcategoryFilter: [],
+            supplierShow: false,
+            cost_center: '',
+            trialBalanceType: "summary"
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.checkBranchInfo()
+            this.getBranchInfo()
+            this.getGroupInfo() 
+        },
+        methods: {
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name
+                            }
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            clear_fields() {
+                $("#fromDate").val("")   
+                $("#toDate").val("")
+                this.groupName = "",
+                this.group = "",
+                this.subgroupName = "",
+                this.subgroup = "",
+                this.categoryName = "",
+                this.category = "",
+                this.subcategoryName = "",
+                this.subcategory = "",
+                this.supplierName = "",
+                this.supplier = ""  
+            },
+            filterGroupList() {
+                if (this.group != "") {
+                    let search = new RegExp(this.group, 'i');
+                    this.groupFilter = this.allGroup.filter(groupInfo => search.test(groupInfo.name))
+                } else {
+                    this.groupFilter = this.allGroup
+                }
+            },
+            filterSubGroupList() {
+                if (this.subgroup != "") {
+                    let search = new RegExp(this.subgroup, 'i');
+                    this.subgroupFilter = this.allSubgroup.filter(subgroupInfo => search.test(subgroupInfo.name))
+                } else {
+                    this.subgroupFilter = this.allSubgroup
+                }
+            },
+            filterCategoryList() {
+                if (this.category != "") {
+                    let search = new RegExp(this.category, 'i');
+                    this.categoryFilter = this.allCategory.filter(categoryInfo => search.test(categoryInfo.name))
+                } else {
+                    this.categoryFilter = this.allCategory
+                }
+            },
+            filterSubCategoryList() {
+                if (this.subcategory != "") {
+                    let search = new RegExp(this.subcategory, 'i');
+                    this.subcategoryFilter = this.allSubcategory.filter(subcategoryInfo => search.test(subcategoryInfo.name))
+                } else {
+                    this.subcategoryFilter = this.allSubcategory
+                }
+            },
+            filterSupplierList() {
+                if (this.supplierName != "") {
+                    let search = new RegExp(this.supplierName, 'i');
+                    this.supplierFilter = this.allSupplier.filter(supplierInfo => search.test(supplierInfo.name))
+                } else {
+                    this.supplierFilter = this.allSupplier
+                }
+            },
+            groupSearchData(data) {
+                this.groupName = data.name
+                this.group = data.id
+                this.getSubgroupInfo(data.id)
+            },
+            subgroupSearchData(data) {
+                this.subgroupName = data.name
+                this.subgroup = data.id
+                this.getCategoryInfo(data.id)
+            },
+            categorySearchData(data) {
+                this.categoryName = data.name
+                this.category = data.id
+                if (data.pay_to_supplier == true) {
+                    this.subcategory = ''
+                    this.supplierShow = true
+                    this.getSupplierInfo(data.id)
+                } else {
+                    this.supplier = ''
+                    this.supplierShow = false
+                    this.getSubCategoryInfo(data.id)
+                }
+
+            },
+            subcategorySearchData(data) {
+                this.subcategoryName = data.name
+                this.subcategory = data.id
+            },
+            supplierSearchData(data) {
+                this.supplierName = data.name
+                this.supplier = data.id
+            },
+            getGroupInfo() {
+                let requestLink = '/api/accounts/chart/group'
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.allGroup = result.response.data
+                        this.groupFilter = result.response.data 
+                    }
+                })
+            },
+            getSubgroupInfo(value) {
+                let requestLink = '/api/accounts/chart/subgroup/group-wise/' + value
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.allSubgroup = result.response.data
+                        this.subgroupFilter = result.response.data
+                    }
+                })
+            },
+            getCategoryInfo(value) {
+                let requestLink = '/api/accounts/chart/category/subgroup-wise/' + value
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.allCategory = result.response.data
+                        this.categoryFilter = result.response.data
+                    }
+                })
+            },
+            getSubCategoryInfo(value) {
+                let requestLink = '/api/accounts/chart/subcategory/category-wise/' + value
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.allSubcategory = result.response.data
+                        this.subcategoryFilter = result.response.data
+                    }
+                })
+            },
+            getSupplierInfo() {
+                let requestLink = '/api/supplier?activeSupplier=true&warehouseSupplier=true'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSupplier = result.response.data
+                        this.supplierFilter = result.response.data
+                    }
+                })
+            },
+            downloadLedgerStatementReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                let itemInfo = {
+                    from: $("#ledgerStatementFromDate").val(),
+                    to: $("#ledgerStatementToDate").val(),
+                    group: this.group,
+                    subgroup: this.subgroup,
+                    category: this.category,
+                    subcategory: this.subcategory,
+                    supplier: this.supplier,
+                }
+                
+                let requestLink = '/api/report/warehouse/accounts/ledger/details'
+                let filename = ''
+
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+                    if(this.supplier == ""){
+                        link.href = "/api/report/warehouse/accounts/ledger/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/"
+                        + itemInfo.group + "/" + itemInfo.subgroup + "/" + itemInfo.category + "/" + itemInfo.subcategory;
+                    }else{
+                        link.href = "/api/report/warehouse/accounts/ledger/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/"
+                        + itemInfo.group + "/" + itemInfo.subgroup + "/" + itemInfo.category + "/" + itemInfo.supplier + "?supplier=" + itemInfo.supplier;
+                    }
+                    
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = result.response.filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            //this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            },
+            downloadTrialBalanceReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                let itemInfo = {}
+                let requestLink = ''
+                
+                if(this.trialBalanceType == 'details'){
+                    requestLink += '/api/report/warehouse/accounts/trial_balance/details'
+                    itemInfo = {
+                        from: $("#trialBalanceFromDate").val(),
+                        to: $("#trialBalanceToDate").val(),
+                        group: this.group,
+                        subgroup: this.subgroup,
+                        category: this.category,
+                        trialBalanceType: this.trialBalanceType
+                    }
+                }else{
+                    requestLink += '/api/report/warehouse/accounts/trial_balance/summary'
+                    itemInfo = {
+                        from: $("#trialBalanceFromDate").val(),
+                        to: $("#trialBalanceToDate").val(),
+                        trialBalanceType: this.trialBalanceType
+                    }
+                }
+                
+                let filename = ''
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+                    if(this.trialBalanceType == "details"){
+                        link.href = "/api/report/warehouse/accounts/trial_balance/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/"
+                        + itemInfo.group + "/" + itemInfo.subgroup + "/" + itemInfo.category;
+                    }else{
+                        link.href = "/api/report/warehouse/accounts/trial_balance/summary/" + token + "/" + itemInfo.from + "/" + itemInfo.to ;
+                    }
+                    
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = result.response.filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            //this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            },
+            downloadFinantialPositionReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    from: $("#finantialPositionFromDate").val(),
+                    to: $("#finantialPositionToDate").val()
+                }
+
+                itemInfo.name = this.name.trim()
+
+                let requestLink = '/api/report/warehouse/accounts/finantial_position_statement'
+                let filename = ''
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+                    link.href = "/api/report/warehouse/accounts/finantial_position_statement/" + token + "/" + itemInfo.from + "/" + itemInfo.to;
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = result.response.filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            //this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            },
+            downloadStatementOfProfitLossReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    from: $("#statementProfitLossFromDate").val(),
+                    to: $("#statementProfitLossToDate").val()
+                }
+
+                itemInfo.name = this.name.trim()
+
+                let requestLink = '/api/report/warehouse/accounts/statement_profit_loss'
+                let filename = ''
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+                    link.href = "/api/report/warehouse/accounts/statement_profit_loss/" + token + "/" + itemInfo.from + "/" + itemInfo.to;
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = result.response.filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            //this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            }
+        }
+    })
+</script>
+
+<% include ../../../partials/footer %>
+
+<script>
+    $(function () {
+    //Datetimepicker plugin
+    $('.datetimepicker').bootstrapMaterialDatePicker({
+        format: 'YYYY-MM-DD',
+        clearButton: true,
+        weekStart: 1,
+        time: false
+    });
+  });
+  </script>

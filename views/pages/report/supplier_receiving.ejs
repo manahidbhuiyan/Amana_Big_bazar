@@ -1,0 +1,409 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+
+    .dtp .p10 > a {
+    color: white;
+    text-decoration: none;
+}
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #7e6990;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #7e6990;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #7e6990;
+    color: #fff;
+}
+
+</style>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Create</strong> Supplier Receiving Report</h2>
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-center text-primary">Your current branch is :
+                                    <strong>{{branch.name}}</strong></p>
+                                <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="downloadSupplierReceivingReport">
+                            <h4 class="text-center">Receiving From Suppliers</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="fromDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="toDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Supplier</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="supplier">
+                                            <option value="">All</option>
+                                            <option :value="{id: supplier._id, name: supplier.name}"
+                                                v-for="(supplier, index) in allSupplier" :key="index"
+                                                class="text-capitalize">{{supplier.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Branch</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="selectedBranch">
+                                            <option value="all">All</option>
+                                            <option :value="{id: branch._id, name: branch.name}"
+                                                v-for="(branch, index) in allBranch" :key="index"
+                                                class="text-capitalize">{{branch.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="type">
+                                            <option value="summery" class="text-capitalize">Summery</option>
+                                            <option value="details" class="text-capitalize">Details</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Receiving Place</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="receivingPlace">
+                                            <option value="fromWarehouse" class="text-capitalize">From Warehouse</option>
+                                            <option value="fromOutsideWarehouse" class="text-capitalize">From Outside Warehouse</option>
+                                            <option value="both" class="text-capitalize">Both</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <form @submit.prevent="downloadTopSupplierReceivingReport">
+                            <h4 class="text-center">Top Suppliers</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="fromTopDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="toTopDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div> -->
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+    integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+    crossorigin="anonymous"></script>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            branch: '',
+            selectedBranch : 'all',
+            allSupplier: [],
+            allBranch : [],
+            supplier: '',
+            type: 'summery',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            reportType: 'pdf',
+            adminAccess: [],
+            receivingPlace: 'both'
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.checkBranchInfo()
+            this.getBranchInfo()
+            this.getSupplierInfo()
+        },
+        methods: {
+            getSupplierInfo() {
+                let requestLink = '/api/supplier?branch=' + localStorage.getItem('branch')
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSupplier = result.response.data
+                    }
+                })
+            },
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name
+                            }
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            clear_fields() {
+                $("#fromDate").val("")   
+                $("#toDate").val("")   
+            },
+            downloadSupplierReceivingReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    from: $("#fromDate").val(),
+                    to: $("#toDate").val(),
+                    receivingPlace : this.receivingPlace,
+                    branch : this.selectedBranch == 'all' ? this.selectedBranch : this.selectedBranch.id
+                }
+
+                let fromDate = $("#fromDate").val()
+                fromDate = new Date(fromDate)
+                let startDate = fromDate.getDate()
+                let startMonth = fromDate.getMonth() + 1
+                let startYear = fromDate.getFullYear()
+
+                let toDate = $("#toDate").val()
+                toDate = new Date(toDate)
+                let endDate = toDate.getDate()
+                let endMonth = toDate.getMonth() + 1
+                let endYear = toDate.getFullYear()
+
+                if (this.reportType == 'pdf' && this.type == 'details' && this.supplier == '') {
+                    if ((endMonth - startMonth) > 1 || ((startMonth != endMonth) && endDate > startDate) || (startYear != endYear)) {
+                        alert('Please select only 1 Month.')
+                        this.isDisable = false
+                        return
+                    }
+                }
+
+                let requestLink = '/api/report/'
+                let filename = ''
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+
+                    if (this.supplier == '') {
+                        if (this.type == 'summery') {
+                            link.href = "/api/report/all/supplier-receiving/summery/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.branch + "/" + itemInfo.receivingPlace;
+                        } else {
+                            link.href = "/api/report/all/supplier-receiving/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.branch + "/" + itemInfo.receivingPlace;
+                        }
+                    } else {
+                        itemInfo.supplier = this.supplier.id
+                        if (this.type == 'summery') {
+                            link.href = "/api/report/single/supplier-receiving/summery/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + this.supplier.id + "/" + itemInfo.branch + "/" + itemInfo.receivingPlace;
+                        } else {
+                            link.href = "/api/report/single/supplier-receiving/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + this.supplier.id + "/" + itemInfo.branch + "/" + itemInfo.receivingPlace;
+                        }
+                    }
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    if (this.supplier == '') {
+                        if (this.type == 'summery') {
+                            requestLink += 'all/supplier-receiving/summery'
+                            filename += 'all_supplier_receiving_summery'
+                        } else {
+                            requestLink += 'all/supplier-receiving/details'
+                            filename += 'all_supplier_receiving_details'
+                        }
+                    } else {
+                        itemInfo.supplier = this.supplier.id
+                        if (this.type == 'summery') {
+                            requestLink += 'single/supplier-receiving/summery'
+                            filename += 'single_supplier_receiving_summery'
+                        } else {
+                            requestLink += 'single/supplier-receiving/details'
+                            filename += 'single_supplier_receiving_details'
+                        }
+                    }
+
+                    //requestLink += '?branch=' + localStorage.getItem('branch')
+
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            //this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+
+            },
+            downloadTopSupplierReceivingReport(){
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/report/purchase/supplier-wise/top/list?branch='+localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    from: $("#fromTopDate").val(),
+                    to: $("#toTopDate").val()
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        var link = document.createElement('a');
+                        link.href = result.response.fileLink;
+                        link.download = 'top_purchase.pdf';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        this.isDisable = false
+                        this.isLoading = false
+                        //this.clear_fields()
+                    }
+                    //this.isDisable = false
+                })
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>
+
+<script>
+    $(function () {
+    //Datetimepicker plugin
+    $('.datetimepicker').bootstrapMaterialDatePicker({
+        format: 'YYYY-MM-DD',
+        clearButton: true,
+        weekStart: 1,
+        time: false
+    });
+  });
+  </script>

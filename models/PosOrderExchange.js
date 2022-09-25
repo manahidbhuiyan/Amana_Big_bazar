@@ -1,0 +1,302 @@
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema;
+
+const PosOrderExchangeListSchema = new Schema({
+    serialNo: {
+        type: Number
+    },
+    baseOrderDetails: {
+        type: Schema.Types.ObjectId,
+        ref: 'orderforpos',
+        default: null
+    },
+    posOrder: {
+        type: Schema.Types.ObjectId,
+        ref: 'orderforpos',
+        default: null
+    },
+    posExchange: {
+        type: Schema.Types.ObjectId,
+        ref: 'pos_exchange_list',
+        default: null
+    },
+    discountPerson: {
+        type: Schema.Types.ObjectId,
+        ref: 'personal_discount',
+        default: null
+    },
+    personalDiscountPercentage: {
+        type: Number,
+        default: 0
+    },
+    personalDiscountAmount: {
+        type: Number,
+        default: 0
+    },
+    paymentDiscountAmount: {
+        type: Number,
+        default: 0
+    },
+    specialDiscountAmount: {
+        type: Number,
+        default: 0
+    },
+    special_discount_info: {
+        specialDiscountID: {
+            type: Schema.Types.ObjectId,
+            ref: 'special_discount'
+        },
+        costomer_contact: {
+            type: String
+        },
+        discount_apply: {
+            type: Number
+        }
+    },
+    updateType: [
+        {
+            type: String,
+            enum: ['exchange', 'refund']
+        }
+    ],
+    refundedProducts: [
+        {
+            type: Schema.Types.ObjectId
+        }
+    ],
+    exchangedProducts: [
+        {
+            type: Schema.Types.ObjectId
+        }
+    ],
+    branch: {
+        type: Schema.Types.ObjectId,
+        ref: 'branch'
+    },
+    admin: {
+        type: Schema.Types.ObjectId,
+        ref: 'admin'
+    },
+    exchangedBy:[{
+        code: {
+            type: String,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        product: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'product'
+        },
+        category: {
+            type: Schema.Types.ObjectId,
+            required: true
+        },
+        subcategory: {
+            type: Schema.Types.ObjectId,
+            require: true
+        },
+        brand: {
+            type: Schema.Types.ObjectId,
+            require: true
+        },
+        supplier: {
+            type: Schema.Types.ObjectId,
+            require: true
+        },
+        discount: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            default: 1
+        },
+        price: {
+            type: Number,
+            required: true
+        },
+        purchase_price: {
+            type: Number,
+            default: 0
+        },
+        vat: {
+            type: Number,
+            required: true
+        },
+        subtotal: {
+            type: Number,
+            required: true
+        },
+        personalDiscountAvailable:{
+            type: Boolean,
+            default: true
+        }
+    }],
+    products: [{
+        code: {
+            type: String,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        product: {
+            type: Schema.Types.ObjectId,
+            required: true,
+            ref: 'product'
+        },
+        category: {
+            type: Schema.Types.ObjectId,
+            required: true
+        },
+        subcategory: {
+            type: Schema.Types.ObjectId,
+            require: true
+        },
+        brand: {
+            type: Schema.Types.ObjectId
+        },
+        supplier: {
+            type: Schema.Types.ObjectId
+        },
+        thumbnail: {
+            type: String,
+            default: null
+        },
+        discount: {
+            type: Number,
+            required: true,
+            default: 0
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            default: 1
+        },
+        price: {
+            type: Number,
+            required: true
+        },
+        purchase_price: {
+            type: Number,
+            default: 0
+        },
+        vat: {
+            type: Number,
+            required: true
+        },
+        subtotal: {
+            type: Number,
+            required: true
+        },
+        personalDiscountAvailable:{
+            type: Boolean,
+            default: true
+        }
+    }],
+    payment: [{
+        method: {
+            type: String,
+            require: true
+        },
+        discount:{
+            type: Number,
+            default: 0
+        },
+        amount: {
+            type: Number,
+            require: true
+        },
+        type: {
+            type: String,
+            default: null
+        }
+    }],
+    total_bill: {
+        type: Number,
+        required: true
+    },
+    exchange_amount:{
+        type: Number,
+        required: true
+    },
+    sub_total_bill: {
+        type: Number,
+        required: true
+    },
+    vat: {
+        type: Number,
+        required: true
+    },
+    discount: {
+        product: {
+            type: Number,
+            default: 0
+        },
+        others: {
+            type: Number,
+            default: 0
+        }
+    },
+    fractionalDiscount:{
+        type: Number,
+        default: 0
+    },
+    orderDiscount:{
+        type: Number,
+        default: 0
+    },
+    slip_point: {
+        type: Number,
+        default: 0
+    },
+    customer: {
+        name: {
+            type: String,
+            required: false
+        },
+        address: {
+            type: String,
+            required: false
+        },
+        phone: {
+            type: String,
+            required: false
+        }
+    },
+    nbrDeviceInfo:{
+        isWritten:{
+            type: Boolean,
+            default: false
+        },
+        invoiceNo:{
+            type: String,
+            default: null
+        },
+	    invoiceResponse:{
+            type: String,
+            default: null
+        },
+        returnInvoiceNo:{
+            type: String,
+            default: null
+        },
+        invoiceReturnResponse:{
+            type: String,
+            default: null
+        }
+    },
+    create: {
+        type: Date,
+        default: Date.now
+    }
+})
+
+module.exports = PosOrderExchangeList = mongoose.model('pos_exchange_list', PosOrderExchangeListSchema)

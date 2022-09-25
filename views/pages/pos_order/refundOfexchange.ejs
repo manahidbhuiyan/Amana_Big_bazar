@@ -1,0 +1,1300 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+</style>
+
+<div id="edit_data_section">
+    
+    <!-- Main Content -->
+    <section class="content">
+
+        <% include ../../partials/content/header %>
+
+        <div class="container-fluid">
+
+            <div class="row clearfix">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2><strong>Edit POS</strong> Sell Information</h2>
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <p class="text-center text-primary">Your current branch is :
+                                        <strong>{{branch.name}}</strong></p>
+                                    <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="row">
+                                <div class="col-lg-6 offset-lg-3">
+                                    <% include ../notification/message %>
+                                </div>
+                            </div>
+                            <div class="row clearfix">
+                                <div class="col-lg-8">
+                                    
+                                    <div class="cart_management">
+                                        <div class="col-sm-12" v-if="isLoading">
+                                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12" v-else>
+                                            <h6 class="mt-2 mb-2">Refund Product Details</h6>
+                                            <div class="table-responsive">
+                                                <table
+                                                    class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                                    id="infoListTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Barcode</th>
+                                                            <th>Name</th>
+                                                            <th>Price</th>
+                                                            <th>Qty</th>
+                                                            <th>Total</th>
+                                                            <td></td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="(product, index) in cart" key="index">
+                                                            <td>{{product.code}}</td>
+                                                            <td>{{product.name}}</td>
+                                                            <td>
+                                                                {{product.price}} tk.</td>
+                                                            <td>
+                                                                <input type="number" min="1" style="width: 70px;"
+                                                                    @change="updateQuantity($event, index, product._id, product.price, product.quantity)"
+                                                                    :id="'quantity_'+product._id" max="100"
+                                                                    class="form-control quantityInputField" :value="product.quantity">
+                                                            </td>
+                                                            <td :id="'total_price_'+product._id">
+                                                                {{(product.price*product.quantity).toFixed(2)}}
+                                                                tk.
+                                                            </td>
+                                                            <td>
+                                                                <div v-show="!isDone" @click="removeFromCart($event, index)"
+                                                                    title="remove"><i class="zmdi zmdi-close"></i>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">Sub Total :
+                                                            </th>
+                                                            <th class="text-right">{{subTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">VAT : </th>
+                                                            <th class="text-right">{{vat.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">Order Total : </th>
+                                                            <th class="text-right">{{orderTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">-Discount : </th>
+                                                            <th class="text-right">
+                                                                {{(productDiscount + otherDiscount + applyPointDiscountAmount).toFixed(2)}}
+                                                                TK.
+                                                            </th>
+                                                        </tr>
+                                                        <!-- <tr>
+                                                            <th class="text-right" colspan="4">Paid Amount : </th>
+                                                            <th class="text-right">
+                                                                {{paidAmount.toFixed(2)}}
+                                                                TK.
+                                                            </th>
+                                                        </tr> -->
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">Due Refund Amount : </th>
+                                                            <th class="text-right">
+                                                                {{((orderTotal-Number((productDiscount + otherDiscount+ applyPointDiscountAmount).toFixed(2))-paidAmount)).toFixed(2)}}
+                                                                TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">- Earned Points : </th>
+                                                            <th class="text-right">
+                                                                {{earned_point.toFixed(2)}}
+                                                            </th>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="product_list">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Refundable Product List</h6>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <ul class="list-group">
+                                                <li class="list-group-item" v-for="(product,index) in orderInfo.products" @key="index">
+                                                    <span class="float-left">{{ product.name + ' ' + product.price + '@' + product.quantity + ' = ' + (product.price*product.quantity) }}</span> <button @click="addExchangeProduct(product, index)" class="btn btn-primary float-right" style="padding: 2px 5px;" title="exchange">Refund</button> 
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    <div class="apply_person_information_pos">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Client Points</h6>
+                                        </div>
+                                        <form @submit.prevent="clientDataDetails">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" v-model="clientPhone" class="form-control"
+                                                        placeholder="Phone no. or Client ID" disabled>
+                                                </div>
+                                            </div>
+                                            <!-- <div class="col-md-12">
+                                                <button type="submit" class="btn btn-primary">Apply</button>
+                                            </div> -->
+                                        </form>
+                                        <div class="col-md-12">
+                                            <ul class="list-group" v-if="clientData!=null">
+                                                <li class="list-group-item text-center"><strong>Point Earned:</strong>
+                                                    {{clientData.points.toFixed(2)}}</li>
+                                                <li class="list-group-item"><strong>Client ID:</strong>
+                                                    {{clientData.clientID}}</li>
+                                                <li class="list-group-item"><strong>Name:</strong> {{clientData.name}}
+                                                </li>
+                                                <li class="list-group-item"><strong>Phone:</strong> {{clientData.phone}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.email!=''">
+                                                    <strong>Email:</strong> {{clientData.email}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.address!=''">
+                                                    <strong>Address:</strong>
+                                                    {{clientData.address}}</li>
+                                                <li class="list-group-item" v-if="clientData.notes!=''">
+                                                    <strong>Notes:</strong> {{clientData.notes}}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    <br/>
+                                    <div style="margin-left: 25%;">
+                                        <canvas id="sdcQRcode"></canvas>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-lg-6 text-center">
+                                    <h2 v-show="calculationResult > 0" style="color: darkred;">You need to pay change
+                                        {{this.calculationResult}}
+                                        TK.</h2>
+                                    <h2 v-show="calculationResult < 0" style="color: darkred;">Client need to pay more
+                                        {{this.calculationResult}}
+                                        TK.</h2>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <hr />
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="useDefaultPrinter" /> <strong>Print to Default
+                                            printer</strong>
+                                    </label>
+                                    <p>or...</p>
+                                    <div id="installedPrinters">
+                                        <label for="installedPrinterName">Select an installed Printer:</label>
+                                        <select name="installedPrinterName" id="installedPrinterName"></select>
+                                    </div>
+                                    <br /><br />
+                                    <button type="submit" @click="orderComplete" v-show="!isDone"
+                                        class="btn btn-primary btn-round" id="completeSellButton" :disabled="isDoneButtonClicked">Done</button>
+                                    <button type="submit" v-show="isDone" @click="printAgain"
+                                        class="btn btn-primary btn-round">Reprint</button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple" id="fullResetButton">Reset</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    let order_obj_id = '<%= orderID %>'
+    let isProcessing = false;
+    var clientPrinters = null;
+    var _this = this;
+    var self;
+    //WebSocket settings
+    JSPM.JSPrintManager.auto_reconnect = true;
+    JSPM.JSPrintManager.start();
+    JSPM.JSPrintManager.WS.onStatusChanged = function () {
+        if (jspmWSStatus()) {
+            //get client installed printers
+            JSPM.JSPrintManager.getPrinters().then(function (myPrinters) {
+                clientPrinters = myPrinters
+                var options = '';
+                for (var i = 0; i < myPrinters.length; i++) {
+                    options += '<option>' + myPrinters[i] + '</option>';
+                }
+                $('#installedPrinterName').html(options);
+            });
+        }
+    };
+
+    //Check JSPM WebSocket status
+    function jspmWSStatus() {
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+            return true;
+        else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+            alert(
+                'JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm'
+            );
+            return false;
+        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+            alert('JSPM has blocked this website!');
+            return false;
+        }
+    }
+</script>
+
+<script>
+    new Vue({
+        el: '#edit_data_section',
+        data: {
+            searchPageNo: 1,
+            searchedItemCount: {
+                total: 0,
+                loadMore: false
+            },
+            isSearchLoading: false,
+            searchText: '',
+            orderID: null,
+            invoiceNo: null,
+            invoiceResponse: null,
+            refundID: null,
+            branch: '',
+            barcode: '',
+            name: '',
+            phone: '',
+            address: '',
+            notes: '',
+            cart: [],
+            subTotal: 0,
+            vat: 0,
+            pointApply: 0,
+            orderTotal: 0,
+            productDiscount: 0,
+            otherDiscount: 0,
+            paidAmountOnOrder: 0,
+            paidAmount: 0,
+            clientPhone: '',
+            name: '',
+            phone: '',
+            email: '',
+            address: '',
+            notes: '',
+            calculationResult: 0,
+            paidAmountField: 0,
+            showPaidAmountField: false,
+            clientData: null,
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            card: false,
+            card_amount: 0,
+            cash: false,
+            cash_amount: 0,
+            mobile_banking: false,
+            mobile_banking_amount: 0,
+            payment: [],
+            applyPointDiscountAmount: 0,
+            isDone: false,
+            adminInfo: null,
+            cards:[],
+            selectedCard: '',
+            mobileBankings:[],
+            selectedMobileBanking: '',
+            earned_point: 0,
+            lastOrderTotal: 0,
+            taxIdentificationNo: '',
+            products: [],
+            orderInfo: [],
+            refundedProducts: [],
+            isDoneButtonClicked: false,
+            paymentDiscountPercentage: 0,
+            personalDiscountPercentage: 0,
+            adminAccess: [],
+            sdc_device_ip: ''
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            authChecker(localStorage.getItem('token')).then((result) => {
+                this.adminInfo = result.response.data
+                this.sdc_device_ip = this.adminInfo.sdcDeviceInfo.filter(branchInfo=>{
+                    return branchInfo.branchID == localStorage.getItem('branch')
+                })[0]
+            })
+            this.checkBranchAccess()
+            this.checkBranchInfo()
+            this.getBranchInfo()
+            // this.getOrderDetails()
+            this.getCardsData()
+            this.getMobileBankingData()
+        },
+        methods: {
+            addExchangeProduct(product, index){
+                this.addItem(product)
+                this.orderInfo.products.splice(index, 1)
+            },
+            checkBranchAccess(){
+                var accessID = prompt("Please enter your pos manager access", "");
+
+                if (accessID == null || accessID == "") {
+                    // window.history.back()
+                    location.href = "/dashboard/pos/order/list"
+                } else {
+                    let requestLink = '/api/branch/access/auth'
+                    let token = localStorage.getItem('token')
+                    let branchID = localStorage.getItem('branch')
+
+                    let itemInfo = {
+                        branch: branchID,
+                        managerID: accessID
+                    }
+
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.response.data == true) {
+                            
+                        } else {
+                            alert('Your password is not authorized for access')
+                            //window.history.back()
+                            location.href = "/dashboard/pos/order/list"
+                        }
+                    })
+                }
+            },
+            getCardsData(){
+                let requestLink = '/api/lookup/info/data/search/card_name'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            result.response.data.map(purposeInfo=>{
+                                this.cards.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            getMobileBankingData(){
+                let requestLink = '/api/lookup/info/data/search/mobile_banking'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            result.response.data.map(purposeInfo=>{
+                                this.mobileBankings.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            searchReset() {
+                this.searchPageNo = 1
+                this.searchedItemCount = {
+                    total: 0,
+                    loadMore: false
+                }
+                this.allSearchedData = []
+            },
+            clearResponseMessage() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            getOrderDetails() {
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                this.isLoading = true
+
+                let requestLink = '/api/pos/order/exchanges/view/' + order_obj_id + '?branch=' + branchID
+                getSecureData(requestLink, token).then(async(result) => {
+                    if (result.auth === true) {
+                        this.orderInfo = result.response.data
+                        let exchange = result.response.exchange
+                        let refund = result.response.refund
+
+                        if(this.orderInfo.refundedProducts){
+                            this.refundedProducts = this.orderInfo.refundedProducts
+                        }
+
+                        let amount = 0
+                        let discount = 0 
+
+                        let paymentListArray = this.orderInfo.payment.map(paymentInfo=>{
+                            amount += (paymentInfo.amount + paymentInfo.discount) 
+                            discount += paymentInfo.discount
+                        })
+
+                        await Promise.all(paymentListArray)
+
+                        if(discount>0){
+                            this.paymentDiscountPercentage = ((discount/amount) * 100)
+                        }
+
+                        if(this.orderInfo.personalDiscountAmount>0){
+                            this.personalDiscountPercentage = (this.orderInfo.personalDiscountAmount/(amount+this.orderInfo.personalDiscountAmount)*100)
+                        }
+
+                        if(this.orderInfo.exchangedProducts){
+                            this.exchangedProducts = this.orderInfo.exchangedProducts
+                        }
+
+                        if(exchange != null){
+                            let parentExchangeArray = exchange.map(async(exchangeInfo)=>{
+                            let childExchangeArray = exchangeInfo.exchangedBy.map(async(exchangedProductInfo)=>{
+                                    let grandChildExchangeArray = result.response.data.products.map(async(productInfo, index)=>{
+                                        if(exchangedProductInfo.product == productInfo.product){
+                                            result.response.data.products[index].quantity -= exchangedProductInfo.quantity
+                                        }
+                                    })
+                                    await Promise.all(grandChildExchangeArray)
+                                })
+                                await Promise.all(childExchangeArray)
+                            })
+                            await Promise.all(parentExchangeArray)
+                        }
+
+                        if(refund != null){
+                            let parentRefundArray = refund.map(async(refundInfo)=>{
+                            let childRefundArray = refundInfo.products.map(async(refundProductInfo)=>{
+                                    let grandChildRefundArray = result.response.data.products.map(async(productInfo, index)=>{
+                                        if(refundProductInfo.product == productInfo.product){
+                                            result.response.data.products[index].quantity -= refundProductInfo.quantity
+                                        }
+                                    })
+                                    await Promise.all(grandChildRefundArray)
+                                })
+                                await Promise.all(childRefundArray)
+                            })
+                            await Promise.all(parentRefundArray)
+                        }
+
+                        this.orderInfo.products = result.response.data.products
+
+                        this.orderID = result.response.data.serialNo
+                        
+                        if(result.response.data.customer){
+                            this.clientPhone = result.response.data.customer.phone
+                            this.clientDataDetails()
+                        }
+
+                        this.calculateTotalDetails()
+                    }
+                    this.isLoading = false
+                })
+            },
+            updateQuantity(e, index, productID, price, maxQuantity) {
+                if(Number($("#quantity_" + productID).val())>maxQuantity || Number($("#quantity_" + productID).val())<=0){
+                    alert("You can't refund invalid quantity")
+                    this.cart[index].quantity = Number(maxQuantity)
+                    $("#quantity_" + productID).val(maxQuantity)
+                }else{
+                    this.cart[index].quantity = Number($("#quantity_" + productID).val())
+                }
+
+                $("#total_price_" + productID).text((parseFloat(this.cart[index].quantity) *
+                        price).toFixed(
+                        2));
+                this.calculateTotalDetails()
+                
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name,
+                                address: result.response.data.address,
+                                thana: result.response.data.thana.name,
+                                district: result.response.data.district.name,
+                                phone: result.response.data.phone,
+                                flat_order: result.response.data.flat_order,
+                                point_bench_mark: result.response.data.point_settings.bench_mark,
+                                point_purchase: result.response.data.point_settings.purchase,
+                                point_expand: result.response.data.point_settings.expand,
+                                use_points_on: result.response.data.point_settings.use_points_on,
+                                taxIdentificationNo: result.response.data.taxIdentificationNo,
+                                pos_slip_notes: result.response.data.pos_slip_notes,
+                            }
+                            this.getOrderDetails()
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_fields() {
+                this.isDone = false
+                this.orderID = null
+                this.invoiceNo = null
+                this.invoiceResponse = null
+                this.barcode = ''
+                this.name = ''
+                this.phone = ''
+                this.address = ''
+                this.notes = ''
+                this.subTotal = 0
+                this.vat = 0
+                this.pointApply = 0
+                this.orderTotal = 0
+                this.productDiscount = 0
+                this.otherDiscount = 0
+                this.paymentType = ''
+                this.clientPhone = ''
+                this.calculationResult = 0
+                this.paidAmountField = 0
+                this.showPaidAmountField = false
+                this.clientData = null
+                this.errorResponse = null
+                this.successResponse = null
+                this.isDisable = false
+                this.isLoading = true
+                this.card = false
+                this.card_amount = 0
+                this.cash = false
+                this.cash_amount = 0
+                this.mobile_banking = false
+                this.mobile_banking_amount = 0
+                this.payment = []
+                this.applyPointDiscountAmount = 0
+
+                //clear the QR code of SDC
+                var canvas= document.getElementById('sdcQRcode');
+                var context = canvas.getContext('2d');
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                this.removeAllFromCart()
+            },
+            addItem(product) {
+                this.isDisable = true
+
+                for (let i = 0; i < this.cart.length; i++) {
+                    if (this.cart[i].code == product.code) {
+                        alert("This product is already added into refund list")
+                        return 0
+                    }
+                }
+
+                this.refundedProducts.push(product._id)
+
+                this.cart.push({
+                    'category': product.category,
+                    'product': product.product,
+                    'code': product.code,
+                    'discount': product.discount,
+                    'name': product.name,
+                    'price': product.price,
+                    'purchase_price': product.purchase_price,
+                    'quantity': product.quantity,
+                    'subcategory': product.subcategory,
+                    'brand': product.brand,
+                    'supplier': product.supplier,
+                    'subtotal': product.price*product.quantity,
+                    'thumbnail': product.thumbnail,
+                    'vat': product.vat
+                })
+
+                this.calculateTotalDetails()
+            },
+            calculateTotalDetails() {
+                let vat = 0
+                let subtotal = 0
+                let discount = 0
+                let totalPersonalDiscountNotAllowedAmount = 0
+                let notAllowedPersonalDiscountFlag = 0
+
+                this.cart.map(product => {
+                    vat += (((product.vat / 100) * (product.price - product.discount)) * product
+                        .quantity)
+
+                    subtotal += (product.price * product.quantity)
+                    discount += product.discount * product.quantity
+
+                    if(product.personalDiscountAvailable==false){
+                        let subtotal_amount = ((product.price-product.discount) * product.quantity)
+                        totalPersonalDiscountNotAllowedAmount += (subtotal_amount + (subtotal_amount * (product.vat / 100)))
+                        notAllowedPersonalDiscountFlag = 1
+                    }
+                })
+
+                this.subTotal = subtotal
+                this.vat = vat
+                this.orderTotal = subtotal + vat
+                this.productDiscount = discount
+
+                let totalOtherDiscountOnPreviousOrderOnAmount = 0
+
+                let totalBillingAmountOfOrder = 0
+                
+                if(this.orderInfo.posExchange==null){
+                    totalOtherDiscountOnPreviousOrderOnAmount = this.orderTotal * (this.orderInfo.baseOrderDetails.discount.others / (this.orderInfo.sub_total_bill+this.orderInfo.vat))
+
+                    totalBillingAmountOfOrder = (this.orderInfo.sub_total_bill+this.orderInfo.vat + this.orderInfo.baseOrderDetails.sub_total_bill+this.orderInfo.baseOrderDetails.vat - this.orderInfo.exchange_amount)
+                }
+                
+                if(this.orderInfo.posExchange!=null){
+                    totalOtherDiscountOnPreviousOrderOnAmount = this.orderTotal * ((this.orderInfo.posExchange.discount.others + this.orderInfo.baseOrderDetails.discount.others) / (this.orderInfo.sub_total_bill+this.orderInfo.vat+this.orderInfo.baseOrderDetails.sub_total_bill+this.orderInfo.baseOrderDetails.vat))
+
+                    totalBillingAmountOfOrder = (this.orderInfo.sub_total_bill+this.orderInfo.vat+this.orderInfo.baseOrderDetails.sub_total_bill+this.orderInfo.baseOrderDetails.vat - this.orderInfo.exchange_amount)
+                }
+
+                if(this.orderTotal>0){
+                   let totalDiscountPercentage = (this.orderInfo.discount.others)/(this.orderInfo.total_bill+this.orderInfo.discount.others+this.orderInfo.discount.product)  
+
+                   this.otherDiscount = (this.orderTotal * totalDiscountPercentage) + totalOtherDiscountOnPreviousOrderOnAmount
+
+                   this.otherDiscount -= (this.orderInfo.baseOrderDetails.used_points*this.orderInfo.baseOrderDetails.point_value) 
+
+                   this.otherDiscount = ((this.otherDiscount/totalBillingAmountOfOrder)*this.orderTotal)
+                }
+
+                if(this.orderInfo.slip_point>0){
+                    this.earned_point = ((Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2)))/this.branch.point_purchase)
+                }
+            
+                this.applyPointDiscountAmount = Number(this.branch.point_expand) * Number(this.pointApply)
+            },
+            addNewClient() {
+                this.clearResponseMessage()
+                let requestLink = '/api/pos/client'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    name: this.name,
+                    phone: this.phone,
+                    email: this.email,
+                    address: this.address,
+                    notes: this.notes
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth == true) {
+                        this.successResponse = result.response
+                        this.pointApply = result.response.data.points
+                        this.otherDiscount += (result.response.data.points * this.branch.purchase)
+                    } else {
+                        this.errorResponse = result.response
+                    }
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+            },
+            changePointValue(pointApply) {
+                if (pointApply > this.clientData.points) {
+                    alert("This client don't have this amount of points to apply")
+                } else {
+                    this.otherDiscount = parseFloat(this.otherDiscount) - parseFloat(this
+                        .applyPointDiscountAmount)
+                    this.applyPointDiscountAmount = (parseFloat(pointApply) *
+                        parseFloat(this
+                            .branch.point_expand))
+                    this.otherDiscount += this.applyPointDiscountAmount
+                    this.calculateTotalDetails()
+                }
+            },
+            removeFromCart(e, index) {
+                this.cart.splice(index, 1)
+                this.calculateTotalDetails()
+            },
+            removeAllFromCart() {
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/pos/cart/delete?branch=' + branchID
+
+                deleteType(requestLink, '', token).then((result) => {
+                    if (result.auth == true) {
+                        this.cart = result.response
+                        this.calculateTotalDetails()
+                    }
+                    this.isLoading = false
+                })
+            },
+            checkSearchedDataInCart(id) {
+                let flag = 0
+
+                for (let i = 0; i < this.cart.length; i++) {
+                    if (this.cart[i]._id == id) {
+                        flag = 1
+                    }
+                }
+
+                if (flag == 1) {
+                    return true
+                } else {
+                    return false
+                }
+            },
+            clientDataDetails() {
+                this.clearResponseMessage()
+                let token = localStorage.getItem('token')
+
+                let requestLink = '/api/pos/client/' + this.clientPhone
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth == true) {
+                        if (result.response.data != null) {
+                            this.clientData = result.response.data
+                        } else {
+                            alert("No POS client found")
+                        }
+                    }
+                })
+            },
+            addZero(num) {
+                return (num >= 0 && num < 10) ? "0" + num : num + "";
+            },
+            printAgain(o) {
+                this.clearResponseMessage()
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2));
+
+                let earnPointByOrder = 0
+
+                if (this.branch.point_bench_mark < dueAmount) {
+                    earnPointByOrder = parseFloat((dueAmount / this.branch.point_purchase).toFixed(2))
+                }
+                var now = new Date();
+                var strDateTime = [
+                    [this.addZero(now.getDate()),
+                        this.addZero(now.getMonth() + 1),
+                        now.getFullYear()
+                    ].join("/"),
+                    [this.addZero(now.getHours()),
+                        this.addZero(now.getMinutes())
+                    ].join(":"),
+                    now.getHours() >= 12 ? "PM" : "AM"
+                ].join(" ");
+                if (jspmWSStatus()) {
+                    //Create a ClientPrintJob
+                    var cpj = new JSPM.ClientPrintJob();
+                    //Set Printer type (Refer to the help, there many of them!)
+                    if ($('#useDefaultPrinter').prop('checked')) {
+                        cpj.clientPrinter = new JSPM.DefaultPrinter();
+                    } else {
+                        cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                            .val());
+                    }
+                    //Create ESP/POS commands for sample label
+                    var esc = '\x1B'; //ESC byte in hex notation
+                    var newLine = '\x0A'; //LF byte in hex notation
+
+                    var cmds = esc + "@"; //Initializes the printer (ESC @)
+                    cmds += esc + '!' +
+                    '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                    cmds += newLine;
+                    cmds += '\x1B' + '\x61' + '\x31';
+                    cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                    cmds += newLine;
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += '\x1B' + '\x61' + '\x31';
+                    cmds += this.branch.name;
+                    cmds += newLine;
+                    cmds += '------------- reprinted slip -------------';
+                    cmds += '\x0A'; //LF byte in hex notation
+                    cmds += '\x1B'+'@';
+                    cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                    ', ' + this.branch
+                    .district + '.';
+                    cmds += newLine;
+                    cmds += 'Contact no. ' + this.branch.phone;
+                    cmds += newLine;
+                    cmds += 'VAT REG no. ' + this.branch.taxIdentificationNo;
+                    if(this.clientData){
+                        cmds += newLine;
+                        cmds += 'Customer name ' + this.clientData.name;
+                        cmds += newLine;
+                        cmds += 'Contact no. ' + this.clientData.phone;
+                    }
+                    cmds += newLine;
+                    cmds += 'POS operator name: ' + this.adminInfo.name;
+                    cmds += newLine;
+                    cmds += 'Date: ' + strDateTime;
+                    cmds += newLine;
+                    cmds += 'Refund Invoice no. ' + this.refundID;
+                    cmds += newLine;
+                    cmds += 'From Invoice no. ' + this.orderID + ' (exchange)';
+                    cmds += newLine;
+                    cmds += 'Slip type: Refund';
+                    cmds += newLine;
+                    cmds += 'Number of item: ' + this.cart.length;
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += '#Qty      #Price      #Dis       #Subtotal';
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    this.cart.map(product => {
+                        cmds += esc + '!' +
+                                                '\x00'; //Character font A selected (ESC ! 0)
+                        cmds += '\x0A'; //LF byte in hex notation
+                        cmds += '\x1B'+'@';    
+                        cmds += product.code+'-'+product.name;
+                        cmds += newLine;
+                        cmds += esc + '!' +
+                                                '\x00'; //Character font A selected (ESC ! 0)
+                        cmds += '\x1B' + '\x61' + '\x31';    
+                        cmds += product.quantity + '  x   ' + product
+                                                .price.toFixed(2) +
+                                                '  ' + (product.discount * product.quantity).toFixed(2) + '  ' + (product.price *
+                                                product.quantity).toFixed(2);
+                        cmds += '\x0A'; //LF byte in hex notation
+                        cmds += '\x1B'+'@';
+                        cmds += '------------------------------------------';             
+                    })
+                    cmds += newLine;
+                    cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '++VAT(App. items only up to 5%):  ' + this.vat.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                    -Discount:    ' + (parseFloat(this
+                                .productDiscount) +
+                            parseFloat(this.otherDiscount))
+                        .toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '              Refunded Amount :    ' + dueAmount.toFixed(2);
+                    cmds += newLine;
+
+                    if (this.clientData !== null) {
+                        cmds += '------------------------------------------';
+                        cmds += newLine;
+                        cmds += 'Bonus Point Adjust: ' + this.earned_point;
+                        cmds += newLine;
+                        cmds += 'Total Bonus Point   : ' + (this.clientData.points - this.earned_point).toFixed(2);
+                        cmds += newLine;
+                    }
+                    cmds += newLine + newLine;
+                    if(this.invoiceNo){
+                        cmds += "Refund invoice no. "+this.invoiceNo;
+                        cmds += newLine + newLine;
+                    }	
+                    //cmds += esc + '!' +'\x18'; //Emphasized + Double-height mode selected (ESC ! (16 + 8)) 24 dec => 18 hex
+                    //cmds += '# ITEMS SOLD 2';
+                    cmds += newLine + newLine;
+                    cmds += newLine + newLine;
+                    cmds += newLine + newLine;
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += "\x1b" + "\x69";
+                    cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+
+                    cpj.printerCommands = cmds;
+                    //Send print job to printer!
+                    cpj.sendToClient();
+                }
+            },
+            orderComplete(o) {
+                this.isDoneButtonClicked = true
+                isProcessing = true
+                self = this
+                this.clearResponseMessage()
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2));
+
+                let earnPointByOrder = 0
+
+                if (this.branch.point_bench_mark < dueAmount) {
+                    earnPointByOrder = parseFloat((dueAmount / this.branch.point_purchase).toFixed(2))
+                }
+
+                if(this.cart.length<=0){
+                    alert("Empty product list empty can't refund")
+                    return 0
+                }
+
+
+                let branchID = localStorage.getItem('branch')
+
+
+                let itemInfo = {
+                    id: order_obj_id,
+                    branch: branchID,
+                    cart: this.cart,
+                    vat: this.vat,
+                    order_discount: {
+                        product: this.productDiscount,
+                        others: this.otherDiscount
+                    },
+                    earned_point: earnPointByOrder,
+                    last_order_total: this.lastOrderTotal,
+                    dueAmount: dueAmount,
+                    refundedProducts: this.refundedProducts,
+                    type: 'refund-of-exchange'
+                }
+
+                if(this.clientData!=null){
+                    itemInfo.customer = {
+                        name: this.clientData.name,
+                        phone: this.clientData.phone,
+                        address: this.clientData.address
+                    }
+                }
+
+                if(this.sdc_device_ip.sdcIP && this.orderInfo.nbrDeviceInfo.isWritten == true){
+                    let goodsInfo = [];
+
+                    this.cart.map(async productInfo =>{
+                                goodsInfo.push({
+                                    "code": String(productInfo.code),
+                                    "qty": productInfo.quantity.toFixed(2)
+                                });
+                    })
+
+                    let mobileNo = this.clientData ? this.clientData.phone : "+8801123657890"
+
+                    let dt1 = {
+                        "invoiceNo": this.orderInfo.nbrDeviceInfo.invoiceNo,
+                        "mobile": mobileNo.length==11?"+88"+mobileNo:mobileNo,
+                        "goodsInfo": goodsInfo,
+                        "taskID": String(Date.now()) + String(Math.floor(Math.random() * 100)) + String(Math.floor(Math.random() * 100)) 
+                    }
+
+                    let sdcRequestInfo = {
+                        dt1,
+                        "cashierID": this.adminInfo._id,
+                        "type": "SDCA0014",
+                        "device_ip": this.sdc_device_ip.sdcIP && this.sdc_device_ip.sdcIP.trim(),
+                        "request_key": "12345"
+                    }
+
+                    axios.post('http://119.40.87.22:88/return_request.php', sdcRequestInfo)
+                    .then(function (response) { 
+                        let encryptedInfo = {
+                            "encrypt_data": response.data.data,
+                            "request_key": "12345"
+                        }  
+                        axios.post('http://119.40.87.22:88/response_decode.php', encryptedInfo)
+                        .then(function (responseData) {
+                            let sdcReponseDetails;
+                            try{
+                                sdcReponseDetails = JSON.parse(String(JSON.stringify(responseData.data)).substr(0, String(JSON.stringify(responseData.data)).lastIndexOf(`}`)) + `}`)
+                            }catch(e){
+                                sdcReponseDetails = JSON.parse(responseData.data.substr(0, responseData.data.lastIndexOf(`}`)) + "}")
+                            }
+                            
+                            if(sdcReponseDetails.code == "0000"){
+                                itemInfo.nbrDeviceInfo = {
+                                    isWritten: true,
+                                    invoiceNo: JSON.parse(sdcReponseDetails.data).invoiceNo,
+                                    invoiceResponse: JSON.stringify(sdcReponseDetails)
+                                }
+                                self.printSellSlip(itemInfo, sdcReponseDetails, dueAmount, earnPointByOrder)
+                            }else{
+                                alert("SDC device error: " + sdcReponseDetails.msg)
+                                this.isDoneButtonClicked = true
+                                this.isDone = false
+                            }
+                        })
+                    })
+                }else{
+                    self.printSellSlip(itemInfo, null, dueAmount, earnPointByOrder)
+                }
+            },
+            printSellSlip(itemInfo, sdcReponseDetails, dueAmount, earnPointByOrder){
+                let requestLink = '/api/pos/order/refund'
+                let token = localStorage.getItem('token')
+
+                addNewType(requestLink, itemInfo, token).then((
+                    result) => {
+                        this.isDoneButtonClicked = false
+                    if (result.auth == true) {
+                        this.isDone = true
+                        this.refundID = result.response.serialNo
+			            
+                        if(sdcReponseDetails!=null){
+                            this.invoiceNo = JSON.parse(sdcReponseDetails.data).invoiceNo
+                            this.invoiceResponse = JSON.parse(sdcReponseDetails.data)
+                        }
+
+                        this.successResponse = result.response
+                        if (this.clientData != null) {
+                            let pointUpdateRequestLink = '/api/pos/client/point-update'
+                            let adminToken = localStorage.getItem('token')
+
+                            let pointItemInfo = {
+                                id: this.clientData._id,
+                                points: this.clientData.points - this.earned_point
+                            }
+
+                            updateTypeInfo(pointUpdateRequestLink, pointItemInfo, adminToken).then((
+                                result) => {
+                                if (result.auth == true) {
+                                    this.getOrderDetails()
+                                }
+                            })
+                        }else{
+                            this.getOrderDetails()
+                        }
+
+                        var now = new Date();
+                        var strDateTime = [
+                            [this.addZero(now.getDate()),
+                                this.addZero(now.getMonth() + 1),
+                                now.getFullYear()
+                            ].join("/"),
+                            [this.addZero(now.getHours()),
+                                this.addZero(now.getMinutes())
+                            ].join(":"),
+                            now.getHours() >= 12 ? "PM" : "AM"
+                        ].join(" ");
+                        if (jspmWSStatus()) {
+                            //Create a ClientPrintJob
+                            var cpj = new JSPM.ClientPrintJob();
+                            //Set Printer type (Refer to the help, there many of them!)
+                            if ($('#useDefaultPrinter').prop('checked')) {
+                                cpj.clientPrinter = new JSPM.DefaultPrinter();
+                            } else {
+                                cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                                    .val());
+                            }
+                            //Set content to print...
+                            //Create ESP/POS commands for sample label
+                            var esc = '\x1B'; //ESC byte in hex notation
+                            var newLine = '\x0A'; //LF byte in hex notation
+
+                            var cmds = esc + "@"; //Initializes the printer (ESC @)
+                            cmds += esc + '!' +
+                            '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                            cmds += newLine;
+                            cmds += '\x1B' + '\x61' + '\x31';
+                            cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                            cmds += newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += '\x1B' + '\x61' + '\x31';
+                            cmds += this.branch.name;
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += '\x0A'; //LF byte in hex notation
+                            cmds += '\x1B'+'@';
+                            cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                            ', ' + this.branch
+                            .district + '.';
+                            cmds += newLine;
+                            cmds += 'Contact no. ' + this.branch.phone;
+                            cmds += newLine;
+                            cmds += 'VAT REG no. ' + this.branch.taxIdentificationNo;
+                            if(this.clientData){
+                                cmds += newLine;
+                                cmds += 'Customer name ' + this.clientData.name;
+                                cmds += newLine;
+                                cmds += 'Contact no. ' + this.clientData.phone;
+                            }
+                            cmds += newLine;
+                            cmds += 'POS operator name: ' + this.adminInfo.name;
+                            cmds += newLine;
+                            cmds += 'Date: ' + strDateTime;
+                            cmds += newLine;
+                            cmds += 'Refund Invoice no. ' + this.refundID;
+                            cmds += newLine;
+                            cmds += 'From Invoice no. ' + this.orderID + ' (exchange)';
+                            cmds += newLine;
+                            cmds += 'Slip type: Refund';
+                            cmds += newLine;
+                            cmds += 'Number of item: ' + this.cart.length;
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += '#Qty      #Price      #Dis       #Subtotal';
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            this.cart.map(product => {
+                                cmds += esc + '!' +
+                                                        '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';    
+                                cmds += product.code+'-'+product.name;
+                                cmds += newLine;
+                                cmds += esc + '!' +
+                                                        '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';    
+                                cmds += product.quantity + '  x   ' + product
+                                                        .price.toFixed(2) +
+                                                        '  ' + (product.discount * product.quantity).toFixed(2) + '  ' + (product.price *
+                                                        product.quantity).toFixed(2);
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';
+                                cmds += '------------------------------------------';             
+                            })
+                            cmds += newLine;
+                            cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '++VAT(App. items only up to 5%):  ' + this.vat.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                    -Discount:    ' + (parseFloat(this
+                                        .productDiscount) +
+                                    parseFloat(this.otherDiscount))
+                                .toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '              Refunded Amount :    ' + dueAmount.toFixed(2);
+                            cmds += newLine;
+
+                            if (this.clientData !== null) {
+                                cmds += '------------------------------------------';
+                                cmds += newLine;
+                                cmds += 'Bonus Point Adjust: ' + this.earned_point;
+                                cmds += newLine;
+                                cmds += 'Total Bonus Point   : ' + (this.clientData.points - this.earned_point).toFixed(2);
+                                cmds += newLine;
+                            }
+                            cmds += newLine + newLine;
+                            if(this.invoiceNo){
+                                cmds += "Refund invoice no. "+this.invoiceNo;
+                                cmds += newLine + newLine;
+                            }
+                            //cmds += esc + '!' +'\x18'; //Emphasized + Double-height mode selected (ESC ! (16 + 8)) 24 dec => 18 hex
+                            //cmds += '# ITEMS SOLD 2';
+                            cmds += newLine + newLine;
+                            cmds += newLine + newLine;
+                            cmds += newLine + newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += "\x1b" + "\x69";
+                            cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+
+                            cpj.printerCommands = cmds;
+                            //Send print job to printer!
+                            cpj.sendToClient();
+                        }
+                    } else {
+                        this.errorResponse = result.response
+                    }
+
+                    isProcessing = true
+
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+            }
+        }
+    })
+</script>
+
+<script>
+    document.body.addEventListener('keyup', function (e) {
+        e.preventDefault();
+        if (e.ctrlKey && e.keyCode == 66) {
+          // crt + b
+          $("#borcodeInputField").focus()
+        }
+
+        if (e.ctrlKey && e.keyCode == 67) {
+            // crt + c
+            $("#clientIDInputField").focus() 
+        }
+
+        if (e.ctrlKey && e.keyCode == 81) {
+            // crt + q
+            $(".quantityInputField").first().focus()
+        }
+
+        if ((e.altKey && e.keyCode== 80) || e.keyCode == 255) {
+            // alt + p or y
+            $("#paymentTypeField").focus()
+        }
+
+        if ((e.altKey && e.keyCode== 65)) {
+            // alt + a
+            if(!isProcessing){
+                $("#addClientButton").click()
+            }
+        }
+
+        if ((e.altKey && e.keyCode== 83)) {
+            // alt + s
+            $("#findClientData").focus()
+        }
+
+        if (e.keyCode == 119) {
+            // w
+            if(!isProcessing){
+                $("#fullResetButton").click()
+            }
+        }
+
+        if (e.altKey && e.keyCode== 67) {
+            // alt + c
+            if(!isProcessing){
+                $("#completeSellButton").click()
+            }
+        }
+
+        if (e.shiftKey && e.keyCode== 70) {
+            // shift + f
+            $("#modalSearchField").focus()
+        }
+
+        if (e.shiftKey && e.keyCode== 68) {
+            // shift + d
+            $("#searchModal").modal('hide')
+        }
+
+        if (e.keyCode == 113) {
+            // q
+            $("#searchModal").modal('show')
+            setTimeout(()=>{
+                $("#modalSearchField").focus()
+            }, 500)
+        }    
+    });
+</script>
+
+
+<% include ../../partials/footer %>

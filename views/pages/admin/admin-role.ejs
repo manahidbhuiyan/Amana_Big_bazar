@@ -1,0 +1,784 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+        <style>
+            body {
+                padding-right: 0px !important;
+            }
+            .commonTableStructure{
+                width: 100%;
+            }
+            .commonTableStructure tr>th{
+                padding: 5px 15px;
+            }
+            .commonTableStructure tr>td{
+                padding: 5px 15px;
+            }
+        </style>
+            <!-- Main Content -->
+            <section id="property_type_section">
+                <div class="modal fade py-2" id="selectPermissionModal" tabindex="-1"
+                                            role="dialog" aria-labelledby="selectPermissionModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-xl" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="selectPermissionModalLabel">Select
+                                                            Permission</h4>
+                                                        <button type="button" class="close mt-2" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="table-responsive">
+                                                                    <table
+                                                                        class="table-hover js-basic-example table-bordered commonTableStructure">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Serial</th>
+                                                                                <th>Menu</th>
+                                                                                <th>Permissions</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody v-if="">
+                                                                            <tr v-for="(item, index) in menu_permission"
+                                                                                key="index"
+                                                                                v-if="item.permission.length !== 0">
+                                                                                <td
+                                                                                    style="vertical-align: middle; text-align: center;">
+                                                                                    {{index + 1}}
+                                                                                </td>
+                                                                                <td
+                                                                                    style="vertical-align: middle; text-transform: capitalize;">
+                                                                                    {{item.menu}}</td>
+                                                                                <td style="vertical-align: middle;">
+                                                                                    <div>
+                                                                                        <input type="checkbox" class=""
+                                                                                            value="false"
+                                                                                            :id="item.menuId"
+                                                                                            @change="allPermissionSelectAdd(item)" />
+
+                                                                                        <label>select all</label>
+                                                                                    </div> 
+                                                                                    <div v-for="(permission,permissionIndex) in item.permission"
+                                                                                        :key="permissionIndex"
+                                                                                        v-if="item.permission.length"
+                                                                                        style="display: inline-block !important;"
+                                                                                        class="mr-3 mt-2">
+
+                                                                                        <input type="checkbox" class=""
+                                                                                            :value="permission.name"
+                                                                                            v-model="checkedPermission"
+                                                                                            :id="permission.name+permission._id"
+                                                                                            @change="getPermissionChecked(item.menuId, permission._id, permission.name)" />
+
+                                                                                        <label class=""
+                                                                                            v-bind:for="permission.name+permission._id">{{permission.name}}</label>
+
+                                                                                    </div>
+
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                        <tbody v-else>
+                                                                            <tr>
+                                                                                <td class="text-center" colspan="6">No
+                                                                                    data found here</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary"
+                                                            data-dismiss="modal">OK
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                </div>
+
+
+                <div class="modal fade py-2" id="updatePermissionModal" tabindex="-1"
+                                            role="dialog" aria-labelledby="selectPermissionModalLabel"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-xl" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="selectPermissionModalLabel">Update
+                                                            Permission</h4>
+                                                        <button type="button" class="close mt-2" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="table-responsive">
+                                                                    <table
+                                                                        class="table-hover js-basic-example table-bordered commonTableStructure">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Serial</th>
+                                                                                <th>Menu</th>
+                                                                                <th>Permissions</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody v-if="">
+                                                                            <tr v-for="(item, index) in menu_permission"
+                                                                                key="index"
+                                                                                v-if="item.permission.length !== 0">
+                                                                                <td
+                                                                                    style="vertical-align: middle; text-align: center;">
+                                                                                    {{index + 1}}
+                                                                                </td>
+                                                                                <td
+                                                                                    style="vertical-align: middle; text-transform: capitalize;">
+                                                                                    {{item.menu}}</td>
+                                                                                <td style="vertical-align: middle;">
+                                                                                    <div>
+                                                                                        <input type="checkbox" class=""
+                                                                                            :value="item.menuId" 
+                                                                                            :id="'update_'+item.menuId"
+                                                                                            v-model="checkedAllSelectedUpdated" 
+                                                                                            @change="allPermissionSelectUpdate(item)" :checked="checkAllPermissionsSelected(item)"/>
+
+                                                                                        <label>select all</label>
+                                                                                    </div>
+                                                                                    <div v-for="(permission,permissionIndex) in item.permission"
+                                                                                        :key="permissionIndex"
+                                                                                        v-if="item.permission.length"
+                                                                                        style="display: inline-block !important;"
+                                                                                        class="mr-3 mt-2">
+
+                                                                                        <input type="checkbox" class=""
+                                                                                            :value="permission._id"
+                                                                                            v-model="existingPermission"
+                                                                                            :id="permission.name+permission._id"
+                                                                                            @change="getPermissionChecked(item.menuId,permission._id,permission.name)" />
+
+                                                                                        <label class=""
+                                                                                            v-bind:for="permission.name+permission._id">{{permission.name}}</label>
+
+                                                                                    </div>
+
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                        <tbody v-else>
+                                                                            <tr>
+                                                                                <td class="text-center" colspan="6">No
+                                                                                    data found here</td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary"
+                                                            data-dismiss="modal">OK
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <section class="content">
+                                            <% include ../../partials/content/header %>
+                                                <div class="container-fluid">
+                                                    <div class="row clearfix">
+                                                        <div class="col-lg-12">
+                                                            <div class="card">
+                                                                <div class="body" v-on:scroll="handleScroll">
+                                                                    <div class="container" v-if="type_section === 'add'">
+                                                                        <div class="row clearfix">
+                                                                            <div class="col-lg-8 offset-lg-2">
+                                                                                <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                                                    <div class="header">
+                                                                                        <h2><strong>Create</strong> New Admin Role </h2>
+                                                                                        <ul class="header-dropdown m-r--5">
+                                                                                            <li> <a href="javascript:void(0);"
+                                                                                                    @click="remove_type_section" role="button"
+                                                                                                    aria-haspopup="true" aria-expanded="false"><i
+                                                                                                        class="material-icons">close</i></a>
+                                                                                            </li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                    <div class="body">
+                                                                                        <div v-if="errorResponse!==null">
+                                                                                            <div class="alert alert-danger"
+                                                                                                v-for="error in errorResponse">
+                                                                                                {{error.msg}}
+                                                                                                <button type="button" class="close"
+                                                                                                    data-dismiss="alert" aria-label="Close">
+                                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div v-if="successResponse!==null">
+                                                                                            <div class="alert alert-success">
+                                                                                                {{successResponse.msg}}
+                                                                                                <button type="button" class="close"
+                                                                                                    data-dismiss="alert" aria-label="Close">
+                                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row clearfix">
+                                                                                            <div class="col-sm-12">
+                                                                                                <div class="form-group">
+                                                                                                    <input type="text" v-model="name"
+                                                                                                        class="form-control"
+                                                                                                        placeholder="Admin Role Name">
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row clearfix mb-2">
+                                                                                            <div class="col-sm-12">
+                                                                                                <button type="button" class="btn btn-info btn-round"
+                                                                                                    data-toggle="modal"
+                                                                                                    data-target="#selectPermissionModal">
+                                                                                                    Select Permission
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row clearfix">
+                                                                                            <div class="col-sm-12">
+                                                                                                <button type="submit" :disabled="isDisable"
+                                                                                                    @click="addItem"
+                                                                                                    class="btn btn-primary btn-round">Submit</button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                            
+                                                                    <div class="container" v-if="type_section == 'edit'">
+                                                                        <div class="row clearfix">
+                                                                            <div class="col-lg-8 offset-lg-2">
+                                                                                <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                                                    <div class="header">
+                                                                                        <h2><strong>Edit</strong> Admin Role </h2>
+                                                                                        <ul class="header-dropdown m-r--5">
+                                                                                            <li> <a href="javascript:void(0);"
+                                                                                                    @click="remove_type_section" role="button"
+                                                                                                    aria-haspopup="true" aria-expanded="false"><i
+                                                                                                        class="material-icons">close</i></a>
+                                                                                            </li>
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                    <div class="body">
+                                                                                        <div v-if="errorResponse!==null">
+                                                                                            <div class="alert alert-danger"
+                                                                                                v-for="error in errorResponse">
+                                                                                                {{error.msg}}
+                                                                                                <button type="button" class="close"
+                                                                                                    data-dismiss="alert" aria-label="Close">
+                                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div v-if="successResponse!==null">
+                                                                                            <div class="alert alert-success">
+                                                                                                {{successResponse.msg}}
+                                                                                                <button type="button" class="close"
+                                                                                                    data-dismiss="alert" aria-label="Close">
+                                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row clearfix">
+                                                                                            <div class="col-sm-12">
+                                                                                                <div class="form-group">
+                                                                                                    <input type="text" v-model="name"
+                                                                                                        class="form-control"
+                                                                                                        placeholder="Permission Name">
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row clearfix mb-2">
+                                                                                            <div class="col-sm-12">
+                                                                                                <button type="button"
+                                                                                                    class="btn btn-info dark btn-round"
+                                                                                                    data-toggle="modal"
+                                                                                                    data-target="#updatePermissionModal">
+                                                                                                    Select Permission
+                                                                                                </button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="row clearfix">
+                                                                                            <div class="col-sm-12">
+                                                                                                <button type="submit" :disabled="isDisable"
+                                                                                                    @click="updateProjectType"
+                                                                                                    class="btn btn-primary btn-round">Submit</button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row justify-content-center clearfix">
+                                                                        <div class="col-lg-5">
+                                                                            <div v-if="type_section === 'delete'">
+                                                                                <div v-if="errorResponse!==null">
+                                                                                    <div class="alert alert-danger" v-for="error in errorResponse">
+                                                                                        {{error.msg}}
+                                                                                        <button type="button" class="close" data-dismiss="alert"
+                                                                                            aria-label="Close">
+                                                                                            <span aria-hidden="true">&times;</span>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div v-if="successResponse!==null">
+                                                                                    <div class="alert alert-success">
+                                                                                        {{successResponse.msg}}
+                                                                                        <button type="button" class="close" data-dismiss="alert"
+                                                                                            aria-label="Close">
+                                                                                            <span aria-hidden="true">&times;</span>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row my-3" v-show="adminAccess.length>0?adminAccess.includes('admin role list create'):false">
+                                                                        <div class="col-md-12 d-flex justify-content-end">
+                                                                            <button type="button" class="btn btn-primary waves-effect"
+                                                                                @click="add_type_section" v-show="type_section !== 'add'">Add New</button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div
+                                                                            class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                                                            <div class="form-group">
+                                                                                <select class="form-control" v-model="searchType">
+                                                                                    <option value="name">Role Name</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" @keyup="searchData($event)" class="form-control"
+                                                                                    v-model="searchText" placeholder="Search Keyword">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row" v-if="isLoading">
+                                                                        <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                                            role="status">
+                                                                            <span class="sr-only">Loading...</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="table-responsive" v-else>
+                                                                        <table
+                                                                            class="table-bordered table-hover js-basic-example commonTableStructure" id="infoListTable">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>#</th>
+                                                                                    <th class="text-center" style="vertical-align: middle;">Role Name</th>
+                                                                                    <th class="text-center" style="vertical-align: middle;">Menu</th>
+                                                                                    <th>Permission</th>
+                                                                                    <th class="text-center" style="vertical-align: middle;">Actions
+                                                                                    </th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody v-if=" allListItem.length> 0">
+                                                                                <tr v-for="(item, index) in allListItem" :key="item.roelId">
+                                                                                    <td style="vertical-align: middle;">{{ index + 1 }}</td>
+                                                                                    <td
+                                                                                        style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                                                        {{item.name}}</td>
+                                                                                    <td
+                                                                                        style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                                                        <span v-for="(menuInfo) in item.menu_permission"
+                                                                                            class="badge badge-primary mr-2">
+                                                                                            {{menuInfo.menu.name}}
+                                                                                        </span>
+                                                                                    </td>    
+                                                                                    <td style="text-transform: capitalize;">
+                                                                                        <span v-for="(menuInfo) in item.menu_permission">
+                                                                                            <span class="badge badge-primary"
+                                                                                            style="font-size: 12px; cursor: pointer; margin-right: 5px;"
+                                                                                            v-for="(menuPermission, index) in menuInfo.permission"
+                                                                                            :key="index">{{menuPermission.name}}</span>
+                                                                                        </span>
+                                                                                        
+                                                                                    </td>
+                            
+                                                                                    <td class="text-center">
+                                                                                        <button :disabled=" isDisable"
+                                                                                            @click="edit_item_section(item._id)"
+                                                                                            class="btn btn-icon btn-neutral btn-icon-mini" v-show="adminAccess.length>0?adminAccess.includes('admin role list update'):false"><i
+                                                                                                class="zmdi zmdi-edit"></i></button>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                            <tbody v-else>
+                                                                                <tr>
+                                                                                    <td class="text-center" colspan="10">No data found here</td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                            
+                            
+                                                </div>
+                            
+                                        </section>
+            </section>
+            
+
+            <script>
+
+                var pageNo = 1
+
+                new Vue({
+                    el: '#property_type_section',
+                    data: {
+                        allListItem: [],
+                        searchType: 'name',
+                        searchText: '',
+                        allBranch: [],
+                        allMenu: [],
+                        selectedBranches: [],
+                        selectedMenu: '',
+                        name: '',
+                        address: '',
+                        branch: '',
+                        menu: '',
+                        type_section: null,
+                        editItemID: '',
+                        editItemValue: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: true,
+                        isNextDataLastEmpty: false,
+                        searchQueryString: '',
+                        active: true,
+                        menu_permission: [],
+                        permissions: [],
+                        permission: '',
+                        final_menu_permission: [],
+                        checkedPermission: [],
+                        existingPermission: [],
+                        checkedAllSelectedUpdated: [],
+                        adminAccess: [],
+                        isSuperAdmin: '<%= data.adminInfo.superAdmin %>'
+                    },
+                    mounted() {
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                        this.getAllItemData()
+                        this.getBranchInfo()
+                        this.getMenuInfo()
+                    },
+                    created() {
+                        window.addEventListener('scroll', this.handleScroll);
+                    },
+                    destroyed() {
+                        window.removeEventListener('scroll', this.handleScroll);
+                    },
+                    methods: {
+                        searchData(e) {
+                            if (e.keyCode === 13) {
+                                pageNo = 1
+                                this.allListItem = []
+                                if (this.searchText == '') {
+                                    this.searchQueryString = ''
+                                } else {
+                                    this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                                }
+                                this.getAllItemData()
+                            }
+                        },
+                        getPositionHeight(element) {
+                            var rect = element.getBoundingClientRect();
+                            return (rect.y + 100) < $(window).height()
+                        },
+                        handleScroll(event) {
+                            // Any code to be executed when the window is scrolled
+                            if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                                .isNextDataLastEmpty === false) {
+                                if (!this.isNextDataLastEmpty) {
+                                    pageNo++
+                                    this.isNextDataLastEmpty = true
+                                    this.getAllItemData()
+                                }
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        getMenuInfo() {
+                            let requestLink = '/api/admin/menu'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allMenu = result.response.data
+                                    this.allMenu.map((menuInfo) => {
+                                        let requestLink2 = '/api/admin/permission/all/' + menuInfo._id
+                                        getType(requestLink2).then((result2) => {
+                                            if (result.auth === true) {
+                                                this.permissions = result2.response.data
+                                                if (this.permissions.length != 0) {
+                                                    this.menu_permission.push({
+                                                        menu: menuInfo.name,
+                                                        menuId: menuInfo._id,
+                                                        permission: this.permissions
+                                                    })
+                                                }
+                                            }
+                                        })
+                                    })
+                                }
+                            })
+                        },
+                        getMenuSelect(e, menu) {
+                            let menuData = menu
+                            if (menuData !== '') {
+                                this.selectedMenu = menuData
+                                this.menu = ''
+                            }
+                        },
+                        removeMenuSelect() {
+                            this.selectedMenu = ''
+                        },
+                        async checkAllPermissionsSelected(item){
+                            $("#update_"+item.menuId).prop('checked', false)
+                            let selectedPermission = this.final_menu_permission.filter(dataInfo=>dataInfo.menu == item.menuId)
+                            await Promise.all(selectedPermission)
+                            let menuID = ''
+                            if(selectedPermission.length>0){
+                                if(selectedPermission[0].permission.length == item.permission.length){
+                                    menuID = selectedPermission[0].menu
+                                }
+                            }
+                            if(menuID != ''){
+                                $("#update_"+menuID).prop('checked', true)
+                            }
+                        },
+                        allPermissionSelectUpdate(item){
+                            if($('#update_'+item.menuId).prop('checked')==true){
+                                this.final_menu_permission = this.final_menu_permission.filter(menuInfo=> menuInfo.menu != item.menuId)
+                                this.final_menu_permission.push(
+                                        {
+                                            "menu": item.menuId,
+                                            "permission": item.permission.map(permissionInfo=>{
+                                                if(!this.existingPermission.includes(permissionInfo._id)){
+                                                    this.existingPermission.push(permissionInfo._id)
+                                                }
+                                                return permissionInfo._id
+                                            }),
+                                        },
+                                )
+                            }else{
+                                item.permission.map(permissionInfo=>{
+                                    let index = this.existingPermission.indexOf(permissionInfo._id)
+                                    this.existingPermission.splice(index, 1)
+                                })
+
+                                this.final_menu_permission = this.final_menu_permission.filter(menuInfo=> menuInfo.menu != item.menuId) 
+                            }
+                        },
+                        allPermissionSelectAdd(item){
+                            if($('#'+item.menuId).prop('checked')==true){
+                                this.final_menu_permission = this.final_menu_permission.filter(menuInfo=> menuInfo.menu != item.menuId)
+                                this.final_menu_permission.push(
+                                        {
+                                            "menu": item.menuId,
+                                            "permission": item.permission.map(permissionInfo=>{
+                                                if(!this.checkedPermission.includes(permissionInfo.name)){
+                                                    this.checkedPermission.push(permissionInfo.name)
+                                                }
+                                                return permissionInfo._id
+                                            }),
+                                        },
+                                )
+                            }else{
+                                item.permission.map(permissionInfo=>{
+                                    let index = this.checkedPermission.indexOf(permissionInfo.name)
+                                    this.checkedPermission.splice(index, 1)
+                                })
+
+                                this.final_menu_permission = this.final_menu_permission.filter(menuInfo=> menuInfo.menu != item.menuId) 
+                            }
+                        },
+                        getPermissionChecked(menu, permission_id, permission_name) {
+                            let found = 0
+                            if (this.final_menu_permission.length > 0) {
+                                this.final_menu_permission.map((obj) => {
+                                    if (obj.menu === menu) {
+                                        found = 1
+                                        if (!obj.permission.includes(permission_id)) {
+                                            obj.permission.push(permission_id)
+                                        } else {
+                                            obj.permission.splice(obj.permission.indexOf(permission_id), 1);
+                                            if (obj.permission.length === 0) {
+                                                this.final_menu_permission = this.final_menu_permission.filter(e => e.menu != menu);
+
+                                            }
+                                        }
+                                    }
+                                })
+                            }
+                            if (found === 0) {
+                                this.final_menu_permission.push(
+                                    {
+                                        "menu": menu,
+                                        "permission": [permission_id],
+                                    },
+                                )
+                            }
+                        },
+                        removePermissionSelect(removeindex, index) {
+                            this.allselectedPermissions[index] = this.allselectedPermissions[index].filter((value, index2) => index2 !== removeindex)
+                        },
+                        getAllItemData() {
+                            let requestLink = '/api/admin/role/' + pageNo + '?' + this.searchQueryString
+                            getSecureData(requestLink, localStorage.getItem('token')).then((result) => {
+                                if (result.auth === true) {
+                                    if (result.response.data.length === 0) {
+                                        this.isNextDataLastEmpty = true
+                                    } else {
+                                        result.response.data.map((data) => {
+                                            if(this.isSuperAdmin=='false'){
+                                                if(data.name != 'super admin'){
+                                                    this.allListItem.push(data)
+                                                }
+                                            }else{
+                                                this.allListItem.push(data)
+                                            }
+                                        })
+
+                                        this.isNextDataLastEmpty = false
+                                    }
+                                    this.isLoading = false
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        add_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'add'
+                        },
+                        edit_item_section(ItemID) {
+                            this.final_menu_permission = []
+                            this.existingPermission = []
+                            this.editItemID = ItemID
+                            this.remove_type_section()
+                            this.isDisable = true
+                            this.type_section = 'edit'
+                            let requestLink = '/api/admin/role/single/' + ItemID
+
+                            getSecureData(requestLink, localStorage.getItem('token')).then((result) => {
+                                if (result.auth === true) {
+                                    this.name = result.response.data.name
+                                    window.scrollTo(0, 0);
+
+                                    result.response.data.menu_permission.map((menuInfo) => {
+                                        this.final_menu_permission.push(menuInfo)
+                                        menuInfo.permission.map((permissionInfo) => {
+                                            this.existingPermission.push(permissionInfo)
+                                        })
+                                    })
+                                }
+                                this.isDisable = false
+                            })
+                        },
+                        remove_type_section() {
+                            this.clear_notifications()
+                            this.type_section = null
+                            this.clear_fields()
+                        },
+                        clear_fields() {
+                            this.selectedBranches = []
+                            this.selectedCategories = []
+                            this.selectedSubcategories = []
+                            this.selectedBrands = []
+                            this.name = ''
+                            this.phone = []
+                            this.phoneNumber = ''
+                            this.address = ''
+                            this.branch = ''
+                            this.category = ''
+                            this.subcategory = ''
+                            this.brand = ''
+                            this.instantPayment = false
+                        },
+                        addItem() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/admin/role'
+                            let token = localStorage.getItem('token')
+
+
+                            let itemInfo = {
+                                name: this.name.toLowerCase(),
+                                menu_permission: this.final_menu_permission
+                            }
+
+                            addNewType(requestLink, itemInfo, token).then((result) => {
+                                if (result.auth === false) {
+                                    this.errorResponse = result.response
+                                } else {
+                                    this.successResponse = result.response
+                                    setTimeout(()=>{
+                                        location.reload()
+                                    }, 1000)
+                                }
+                                this.isDisable = false
+                                this.isLoading = false
+                            })
+                        },
+                        updateProjectType() {
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/admin/role'
+                            let token = localStorage.getItem('token')
+
+                            updateTypeInfo(requestLink, {
+                                adminRoleID: this.editItemID,
+                                name: this.name.toLowerCase(),
+                                menu_permission: this.final_menu_permission
+                            }, token).then((result) => {
+                                if (result.auth === false) {
+                                    this.errorResponse = result.response
+                                } else {
+                                    this.successResponse = result.response
+                                    setTimeout(()=>{
+                                        location.reload()
+                                    }, 1000)
+                                }
+                                this.isDisable = false
+                            })
+                        }
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>

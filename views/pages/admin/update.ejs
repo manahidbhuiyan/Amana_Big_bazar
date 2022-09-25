@@ -1,0 +1,379 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    .btn.btn-icon, .navbar .navbar-nav>a.btn.btn-icon {
+    height: 2rem;
+    min-width: 2rem;
+    width: 2rem;
+    }
+    .minus{
+        height: 1.5rem !important;
+        min-width: 1.5rem !important;
+        width: 1.5rem !important;
+    }
+</style>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Update</strong> Admin Information</h2>
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="updateAdminData">
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Admin Details</h6>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" v-model="name" placeholder="Admin Name">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="email" class="form-control" v-model="email" placeholder="Email">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" v-model="password"
+                                            placeholder="Password">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" v-model="confirm_password"
+                                            placeholder="Confirm Password">
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <select class="form-control" @change="getAdminRoleSelect($event, selected_admin_role)"
+                                            v-model="selected_admin_role">
+                                            <option value="">-- Select Admin Role --</option>
+                                            <option :value="accessRole._id"
+                                                v-for="(accessRole, index) in adminRoles" :key="index"
+                                                class="text-capitalize">{{accessRole.name}}</option>
+                                        </select>
+                                    </div>
+                                    <span class="badge badge-primary text-capitalize mr-2"
+                                        style="font-size: 12px; cursor: pointer;"
+                                        v-for="(selectedRole, index) in selectedAdminAccessRoles"
+                                        :key="index">{{selectedRole}}</span>
+                                </div>
+                                <div class="col-sm-6 mt-2">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <select class="form-control"
+                                                    @change="getBranchSelect($event, branch)" v-model="branch">
+                                                    <option value="">-- Select Branch --</option>
+                                                    <option :value="{id: branch._id, name: branch.name, ipList: branch.nbr_sdc_ips}"
+                                                        v-for="(branch, index) in allBranch" :key="index"
+                                                        class="text-capitalize">{{branch.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mt-2">
+                                    <div class="row">
+                                        <div class="col-sm-10">
+                                            <div class="form-group">
+                                                <select class="form-control"
+                                                    @change="" v-model="sdcDeviceIP">
+                                                    <option value="">-- Select SDC IP --</option>
+                                                    <option :value="sdcIP"
+                                                        v-for="(sdcIP, index) in sdcIPList" :key="index"
+                                                        class="text-capitalize">{{sdcIP}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2" @click="branchAndIPSelect()">
+                                            <button type="button"
+                                                class="btn btn-white btn-icon btn-round"><i
+                                                    class="zmdi zmdi-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <ul class="nav flex-column list-unstyled pl-3">
+                                        <li v-for="(data, index) in branchAndIPListShow"
+                                            :key="index">
+                                            <strong>Branch:</strong> {{data.branchName}}
+                                           
+                                            <strong>SDC IP:
+                                                </strong> {{data.sdcIP}} <button
+                                                @click="removeBranchAndIP(index)"
+                                                type="button"
+                                                class="btn btn-white btn-icon btn-round btn-xs minus"
+                                                :data-id="index"><i
+                                                    class="zmdi zmdi-minus"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-12" v-show="isSuperAdmin=='true'">
+                                    <h6 class="mt-2 mb-2">Admin Type</h6>
+                                </div>
+                                <div class="col-sm-12" v-show="isSuperAdmin=='true'">
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="admin_type" id="super_admin" v-model="admin_type"
+                                                class="with-gap" value="true">
+                                            <label for="super_admin">Super Admin</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="admin_type" id="admin" v-model="admin_type"
+                                                class="with-gap" value="false">
+                                            <label for="admin">Admin</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Account Activity</h6>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="account_active" id="active_yes"
+                                                v-model="account_active" class="with-gap" value="true">
+                                            <label for="active_yes">Yes</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="account_active" id="active_no"
+                                                v-model="account_active" class="with-gap" value="false">
+                                            <label for="active_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round">Save</button>
+                                    <button @click="clearInputFields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            adminRoles: [],
+            selectedAdminAccessRoles: [],
+            accessRoles: [],
+            allBranch: [],
+            selectedBranches: [],
+            name: '',
+            branch: '',
+            email: '',
+            password: '',
+            confirm_password: '',
+            selected_admin_role: '',
+            admin_type: false,
+            account_active: true,
+            adminID: '<%= data.adminID %>',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            adminAccess: [],
+            isSuperAdmin: '<%= data.adminInfo.superAdmin %>',
+            sdcDeviceIP: "",
+            branchAndIPList: [],
+            branchAndIPListShow: [],
+            branchName: '',
+            branchID: '',
+            sdcIPList: []
+        },
+        mounted() {
+            this.getAdminDetails()
+            this.getBranchInfo()
+            this.getAllAdminRoles()
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        methods: {
+            getAllAdminRoles() {
+                let requestLink = '/api/admin/role/'
+                getType(requestLink).then((result) => {
+                    if(this.isSuperAdmin=='false'){
+                        this.adminRoles = result.response.data.filter((adminInfo)=>adminInfo.name!=='super admin')
+                    }else{
+                        this.adminRoles = result.response.data
+                    }
+                })
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            getBranchSelect(e, branch) {
+                let branchData = branch
+                if (branchData !== '') {
+                    if (this.selectedBranches.filter((selectedBranch => selectedBranch.id === branchData.id))
+                        .length == 0) {   
+                        this.selectedBranches.push(branchData)
+                    }
+                }
+                this.branchName = branch.name
+                this.branchID = branch.id
+                this.sdcIPList = branch.ipList
+            },
+            removeBranchAndIP(index) {
+                this.branchAndIPList.splice(index, 1)
+                this.branchAndIPListShow.splice(index, 1)
+                this.selectedBranches.splice(index, 1)
+            },
+            branchAndIPSelect() {
+                if (this.branchAndIPList.filter((selectedBranch => selectedBranch.branchID === this.branchID))
+                    .length == 0) {
+                        this.branchAndIPListShow.push({
+                        branchName : this.branchName,
+                        sdcIP : this.sdcDeviceIP 
+                    })
+                    this.branchAndIPList.push({
+                        branchID : this.branchID,
+                        sdcIP : this.sdcDeviceIP 
+                    })
+                }
+                this.branch = "",
+                this.sdcDeviceIP = ""
+            },
+            removeBranchSelect(removeindex) {
+                this.selectedBranches = this.selectedBranches.filter((value, index) => index !== removeindex)
+            },
+            getAdminRoleSelect(e, roleDetails) {
+                roleDetails = this.adminRoles.filter(roleInfo=>roleInfo._id == roleDetails)[0]
+                this.selectedAdminAccessRoles = []
+                roleDetails.menu_permission.map(menuInfo=>{
+                    this.selectedAdminAccessRoles.push(menuInfo.menu.name)
+                    menuInfo.permission.map(permissionInfo=>{
+                        this.selectedAdminAccessRoles.push(permissionInfo.name)
+                    })
+                })
+            },
+            getAdminDetails() {
+                let requestLink = '/api/admin/single/' + this.adminID
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.name = result.response.name
+                        this.email = result.response.email
+                        this.selected_admin_role = result.response.admin_roles_id._id
+                        this.selectedAdminAccessRoles = result.response.admin_roles
+                        result.response.sdcDeviceInfo.map(deviceInfo=>{ 
+                            this.branchAndIPListShow.push({
+                                branchName:deviceInfo.branchID.name,
+                                sdcIP:deviceInfo.sdcIP
+                            })
+                            this.branchAndIPList.push({
+                                branchID:deviceInfo.branchID._id,
+                                sdcIP:deviceInfo.sdcIP
+                            })
+                        })
+                        result.response.branches.map(branchInfo=>{
+                            this.selectedBranches.push({
+                                id:branchInfo._id,
+                                name:branchInfo.name
+                            }) 
+                        })
+                        this.admin_type = result.response.superAdmin
+                        this.account_active = result.response.active
+                    }
+                })
+            },
+            getAdminTypes() {
+                let requestLink = '/api/role'
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.accessRoles = result.response.data
+                    }
+                })
+            },
+            clearNotification() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            clearInputFields() {
+                this.name = ''
+                this.email = ''
+                this.password = ''
+                this.confirm_password = ''
+                this.selected_admin_role = ''
+                this.selectedAdminAccessRoles = []
+                this.admin_type = false
+                this.account_active = true
+            },
+            updateAdminData() {
+                this.clearNotification();
+                this.isDisable = true
+
+                let adminInfo = {
+                    admin_id: this.adminID,
+                    name: this.name,
+                    email: this.email.toLowerCase(),
+                    password: this.password,
+                    confirm_password: this.confirm_password,
+                    branches: this.selectedBranches.map(value => value.id),
+                    admin_roles_id: this.selected_admin_role,
+                    admin_roles: this.selectedAdminAccessRoles,
+                    superAdmin: this.admin_type,
+                    active: this.account_active,
+                    sdcDeviceInfo: this.branchAndIPList
+                }
+                console.log(adminInfo)
+
+                let requestLink = '/api/admin'
+                let token = localStorage.getItem('token')
+
+                updateDataInfo(requestLink, adminInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.successResponse = result.response
+                        this.formDisplay = false
+                    }
+                    this.isDisable = false
+
+                    setTimeout(() => {
+                        location.href = '<%= host %>/dashboard/admin/list'
+                    }, 3000)
+                })
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

@@ -1,0 +1,108 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Select</strong> Branch For Product</h2>
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="setBranchToken">
+                            <div class="row mb-3">
+                                <div class="col-sm-6 offset-sm-3">
+                                    <h6 class="mt-2 mb-2">Branch</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="branch">
+                                            <option value="">-- Select Branch --</option>
+                                            <option :value="{id: branch._id, name: branch.name}"
+                                                v-for="(branch, index) in allBranch" :key="index"
+                                                class="text-capitalize">{{branch.name}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="row clearfix">
+                                        <div class="col-sm-12">
+                                            <button type="submit" class="btn btn-primary btn-round">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            allBranch: [],
+            branch: '',
+            errorResponse: null,
+            successResponse: null
+        },
+        mounted() {
+            if (localStorage.getItem('branch')) {
+                location.href = '<%= host %>' + '/dashboard'
+            }else{
+                this.getBranchInfo()
+            }
+        },
+        methods: {
+            setBranchToken() {
+                localStorage.setItem('branch', this.branch.id)
+                let reffererURL = localStorage.getItem('referrerURL')
+                if(!reffererURL){
+                    location.href = '/dashboard'
+                }else{
+                    localStorage.removeItem('referrerURL')
+                    location.href = reffererURL
+                }
+            },
+            containsObject(obj, list) {
+                var i;
+                for (i = 0; i < list.length; i++) {
+                    if (list[i]._id === obj._id) {
+                        return true;
+                    }
+                }
+            
+                return false;
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        let allBranchList = result.response.data
+                        authChecker(localStorage.getItem('token')).then((result) => {
+                            result.response.data.branches.map(branchInfo=>{
+                                if(this.containsObject(branchInfo, allBranchList)){
+                                    this.allBranch.push(branchInfo)
+                                }
+                            })
+                        })
+                    }
+                })
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

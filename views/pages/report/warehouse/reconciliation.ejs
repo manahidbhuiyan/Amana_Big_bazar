@@ -1,0 +1,313 @@
+<% include ../../../partials/header %>
+
+    <% include ../../../partials/nav %>
+
+        <% include ../../../partials/left-sidebar %>
+
+            <style>
+                body {
+                    padding-right: 0px !important;
+                }
+
+                .dtp .p10>a {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .dtp>.dtp-content>.dtp-date-view>header.dtp-header {
+                    background: #7e6990;
+                    color: #fff;
+                    text-align: center;
+                    padding: 0.3em;
+                }
+
+                .dtp div.dtp-date,
+                .dtp div.dtp-time {
+                    background: #7e6990;
+                    text-align: center;
+                    color: #fff;
+                    padding: 10px;
+                }
+
+                .dtp table.dtp-picker-days tr>td>a.selected {
+                    background: #7e6990;
+                    color: #fff;
+                }
+            </style>
+
+            <!-- Main Content -->
+            <section class="content">
+
+                <% include ../../../partials/content/header %>
+
+                    <div class="container-fluid" id="add_data_section">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="header">
+                                        <h2><strong>Create</strong> Warehouse Product Reconciliation Report</h2>
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <p class="text-center text-primary">Your current branch is :
+                                                    <strong>{{branch.name}}</strong>
+                                                </p>
+                                                <button @click="changeBranch" class="btn btn-primary">Change
+                                                    Branch</button>
+                                            </div>
+                                        </div>
+                                        <br />
+                                    </div>
+                                    <div class="body">
+                                        <div class="row">
+                                            <div class="col-lg-6 offset-lg-3">
+                                                <% include ../../notification/message %>
+                                            </div>
+                                        </div>
+
+                                        <form @submit.prevent="downloadWarehouseProductReconciliationReport">
+                                            <h4 class="text-center pb-3">Warehouse Product Reconciliation Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="fromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="toDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable" class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button" class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                            </form>
+                                            
+                                            <form @submit.prevent="downloadWarehouseInventoryProductReconciliationReport">
+                                                <h4 class="text-center py-3">Warehouse Inventory Product Reconciliation Report</h4>
+                                                <div class="row mb-3 clearfix">
+                                                    <div class="col-sm-6">
+                                                        <h6 class="mt-2 mb-2">From Date</h6>
+                                                        <div class="form-group">
+                                                            <input type="text" id="inventoryReconcilFromDate" class="form-control datetimepicker"
+                                                                placeholder="From Date" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <h6 class="mt-2 mb-2">To Date</h6>
+                                                        <div class="form-group">
+                                                            <input type="text" id="inventoryReconcilToDate" class="form-control datetimepicker"
+                                                                placeholder="To Date" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <h6 class="mt-2 mb-2">Report Format</h6>
+                                                        <div class="form-group">
+                                                            <select class="form-control" v-model="reportType">
+                                                                <option value="pdf" class="text-capitalize">PDF</option>
+                                                                <option value="excel" class="text-capitalize">Excel</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+                integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+                crossorigin="anonymous"></script>
+
+            <script>
+                new Vue({
+                    el: '#add_data_section',
+                    data: {
+                        branch: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: false,
+                        reportType: 'pdf',
+                        adminAccess: []
+                    },
+                    mounted() {
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                        this.checkBranchInfo()
+                        this.getBranchInfo()
+                    },
+                    methods: {
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            name: result.response.data.name
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        clear_fields() {
+                            $("#fromDate").val("")
+                            $("#toDate").val("")
+                        },
+                        downloadWarehouseProductReconciliationReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/report/warehouse/product/reconciliation'
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#fromDate").val(),
+                                to: $("#toDate").val()
+                            }
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/warehouse/product/reconciliation/" + token + "/" + itemInfo.from + "/" + itemInfo.to
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = 'product_reconciliation.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    //this.isDisable = false
+                                })
+                            }
+                        },
+                        downloadWarehouseInventoryProductReconciliationReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/report/warehouse/inventory/product/reconciliation'
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                from: $("#inventoryReconcilFromDate").val(),
+                                to: $("#inventoryReconcilToDate").val()
+                            }
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/warehouse/inventory/product/reconciliation/" + token + "/" + itemInfo.from + "/" + itemInfo.to
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = 'warehouse_inventory_product_reconciliation.pdf';
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    //this.isDisable = false
+                                })
+                            }
+                        }
+
+                    }
+                })
+            </script>
+
+            <% include ../../../partials/footer %>
+
+                <script>
+                    $(function () {
+                        //Datetimepicker plugin
+                        $('.datetimepicker').bootstrapMaterialDatePicker({
+                            format: 'YYYY-MM-DD',
+                            clearButton: true,
+                            weekStart: 1,
+                            time: false
+                        });
+                    });
+                </script>

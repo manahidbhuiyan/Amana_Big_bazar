@@ -1,0 +1,1340 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+    .dueAnountStyle{
+        border: 2px solid #9b6fc1;
+        padding: 10px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        width: 100%;
+    }
+    .dueAnountStyle h1{
+        padding: 0;
+        margin: 0;
+        color: red;
+        font-size: 42px;
+        text-align: center;
+    }
+</style>
+<div id="edit_data_section">
+    <!-- Main Content -->
+    <section class="content">
+
+        <% include ../../partials/content/header %>
+
+        <div class="container-fluid">
+
+            <div class="row clearfix">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2><strong>Edit POS</strong> Sell Information</h2>
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <p class="text-center text-primary">Your current branch is :
+                                        <strong>{{branch.name}}</strong></p>
+                                    <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="row">
+                                <div class="col-lg-6 offset-lg-3">
+                                    <% include ../notification/message %>
+                                </div>
+                            </div>
+                            <div class="row clearfix">
+                                <div class="col-lg-8">
+                                    <div class="cart_management">
+                                        
+                                        <div class="col-sm-12" v-if="isLoading">
+                                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12" v-else>
+                                            <h6 class="mt-2 mb-2">Product Details</h6>
+                                            <div class="dueAnountStyle" v-if="posInformationData!=''">
+                                                <h1>{{posInformationData}}</h1>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table
+                                                    class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                                    id="infoListTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Barcode</th>
+                                                            <th>Name</th>
+                                                            <th>Price</th>
+                                                            <th>Qty</th>
+                                                            <th>Total</th>
+                                                            <td></td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="(product, index) in cart" key="index">
+                                                            <td>{{product.code}}</td>
+                                                            <td>{{product.name}}</td>
+                                                            <td>
+                                                                {{product.price}} tk.</td>
+                                                            <td>
+                                                                {{product.quantity}}
+                                                            </td>
+                                                            <td :id="'total_price_'+product._id">
+                                                                {{(product.price*product.quantity).toFixed(2)}}
+                                                                tk.
+                                                            </td>
+                                                            <td>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">Sub Total :
+                                                            </th>
+                                                            <th class="text-right">{{subTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">VAT : </th>
+                                                            <th class="text-right">{{vat.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">Order Total : </th>
+                                                            <th class="text-right">{{orderTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">-Discount : </th>
+                                                            <th class="text-right">
+                                                                {{(productDiscount + otherDiscount + applyPointDiscountAmount).toFixed(2)}}
+                                                                TK.
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="4">Due Amount : </th>
+                                                            <th class="text-right">
+                                                                {{(Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                                                                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2))).toFixed(2)}}
+                                                                TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th colspan="3"></th>
+                                                            <th colspan="3" class="text-right">
+                                                                <select v-model="paymentType" id="paymentTypeField"
+                                                                    @change="changePaymentType($event, paymentType)"
+                                                                    class="form-control">
+                                                                    <option value="">-- Reset Payment --</option>
+                                                                    <option value="cash">Cash</option>
+                                                                    <option value="card">Card</option>
+                                                                    <option value="mobile banking">Mobile Banking
+                                                                    </option>
+                                                                </select>
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-show="cash==true">
+                                                            <th class="text-right" colspan="3">Cash Payment : </th>
+                                                            <th class="text-right" colspan="3"><input type="number"
+                                                                    @keypress="cashCalculation($event, cash_amount, 'cash')"
+                                                                    step="any" min="1" max="100000" class="form-control"
+                                                                    v-model="cash_amount">
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-show="card==true">
+                                                            <th class="text-right" colspan="2">Card Payment : </th>
+                                                            <th colspan="2">
+                                                                <select v-model="selectedCard"
+                                                                    class="form-control text-uppercase">
+                                                                    <option value="">-- Type --</option>
+                                                                    <option :value="cardName" v-for="(cardName, index) in cards" @key="index">{{cardName}}</option>
+                                                                </select>
+                                                            </th>
+                                                            <th class="text-right" colspan="2"><input type="number"
+                                                                    @keypress="cashCalculation($event, card_amount, 'card')"
+                                                                    step="any" min="1" max="100000" class="form-control"
+                                                                    v-model="card_amount">
+                                                            </th>
+                                                            
+                                                        </tr>
+                                                        <tr v-show="mobile_banking==true">
+                                                            <th class="text-right" colspan="2">Mobile Banking Payment :
+                                                            </th>
+                                                            <th colspan="2">
+                                                                <select v-model="selectedMobileBanking"
+                                                                    class="form-control text-uppercase">
+                                                                    <option value="">-- Type --</option>
+                                                                    <option :value="mobileBankingName" v-for="(mobileBankingName, index) in mobileBankings" @key="index">{{mobileBankingName}}</option>
+                                                                </select>
+                                                            </th>
+                                                            <th class="text-right" colspan="2"><input type="number"
+                                                                    @keypress="cashCalculation($event, mobile_banking_amount, 'mobile banking')"
+                                                                    step="any" min="1" max="100000" class="form-control"
+                                                                    v-model="mobile_banking_amount">
+                                                            </th>
+                                                            
+                                                        </tr>
+                                                        <tr v-if="payment.length > 0">
+                                                            <th class="text-right" colspan="6">
+                                                                <span class="badge badge-primary" style="font-size: 12px; cursor: pointer; margin-right: 5px;" v-for="(paymentInfo, index) in payment" :key="index">{{paymentInfo.method=='cash'?paymentInfo.method:paymentInfo.type}} - {{paymentInfo.amount.toFixed(2)}} <span aria-hidden="true" v-show="isDone!=true" @click="removePayment(index)">×</span></span> = {{paidAmountField.toFixed(2)}}
+                                                            </th>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="apply_person_information_pos" v-if="branch.point_apply_active==true">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Apply Client Points</h6>
+                                        </div>
+                                        <form @submit.prevent="clientDataDetails">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" v-model="clientPhone" class="form-control"
+                                                        placeholder="Phone no. or Client ID" :disabled="isClientAvailable">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12" v-show="!isClientAvailable">
+                                                <button type="submit" class="btn btn-primary">Apply</button>
+                                            </div>
+                                        </form>
+                                        <div class="col-md-12">
+                                            <ul class="list-group" v-if="clientData!=null">
+                                                <li class="list-group-item text-center"><strong>Point Earned:</strong>
+                                                    {{clientData.points.toFixed(2)}}</li>
+                                                <li class="list-group-item"><strong>Client ID:</strong>
+                                                    {{clientData.clientID}}</li>
+                                                <li class="list-group-item"><strong>Name:</strong> {{clientData.name}}
+                                                </li>
+                                                <li class="list-group-item"><strong>Phone:</strong> {{clientData.phone}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.email!=''">
+                                                    <strong>Email:</strong> {{clientData.email}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.address!=''">
+                                                    <strong>Address:</strong>
+                                                    {{clientData.address}}</li>
+                                                <li class="list-group-item" v-if="clientData.notes!=''">
+                                                    <strong>Notes:</strong> {{clientData.notes}}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-lg-6 text-center">
+                                    <h2 v-show="calculationResult > 0" style="color: darkred;">You need to pay change
+                                        {{this.calculationResult.toFixed(2)}}
+                                        TK.</h2>
+                                    <h2 v-show="calculationResult < 0" style="color: darkred;">Client need to pay more
+                                        {{this.calculationResult.toFixed(2)}}
+                                        TK.</h2>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <hr />
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="useDefaultPrinter" /> <strong>Print to Default
+                                            printer</strong>
+                                    </label>
+                                    <p>or...</p>
+                                    <div id="installedPrinters">
+                                        <label for="installedPrinterName">Select an installed Printer:</label>
+                                        <select name="installedPrinterName" id="installedPrinterName"></select>
+                                    </div>
+                                    <br /><br />
+                                    <button type="submit" @click="orderComplete" v-show="!isDone"
+                                        class="btn btn-primary btn-round" id="completeSellButton" :disabled="isDoneButtonClicked">Done</button>
+                                    <button type="submit" v-show="isDone" @click="printAgain"
+                                        class="btn btn-primary btn-round">Reprint</button>
+                                    <!-- <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple" id="fullResetButton">Reset</button> -->
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    let order_obj_id = '<%= orderID %>'
+    //WebSocket settings
+    JSPM.JSPrintManager.auto_reconnect = true;
+    JSPM.JSPrintManager.start();
+    JSPM.JSPrintManager.WS.onStatusChanged = function () {
+        if (jspmWSStatus()) {
+            //get client installed printers
+            JSPM.JSPrintManager.getPrinters().then(function (myPrinters) {
+                var options = '';
+                for (var i = 0; i < myPrinters.length; i++) {
+                    options += '<option>' + myPrinters[i] + '</option>';
+                }
+                $('#installedPrinterName').html(options);
+            });
+        }
+    };
+
+    //Check JSPM WebSocket status
+    function jspmWSStatus() {
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+            return true;
+        else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+            alert(
+                'JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm'
+            );
+            return false;
+        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+            alert('JSPM has blocked this website!');
+            return false;
+        }
+    }
+</script>
+
+<script>
+    new Vue({
+        el: '#edit_data_section',
+        data: {
+            searchPageNo: 1,
+            searchedItemCount: {
+                total: 0,
+                loadMore: false
+            },
+            isSearchLoading: false,
+            searchText: '',
+            orderID: null,
+            branch: '',
+            barcode: '',
+            name: '',
+            phone: '',
+            address: '',
+            notes: '',
+            cart: [],
+            subTotal: 0,
+            vat: 0,
+            pointApply: 0,
+            orderTotal: 0,
+            productDiscount: 0,
+            otherDiscount: 0,
+            paidAmountOnOrder: 0,
+            paymentType: '',
+            clientPhone: '',
+            name: '',
+            phone: '',
+            email: '',
+            address: '',
+            notes: '',
+            calculationResult: 0,
+            paidAmountField: 0,
+            showPaidAmountField: false,
+            clientData: null,
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            card: false,
+            card_amount: 0,
+            cash: false,
+            cash_amount: 0,
+            mobile_banking: false,
+            mobile_banking_amount: 0,
+            payment: [],
+            applyPointDiscountAmount: 0,
+            isDone: false,
+            adminInfo: null,
+            cards:[],
+            selectedCard: '',
+            mobileBankings:[],
+            selectedMobileBanking: '',
+            earned_point: 0,
+            lastOrderTotal: 0,
+            taxIdentificationNo: '',
+            isDoneButtonClicked: false,
+            isClientAvailable: false,
+            slipCreateTime: null,
+            posInformationData: '',
+            allCardsInfo: [],
+            allMobileBankingInfo: [],
+            paymentDiscount: 0,
+            appliedPaymentDiscount: false,
+            adminAccess: []
+        },
+        mounted() {
+            authChecker(localStorage.getItem('token')).then((result) => {
+                this.adminInfo = result.response.data
+            })
+            this.checkBranchAccess()
+            this.checkBranchInfo()
+            this.getBranchInfo()
+            // this.getOrderDetails()
+            this.getCardsData()
+            this.getMobileBankingData()
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        methods: {
+            checkBranchAccess(){
+                var accessID = prompt("Please enter your pos manager access", "");
+
+                if (accessID == null || accessID == "") {
+                    // window.history.back()
+                    location.href = "/dashboard/pos/order/list"
+                } else {
+                    let requestLink = '/api/branch/access/auth'
+                    let token = localStorage.getItem('token')
+                    let branchID = localStorage.getItem('branch')
+
+                    let itemInfo = {
+                        branch: branchID,
+                        managerID: accessID
+                    }
+
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.response.data == true) {
+                            
+                        } else {
+                            alert('Your password is not authorized for access')
+                            //window.history.back()
+                            location.href = "/dashboard/pos/order/list"
+                        }
+                    })
+                }
+            },
+            getCardsData(){
+                let requestLink = '/api/lookup/info/data/search/card_name'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.allCardsInfo = result.response.data
+                            result.response.data.map(purposeInfo=>{
+                                this.cards.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            getMobileBankingData(){
+                let requestLink = '/api/lookup/info/data/search/mobile_banking'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.allMobileBankingInfo = result.response.data
+                            result.response.data.map(purposeInfo=>{
+                                this.mobileBankings.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            searchReset() {
+                this.searchPageNo = 1
+                this.searchedItemCount = {
+                    total: 0,
+                    loadMore: false
+                }
+                this.allSearchedData = []
+            },
+            clearResponseMessage() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            getOrderDetails() {
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                this.isLoading = true
+
+                let requestLink = '/api/pos/order/view/' + order_obj_id + '?branch=' + branchID
+                getSecureData(requestLink, token).then(async(result) => {
+                    if (result.auth === true) {
+                        this.cart = result.response.data.products
+                        this.earned_point = result.response.data.earned_point
+                        this.payment = result.response.data.payment
+                        this.orderID = result.response.data.orderID
+                        this.pointApply = result.response.data.used_points
+                        this.paidAmountField = result.response.data.total_bill
+                        this.lastOrderTotal = result.response.data.total_bill
+                        this.orderType = result.response.data.orderType
+                        this.slipCreateTime = result.response.data.create
+
+                        this.otherDiscount = result.response.data.discount.others
+                        this.productDiscount = result.response.data.discount.product
+
+                        let paymentArray = this.payment.map((payment) => {
+                            this.paymentDiscount += Number(payment.discount.toFixed(2))
+                        });
+                        await Promise.all(paymentArray)
+
+                        //console.log(result.response.data.earned_point)
+                        if(result.response.data.customer){
+                            this.isClientAvailable = true
+                            this.clientPhone = result.response.data.customer.phone
+                            this.clientDataDetails()
+                        }
+
+                        this.calculateTotalDetails()
+                    }
+                    this.isLoading = false
+                })
+            },
+            updateQuantity(e, index, productID, price) {
+                this.cart[index].quantity = $("#quantity_" + productID).val()
+                $("#total_price_" + productID).text((parseFloat($("#quantity_" + productID).val()) *
+                    price).toFixed(
+                    2));
+                this.calculateTotalDetails()
+            },
+            getBarCode(e, barcode) {
+                if (e.keyCode == 13) {
+                    this.addItem(barcode)
+                }
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name,
+                                address: result.response.data.address,
+                                thana: result.response.data.thana.name,
+                                district: result.response.data.district.name,
+                                phone: result.response.data.phone,
+                                flat_order: result.response.data.flat_order,
+                                point_bench_mark: result.response.data.point_settings.bench_mark,
+                                point_purchase: result.response.data.point_settings.purchase,
+                                point_expand: result.response.data.point_settings.expand,
+                                use_points_on: result.response.data.point_settings.use_points_on,
+                                taxIdentificationNo: result.response.data.taxIdentificationNo,
+                                point_apply_active: result.response.data.point_apply_active,
+                                personal_discount_active: result.response.data.personal_discount_active,
+                                sales_person_active: result.response.data.sales_person_active,
+                                pos_slip_notes: result.response.data.pos_slip_notes,
+                            }
+                            this.getOrderDetails()
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_fields() {
+                this.isDone = false
+                this.orderID = null
+                this.barcode = ''
+                this.name = ''
+                this.phone = ''
+                this.address = ''
+                this.notes = ''
+                this.subTotal = 0
+                this.vat = 0
+                this.pointApply = 0
+                this.orderTotal = 0
+                this.productDiscount = 0
+                this.otherDiscount = 0
+                this.paymentType = ''
+                this.clientPhone = ''
+                this.calculationResult = 0
+                this.paidAmountField = 0
+                this.showPaidAmountField = false
+                this.clientData = null
+                this.errorResponse = null
+                this.successResponse = null
+                this.isDisable = false
+                this.isLoading = true
+                this.card = false
+                this.card_amount = 0
+                this.cash = false
+                this.cash_amount = 0
+                this.mobile_banking = false
+                this.mobile_banking_amount = 0
+                this.payment = []
+                this.applyPointDiscountAmount = 0
+                this.appliedPaymentDiscount = false
+
+                this.removeAllFromCart()
+            },
+            calculateTotalDetails() {
+                let vat = 0
+                let subtotal = 0
+                //let discount = 0
+
+                this.cart.map(product => {
+                    vat += (((product.vat / 100) * (product.price - product.discount)) * product
+                        .quantity)
+
+                    subtotal += (product.price * product.quantity)
+                    //discount += product.discount * product.quantity
+                })
+
+                this.subTotal = subtotal
+                this.vat = vat
+                this.orderTotal = subtotal + vat    
+            },
+            removeAllFromCart() {
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/pos/cart/delete?branch=' + branchID
+
+                deleteType(requestLink, '', token).then((result) => {
+                    if (result.auth == true) {
+                        this.cart = result.response
+                        this.calculateTotalDetails()
+                    }
+                    this.isLoading = false
+                })
+            },
+            async changePaymentType(e, paymentType) {
+                if (paymentType == 'cash') {
+                    this.cash = true
+                } else if (paymentType == 'card') {
+                    this.card = true
+                } else if (paymentType == 'mobile banking') {
+                    this.mobile_banking = true
+                } else {
+                    this.cash = false
+                    this.card = false
+                    this.mobile_banking = false
+                    this.removePaymentDiscount()
+                }
+            },
+            async paymentCalculationMessage(){
+                this.paidAmountField = 0
+                this.otherDiscount -= this.paymentDiscount
+                this.paymentDiscount = 0
+                
+                let paymentArray = this.payment.map((payment) => {
+                    this.paidAmountField += payment.amount
+                    this.paymentDiscount += payment.discount
+                });
+
+                await Promise.all(paymentArray)
+                this.otherDiscount += this.paymentDiscount
+
+                this.paidAmountField = Number(this.paidAmountField.toFixed(2))
+
+                this.calculationResult = this.paidAmountField - (Number(this.orderTotal.toFixed(2)) -
+                    Number((Number(this
+                        .productDiscount.toFixed(2)) +
+                        Number(this.otherDiscount.toFixed(2)) + Number(this.applyPointDiscountAmount.toFixed(2))).toFixed(2)))
+
+                this.posInformationData = 'Paid: ' + this.paidAmountField.toFixed(2) + '  Change: '+ this.calculationResult.toFixed(2)
+            },
+            removePayment(index){
+                if(this.payment[index].discount > 0) {
+                    this.appliedPaymentDiscount = false
+                }
+                this.payment.splice(index, 1)
+                this.paymentCalculationMessage()
+            },
+            resetPaymentTypeSelection(){
+                this.cash = false
+                this.cash_amount = ''
+                this.card = false
+                this.card_amount = ''
+                this.mobile_banking = false
+                this.mobile_banking_amount = ''
+                this.paymentType = ''
+            },
+            removePaymentDiscount(){
+                this.payment = []
+                this.otherDiscount -= this.paymentDiscount
+                this.paymentDiscount = 0
+                this.paidAmountField = 0
+                this.posInformationData = ''
+                this.appliedPaymentDiscount = false
+            },
+            cashCalculation(e, paidValue, type) {
+                let dueAmountToPay = Number((this.orderTotal - (this
+                    .productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount) - this.paidAmountField).toFixed(2)) 
+                paidValue = Number(Number(paidValue).toFixed(2))
+                
+                if (e.keyCode === 13) {
+                    if(type=='card'){
+                        if(this.selectedCard!=''){
+                            if(paidValue>dueAmountToPay){
+                                alert("You can't pay more than due amount with card payment.")
+                                return 0
+                            }else{
+                                let discountInfo = this.allCardsInfo.filter(cardInfo => cardInfo.title == this.selectedCard)
+                                let cardDiscount = 0
+    
+                                if(this.appliedPaymentDiscount==false){
+                                    if(discountInfo.length>0){
+                                        if(paidValue >= discountInfo[0].min_payment_amount && discountInfo[0].discount_percentage > 0){
+                                            cardDiscount = paidValue * (discountInfo[0].discount_percentage/100)
+                                            if(cardDiscount > discountInfo[0].max_discount_amount && discountInfo[0].max_discount_amount != null){
+                                                cardDiscount = discountInfo[0].max_discount_amount
+                                            }
+                                        }
+                                    }
+    
+                                    cardDiscount = Number(cardDiscount.toFixed(2))
+
+                                    if(cardDiscount > 0){
+                                        this.appliedPaymentDiscount = true
+                                    }
+                                }
+                            
+                                this.payment.push({
+                                    method: type,
+                                    discount: cardDiscount,
+                                    amount: Number((paidValue - cardDiscount).toFixed(2)),
+                                    type:this.selectedCard
+                                })
+                            }
+                        }else{
+                            alert("Please select a card type.")
+                            return 0
+                        } 
+                    }
+
+                    if(type=='mobile banking'){
+                        if(this.selectedMobileBanking!=''){
+                            if(paidValue>dueAmountToPay){
+                                alert("You can't pay more than due amount with mobile banking payment.")
+                                return 0
+                            }else{
+                                let discountInfo = this.allMobileBankingInfo.filter(mobileBankingInfo => mobileBankingInfo.title == this.selectedMobileBanking)
+                                let mobileBankingDiscount = 0
+    
+                                if(this.appliedPaymentDiscount==false){
+                                    if(discountInfo.length>0){
+                                        if(paidValue >= discountInfo[0].min_payment_amount && discountInfo[0].discount_percentage > 0){
+                                            mobileBankingDiscount = paidValue * (discountInfo[0].discount_percentage/100)
+                                            if(mobileBankingDiscount > discountInfo[0].max_discount_amount && discountInfo[0].max_discount_amount != null){
+                                                mobileBankingDiscount = discountInfo[0].max_discount_amount
+                                            }
+                                        }
+                                    }
+        
+                                    mobileBankingDiscount = Number(mobileBankingDiscount.toFixed(2))
+
+                                    if(mobileBankingDiscount > 0){
+                                        this.appliedPaymentDiscount = true
+                                    }
+                                }
+
+                                this.payment.push({
+                                    method: type,
+                                    discount: mobileBankingDiscount,
+                                    amount: Number((paidValue - mobileBankingDiscount).toFixed(2)),
+                                    type: this.selectedMobileBanking
+                                })
+                            }
+                        }else{
+                            alert("Please select a mobile banking type.")
+                            return 0
+                        }
+                    }
+
+                    if(type=='cash'){
+                        this.payment.push({
+                            method: type,
+                            discount: 0,
+                            amount: parseFloat(paidValue)
+                        })
+                    }
+
+                    this.resetPaymentTypeSelection()
+                    this.paymentCalculationMessage()
+                }
+            },
+            clientDataDetails() {
+                this.clearResponseMessage()
+                let token = localStorage.getItem('token')
+
+                let requestLink = '/api/pos/client/' + this.clientPhone
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth == true) {
+                        if (result.response.data != null) {
+                            this.clientData = result.response.data
+                        } else {
+                            alert("No POS client found")
+                        }
+                    }
+                })
+            },
+            addZero(num) {
+                return (num >= 0 && num < 10) ? "0" + num : num + "";
+            },
+            async printAgain(o) {
+                this.clearResponseMessage()
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2));
+
+                let earnPointByOrder = this.earned_point
+
+                let cash_pay = 0
+                let cash_flag = 0
+                let card_pay = 0
+                let card_flag = 0
+                let mobile_banking_pay = 0
+                let mobile_banking_flag = 0
+
+                let paymentCalculation = this.payment.map((payment, index) => {
+                    cmds += newLine;
+                    if (payment.method == 'cash') {
+                        cash_flag = 1
+                        cash_pay += payment.amount
+                    }
+
+                    if (payment.method == 'card') {
+                        card_flag = 1
+                        card_pay += payment.amount
+                    }
+
+                    if (payment.method == 'mobile banking') {
+                        mobile_banking_flag = 1
+                        mobile_banking_pay += payment.amount
+                    }
+                })
+
+                await Promise.all(paymentCalculation)
+
+                var now = new Date(this.slipCreateTime);
+                var strDateTime = [
+                    [this.addZero(now.getDate()),
+                        this.addZero(now.getMonth() + 1),
+                        now.getFullYear()
+                    ].join("/"),
+                    [this.addZero(now.getHours()),
+                        this.addZero(now.getMinutes())
+                    ].join(":"),
+                    now.getHours() >= 12 ? "PM" : "AM"
+                ].join(" ");
+                if (jspmWSStatus()) {
+                    //Create a ClientPrintJob
+                    var cpj = new JSPM.ClientPrintJob();
+                    //Set Printer type (Refer to the help, there many of them!)
+                    if ($('#useDefaultPrinter').prop('checked')) {
+                        cpj.clientPrinter = new JSPM.DefaultPrinter();
+                    } else {
+                        cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                            .val());
+                    }
+                    //Set content to print...
+                    //Create ESP/POS commands for sample label
+                    var esc = '\x1B'; //ESC byte in hex notation
+                    var newLine = '\x0A'; //LF byte in hex notation
+
+                    var cmds = esc + "@"; //Initializes the printer (ESC @)
+                    cmds += esc + '!' +
+                                '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                                cmds += newLine;
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                                cmds += newLine;
+                                cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += this.branch.name;
+                                cmds += newLine;
+                                cmds += '------------- reprinted slip -------------';
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';
+                            cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                                ', ' + this.branch
+                                .district + '.';
+                    cmds += newLine;
+                    cmds += 'Contact no. ' + this.branch.phone;
+                    cmds += newLine;
+                    cmds += 'VAT REG no. ' + this.branch.taxIdentificationNo;
+                    if(this.clientData){
+                        cmds += newLine;
+                        cmds += 'Customer name ' + this.clientData.name;
+                        cmds += newLine;
+                        cmds += 'Contact no. ' + this.clientData.phone;
+                    }
+                    cmds += newLine;
+                    cmds += 'POS operator name: ' + this.adminInfo.name;
+                    cmds += newLine;
+                    cmds += 'Date: ' + strDateTime;
+                    cmds += newLine;
+                    cmds += 'Invoice no. ' + this.orderID;
+                    cmds += newLine;
+                    cmds += 'Slip type: ' + this.orderType;
+                    cmds += newLine;
+                    cmds += 'Number of item: ' + this.cart.length;
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += '#Qty      #Price      #Dis       #Subtotal';
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            this.cart.map(product => {
+                                cmds += esc + '!' +
+                                            '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';    
+                                cmds += product.code+'-'+product.name;
+                                cmds += newLine;
+                                cmds += esc + '!' +
+                                            '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';    
+                                cmds += product.quantity + '  x   ' + product
+                                            .price.toFixed(2) +
+                                            '  ' + (product.discount * product.quantity).toFixed(2) + '  ' + (product.price *
+                                            product.quantity).toFixed(2);
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';
+                                cmds += '------------------------------------------';             
+                            })
+                            cmds += newLine;                    
+                    cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '++VAT(App. items only up to 5%):  ' + this.vat.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                    -Discount:    ' + (parseFloat(this
+                                .productDiscount) +
+                            parseFloat(this.otherDiscount))
+                        .toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '                   Amount Due:    ' + dueAmount.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                         Paid:    ' + this.paidAmountField.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                       Change:    ' + this.calculationResult.toFixed(2);
+                    cmds += newLine;
+                    cmds += 'Payment Mode:                             ';
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    if (cash_flag == 1) {
+                        cmds += 'CASH:                             ' + cash_pay.toFixed(2);
+                        cmds += newLine;
+                    }
+                    if (card_flag == 1) {
+                        cmds += 'CARD:                             ' + card_pay.toFixed(2);
+                        cmds += newLine;
+                    }
+                    if (mobile_banking_flag == 1) {
+                        cmds += 'MOBILE BANKING:                   ' + mobile_banking_pay.toFixed(2);
+                        cmds += newLine;
+                    }
+                    if (this.clientData !== null) {
+                        cmds += '------------------------------------------';
+                        cmds += newLine;
+                        cmds += 'Current Bonus Point : ' + earnPointByOrder;
+                        cmds += newLine;
+                        cmds += 'Total Bonus Point   : ' + (parseFloat(this.clientData.points)).toFixed(2);
+                        cmds += newLine;
+                    }
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += 'Total Discount :     ' + this.productDiscount.toFixed(2);
+                    cmds += newLine;
+                    cmds += 'Other Discount :     ' + this.otherDiscount.toFixed(2);
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += 'You Have Saved :     ' + (this.productDiscount + this
+                            .otherDiscount).toFixed(2) +
+                        ' Taka';
+                    cmds += newLine + newLine;
+                    cmds += this.branch.pos_slip_notes;
+                    cmds += newLine + newLine;
+                    //cmds += esc + '!' +'\x18'; //Emphasized + Double-height mode selected (ESC ! (16 + 8)) 24 dec => 18 hex
+                    //cmds += '# ITEMS SOLD 2';
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += "\x1b" + "\x69";
+                    cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+                    //cmds += '11/03/13';
+
+                    cpj.printerCommands = cmds;
+                    //Send print job to printer!
+                    cpj.sendToClient();
+                }
+            },
+            orderComplete(o) {
+                this.clearResponseMessage()
+                this.isDoneButtonClicked = true
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2));
+
+                let earnPointByOrder = 0
+                let previousPointByOrder = this.earned_point
+
+                if (this.branch.point_bench_mark < dueAmount) {
+                    earnPointByOrder = parseFloat((dueAmount / this.branch.point_purchase).toFixed(2))
+                }
+
+                if(this.payment.length==0){
+                    alert("Please select payment method and set amount hit enter")
+                    return 0
+                }
+
+
+                let requestLink = '/api/pos/order'
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+
+                let itemInfo = {
+                    id: order_obj_id,
+                    cart: this.cart,
+                    payment: this.payment,
+                    paymentDiscountAmount: this.paymentDiscount,
+                    dueAmount: Number(dueAmount.toFixed(2)),
+                    discount: {
+                        product: Number(this.productDiscount.toFixed(2)),
+                        others: Number(this.otherDiscount.toFixed(2))
+                    }
+                }
+
+
+                if(this.clientData!=null){
+                    itemInfo.customer = {
+                        name: this.clientData.name, 
+                        address: this.clientData.address, 
+                        phone: this.clientData.phone 
+                    }
+                    itemInfo.earned_point = earnPointByOrder
+                    this.earned_point = earnPointByOrder
+                }
+
+                updateTypeInfo(requestLink, itemInfo, token).then(async (
+                    result) => {
+                        this.isDoneButtonClicked = false
+                    if (result.auth == true) {
+                        if (this.clientData != null) {
+                            let pointUpdateRequestLink = '/api/pos/client/point-update'
+                            let adminToken = localStorage.getItem('token')
+
+                            let pointItemInfo = {
+                                id: this.clientData._id,
+                                points: this.clientData.points - previousPointByOrder + earnPointByOrder
+                            }
+
+                            updateTypeInfo(pointUpdateRequestLink, pointItemInfo, adminToken).then((
+                                result) => {
+                                if (result.auth == true) {
+                                    this.getOrderDetails()
+                                }
+                            })
+                        }
+
+                        this.isDone = true
+
+                        let cash_pay = 0
+                        let cash_flag = 0
+                        let card_pay = 0
+                        let card_flag = 0
+                        let mobile_banking_pay = 0
+                        let mobile_banking_flag = 0
+
+                        let paymentCalculation = this.payment.map((payment, index) => {
+                            cmds += newLine;
+                            if (payment.method == 'cash') {
+                                cash_flag = 1
+                                cash_pay += payment.amount
+                            }
+
+                            if (payment.method == 'card') {
+                                card_flag = 1
+                                card_pay += payment.amount
+                            }
+
+                            if (payment.method == 'mobile banking') {
+                                mobile_banking_flag = 1
+                                mobile_banking_pay += payment.amount
+                            }
+                        })
+
+                        await Promise.all(paymentCalculation)
+
+                        this.removeProduct = []
+                        var now = new Date(this.slipCreateTime);
+                        var strDateTime = [
+                            [this.addZero(now.getDate()),
+                                this.addZero(now.getMonth() + 1),
+                                now.getFullYear()
+                            ].join("/"),
+                            [this.addZero(now.getHours()),
+                                this.addZero(now.getMinutes())
+                            ].join(":"),
+                            now.getHours() >= 12 ? "PM" : "AM"
+                        ].join(" ");
+                        if (jspmWSStatus()) {
+                            //Create a ClientPrintJob
+                            var cpj = new JSPM.ClientPrintJob();
+                            //Set Printer type (Refer to the help, there many of them!)
+                            if ($('#useDefaultPrinter').prop('checked')) {
+                                cpj.clientPrinter = new JSPM.DefaultPrinter();
+                            } else {
+                                cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                                    .val());
+                            }
+                            //Set content to print...
+                            //Create ESP/POS commands for sample label
+                            var esc = '\x1B'; //ESC byte in hex notation
+                            var newLine = '\x0A'; //LF byte in hex notation
+
+                            var cmds = esc + "@"; //Initializes the printer (ESC @)
+                            cmds += esc + '!' +
+                                '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                                cmds += newLine;
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                                cmds += newLine;
+                                cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += this.branch.name;
+                                cmds += newLine;
+                                cmds += '------------- reprinted slip -------------';
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';
+                            cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                                ', ' + this.branch
+                                .district + '.';
+                            cmds += newLine;
+                            cmds += 'Contact no. ' + this.branch.phone;
+                            cmds += newLine;
+                            cmds += 'VAT REG no. ' + this.branch.taxIdentificationNo;
+                            if(this.clientData){
+                                cmds += newLine;
+                                cmds += 'Customer name ' + this.clientData.name;
+                                cmds += newLine;
+                                cmds += 'Contact no. ' + this.clientData.phone;
+                            }
+                            cmds += newLine;
+                            cmds += 'POS operator name: ' + this.adminInfo.name;
+                            cmds += newLine;
+                            cmds += 'Date: ' + strDateTime;
+                            cmds += newLine;
+                            cmds += 'Order no. ' + this.orderID;
+                            cmds += newLine;
+                            cmds += 'Slip type: ' + this.orderType;
+                            cmds += newLine;
+                            cmds += 'Number of item: ' + this.cart.length;
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += '#Qty      #Price      #Dis       #Subtotal';
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            this.cart.map(product => {
+                                cmds += esc + '!' +
+                                            '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';    
+                                cmds += product.code+'-'+product.name;
+                                cmds += newLine;
+                                cmds += esc + '!' +
+                                            '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';    
+                                cmds += product.quantity + '  x   ' + product
+                                            .price.toFixed(2) +
+                                            '  ' + (product.discount * product.quantity).toFixed(2) + '  ' + (product.price *
+                                            product.quantity).toFixed(2);
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';
+                                cmds += '------------------------------------------';             
+                            })
+                            cmds += newLine;
+                            cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '++VAT(App. items only up to 5%):  ' + this.vat.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                    -Discount:    ' + (parseFloat(this
+                                        .productDiscount) +
+                                    parseFloat(this.otherDiscount))
+                                .toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '                   Amount Due:    ' + dueAmount.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                         Paid:    ' + this.paidAmountField.toFixed(
+                                2);
+                            cmds += newLine;
+                            cmds += '                       Change:    ' + this.calculationResult.toFixed(2);
+                            cmds += newLine;
+                            cmds += 'Payment Mode:                             ';
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            if (cash_flag == 1) {
+                                cmds += 'CASH:                             ' + cash_pay.toFixed(2);
+                                cmds += newLine;
+                            }
+                            if (card_flag == 1) {
+                                cmds += 'CARD:                             ' + card_pay.toFixed(2);
+                                cmds += newLine;
+                            }
+                            if (mobile_banking_flag == 1) {
+                                cmds += 'MOBILE BANKING:                   ' + mobile_banking_pay.toFixed(2);
+                                cmds += newLine;
+                            }
+                            if (this.clientData !== null) {
+                                cmds += '------------------------------------------';
+                                cmds += newLine;
+                                cmds += 'Current Bonus Point : ' + earnPointByOrder;
+                                cmds += newLine;
+                                cmds += 'Total Bonus Point   : ' + (this.clientData.points + earnPointByOrder).toFixed(2);
+                                cmds += newLine;
+                            }
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += 'Total Discount :     ' + this.productDiscount.toFixed(2);
+                            cmds += newLine;
+                            cmds += 'Other Discount :     ' + this.otherDiscount.toFixed(2);
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += 'You Have Saved :     ' + (this.productDiscount + this
+                                    .otherDiscount).toFixed(2) +
+                                ' Taka';
+                            cmds += newLine + newLine;
+                            cmds += this.branch.pos_slip_notes;
+                            cmds += newLine + newLine;
+                            //cmds += esc + '!' +'\x18'; //Emphasized + Double-height mode selected (ESC ! (16 + 8)) 24 dec => 18 hex
+                            //cmds += '# ITEMS SOLD 2';
+                            cmds += newLine + newLine;
+                            cmds += newLine + newLine;
+                            cmds += newLine + newLine;
+                            cmds += newLine + newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += "\x1b" + "\x69";
+                            cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+
+                            cpj.printerCommands = cmds;
+                            //Send print job to printer!
+                            cpj.sendToClient();
+                        }
+                    } else {
+                        this.errorResponse = result.response
+                    }
+
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+
+
+                //addNewType(requestLink, itemInfo, token).then((result) => {
+                //if (result.auth == true) {
+                /*setTimeout(() => {
+                    this.clear_fields()
+                }, 4000)*/
+                /*this.isDone = true
+                this.orderID = result.response.order_id
+                this.successResponse = result.response
+                if (this.clientData != null) {
+                    let pointUpdateRequestLink = '/api/pos/client/point-update'
+                    let adminToken = localStorage.getItem('token')
+
+                    let pointItemInfo = {
+                        id: this.clientData._id,
+                        points: this.clientData.points + earnPointByOrder
+                    }
+                    console.log(pointItemInfo)
+                    updateTypeInfo(pointUpdateRequestLink, pointItemInfo, adminToken).then((
+                        result) => {
+                        if (result.auth == true) {}
+                    })
+                }*/
+
+            }
+        }
+    })
+</script>
+
+<script>
+    document.body.addEventListener('keyup', function (e) {
+        e.preventDefault();
+        if (e.ctrlKey && e.keyCode == 66) {
+          // Simulate clicking on the submit button.
+          $("#borcodeInputField").focus()
+        }
+
+        if (e.ctrlKey && e.keyCode == 67) {
+            // Simulate clicking on the submit button.
+            $("#clientIDInputField").focus()
+        }
+
+        if (e.ctrlKey && e.keyCode == 81) {
+            // Simulate clicking on the submit button.
+            $(".quantityInputField").last().focus()
+        }
+
+        if ((e.altKey && e.keyCode== 80) || e.keyCode == 255) {
+            // Simulate clicking on the submit button.
+            $("#paymentTypeField").focus()
+        }
+
+        if ((e.altKey && e.keyCode== 65)) {
+            // Simulate clicking on the submit button.
+            $("#addClientButton").click()
+        }
+
+        if (e.keyCode == 119) {
+            // Simulate clicking on the submit button.
+            $("#fullResetButton").click()
+        }
+
+        if (e.altKey && e.keyCode== 67) {
+            // Simulate clicking on the submit button.
+            $("#completeSellButton").click()
+        }
+
+        if (e.keyCode == 113) {
+            // Simulate clicking on the submit button.
+            $("#searchModal").modal('show')
+        }
+      });
+</script>
+
+
+<% include ../../partials/footer %>
+
+<script>
+    $("#edit_data_section" ).on( 'wheel', function() {
+        $('input[type=number]').on('mousewheel',function(e){ $(this).blur(); });
+     });
+</script>

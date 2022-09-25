@@ -1,0 +1,23 @@
+<div class="block-header">
+    <div class="row">
+        <div class="col-lg-5 col-md-5 col-sm-12">
+            <h2><%= data.pageTitle %>
+                <small>Welcome to <%= companyInfo.full_name %> </small>
+            </h2>
+        </div>
+        <div class="col-lg-7 col-md-7 col-sm-12 text-md-right">
+            <!-- <button class="btn btn-white btn-icon btn-round float-right ml-3" type="button" @click="add_type_section">
+                <i class="zmdi zmdi-plus"></i>
+            </button> -->
+            <ul class="breadcrumb float-md-right">
+                <li class="breadcrumb-item" style="text-transform: capitalize;"><a href="<%= breadcumb.main.link %>"><i
+                            class="zmdi zmdi-home"></i> <%= breadcumb.main.text %></a></li>
+                <% if(breadcumb.sub.length > 0) { %>
+                <% for(var i = 0; i < breadcumb.sub.length; i++) { %>
+                <li class="breadcrumb-item active" style="text-transform: capitalize;"><%= breadcumb.sub[i].text %></li>
+                <% } %>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</div>

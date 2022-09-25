@@ -1,0 +1,108 @@
+<% include ../layout/header %>
+<% include ../layout/nav %>
+<!-- End Navbar -->
+<div class="page-header" id="reset_section">
+    <div class="page-header-image" style="background-image:url(<%= host %>/assets/images/login.jpg)"></div>
+    <div class="container">
+        <div class="col-md-12 content-center">
+            <div class="card-plain">
+                <form class="form" @submit.prevent="setNewPassword">
+                    <div class="header">
+                        <div class="logo-container">
+                            <img src="<%= host %>/assets/images/icons/logo.svg"
+                                    alt="">
+                        </div>
+                        <h5>Reset Password</h5>
+                        <span>Enter your new password to reset.</span>
+                    </div>
+                    <div class="content">
+                        <div v-if="errorResponse!==null">
+                            <div class="alert alert-danger" v-for="error in errorResponse">
+                                {{error.msg}}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                            </div>
+                        </div>
+                        <div v-if="successResponse!==null">
+                            <div class="alert alert-success">
+                                {{successResponse.success}}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" class="form-control" v-model="password" placeholder="Enter Password">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-password"></i>
+                            </span>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" class="form-control" v-model="confirm_password" placeholder="Confirm Password">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-confirm-password"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="footer text-center">
+                        <button type="submit" class="btn btn-primary btn-round btn-lg btn-block waves-effect waves-light">SUBMIT</button>
+                        <h5><a href="javascript:void(0);" class="link">Need Help?</a></h5>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="copyright">
+                &copy;
+                <script>
+                    document.write(new Date().getFullYear())
+                </script>,
+                <span>Developed by <a href="<%= companyInfo.development_company_website %>" target="_blank"><%= companyInfo.developer %></a></span>
+            </div>
+        </div>
+    </footer>
+</div>
+<script>
+    new Vue({
+        el: '#reset_section',
+        data:{
+            password: '',
+            confirm_password: '',
+            errorResponse: null,
+            successResponse: null,
+            token: '<%= data.token %>'
+        },
+        mounted(){
+            passwordResetLinkCheck(this.token).then((result)=> {
+                if(result.auth===false){
+                    this.token = null
+                    this.errorResponse = result.response
+                    setTimeout(function(){
+                        window.location = '<%= host %>'+'/login' 
+                    }, 3000);
+                }
+            })
+        },
+        methods:{
+            setNewPassword(){
+                setNewPassword(this.password, this.confirm_password, this.token).then((result)=>{
+                    if(result.auth===false){
+                        this.errorResponse = result.response
+                    }else{
+                        this.successResponse = result.response
+                        this.password = ''
+                        this.confirm_password = ''
+                        setTimeout(function(){
+                            window.location = '<%= host %>'+'/login' 
+                        }, 5000);
+                        console.log(result.response)
+                    }
+                })
+            }
+        }
+    })
+</script>
+<% include ../layout/footer %>    

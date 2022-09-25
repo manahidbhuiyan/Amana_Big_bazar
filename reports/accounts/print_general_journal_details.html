@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>General Journal Details Download</title>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        font-size: 8px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+
+      .bg-grey {
+        background-color: #f3f5f7;
+      }
+
+      .bg-white {
+        background-color: #fff;
+      }
+
+      .header {
+        /* background-color: #f0f0f0; */
+      }
+
+      /* global classes start */
+      .wrapper {
+        width: 550px;
+        min-width: 550px;
+        max-width: 550px;
+      }
+
+      .inner-wrapper {
+        width: 530px;
+        margin: 0 auto;
+      }
+
+      .center {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .text-uppercase {
+        text-transform: uppercase;
+      }
+
+      .text-left {
+        text-align: left;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-right {
+        text-align: right;
+      }
+
+      /* .records td {
+            border-bottom: 1px dotted #aaa;
+            padding-top: 7px;
+            padding-bottom: 7px;
+        } */
+      .divider-x {
+        height: 1px;
+        width: 100%;
+        background-color: #444;
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+      /* global classes end */
+      /* .table-border{
+            border: 1px solid #ddd;
+        } */
+      .table-border th {
+        background-color: #eefcff;
+        padding-top: 7px;
+        padding-bottom: 7px;
+      }
+      .table-border td {
+        padding-top: 7px;
+        padding-bottom: 7px;
+      }
+      .table-border th,
+      .table-border td {
+        border: 0.5px solid#ddd;
+        font-size: 8px;
+      }
+      .table-border tr:nth-child(odd) td {
+        background-color: #f0f0f0;
+      }
+      .table-border tr:last-child td {
+        border: none;
+        background-color: #fff;
+      }
+    </style>
+  </head>
+
+  <body>
+    <table cellspacing="0" cellpadding="0" width="100%" style="height: 100vh;">
+      <tr>
+        <td>
+          <table
+            class="center bg-white wrapper"
+            cellspacing="0"
+            cellpadding="0"
+            style="border: 1px solid #ddd"
+          >
+            <!-- header start -->
+            <tr>
+              <td>
+                <table
+                  class="header"
+                  cellspacing="0"
+                  cellpadding="0"
+                  style="width: 100%"
+                >
+                <tr>
+                  <td style="line-height: 2px;">&nbsp;</td>
+               </tr>
+                <tr>
+                    <td>
+                        <table class="center header" cellspacing=0 cellpadding=0 style="">
+                            <tr>
+                                <td style="width: 38%; text-align: center;">
+                                    <img src={{company_logo}} width="100" height="48" alt="Company image">
+                                </td>
+                                <td>
+                                    <h1
+                                        style="font-size: 16px; text-align: left; text-transform: uppercase; margin-bottom: 5px;">
+                                        <span>{{company_name}}</span>
+                                    </h1>
+                                    <p style="font-size: 9px; text-align: left; text-transform: capitalize; font-weight: bold; margin-bottom: 5px; width: 250px;">{{branch_name}}, {{branch_address}}
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>  
+                <tr>
+                    <td style="line-height: 5px">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table
+                        class="center header inner-wrapper"
+                        cellspacing="0"
+                        cellpadding="0"
+                      >
+                        <tr>
+                          <td>
+                            <h1
+                              style="
+                                font-size: 10px;
+                                text-align: center;
+                                text-transform: uppercase;
+                              "
+                            >
+                              <span style="border-bottom: 1px solid #444"
+                                >General Journal Details</span
+                              >
+                            </h1>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="line-height: 5px">&nbsp;</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- header end -->
+            <!-- shop info part start -->
+            <tr>
+              <td>
+                <table
+                  class="center bg-white"
+                  cellspacing="0"
+                  cellpadding="0"
+                  width="100%"
+                >
+                  <tr>
+                    <td>
+                      <table
+                        class="center inner-wrapper"
+                        cellspacing="0"
+                        cellpadding="0"
+                      >
+                        <tr>
+                          <td style="line-height: 10px">&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <table
+                              class="two-column"
+                              cellspacing="0"
+                              cellpadding="0"
+                              width="100%"
+                            >
+                              <tr>
+                                <td style="line-height: 10px">&nbsp;</td>
+                              </tr>
+                              <tr>
+                                <!-- <td><b>Branch Name : </b> Uttara Branch (S001)</td> -->
+                                <td>
+                                  <table
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                    width="100%"
+                                  >
+                                    <tr>
+                                      <td
+                                        style="width: 80px; text-align: left"
+                                      >
+                                        <b>Branch Name </b>
+                                      </td>
+                                      <td style="width: 30px; text-align: left">
+                                        <b>:</b>
+                                      </td>
+                                      <td style="text-align: left">
+                                        {{branchName}}
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                                <td>
+                                    <table
+                                      cellspacing="0"
+                                      cellpadding="0"
+                                      width="100%"
+                                    >
+                                      <tr>
+                                        <td
+                                          style="width: 120px; text-align: right"
+                                        >
+                                          <b>Date </b>
+                                        </td>
+                                        <td style="width: 30px; text-align: center">
+                                          <b>:</b>
+                                        </td>
+                                        <td style="text-align: left">
+                                          {{journalDate}}
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  </td>
+                              </tr>
+                              <tr>
+                                <td style="line-height: 5px">&nbsp;</td>
+                              </tr>
+                              <tr>
+                                <!-- <td><b>Branch Name : </b> Uttara Branch (S001)</td> -->
+                                <td>
+                                  <table
+                                    cellspacing="0"
+                                    cellpadding="0"
+                                    width="100%"
+                                  >
+                                    <tr>
+                                      <td
+                                        style="width: 80px; text-align: left"
+                                      >
+                                        <b>Voucher No </b>
+                                      </td>
+                                      <td style="width: 30px; text-align: left">
+                                        <b>:</b>
+                                      </td>
+                                      <td style="text-align: left">
+                                        {{voucherNo}}
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                                <td>
+                                   
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="line-height: 10px">&nbsp;</td>
+                              </tr>
+                              <tr>
+                                <td colspan="2">
+                                  <hr />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="line-height: 10px">&nbsp;</td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- shop info part end -->
+            <!-- Return Information start -->
+            
+            <!-- Return Information end -->
+            <tr>
+              <td style="line-height: 5px">&nbsp;</td>
+            </tr>
+            <!-- Payment method info part start -->
+            <tr>
+              <td>
+                <table
+                  class="center bg-white"
+                  cellspacing="0"
+                  cellpadding="0"
+                  width="100%"
+                >
+                  <!-- user info and payment info start -->
+                  <tr>
+                    <td>
+                      <table
+                        class="center inner-wrapper"
+                        cellspacing="0"
+                        cellpadding="0"
+                      >
+                        <!-- payment information start -->
+                        <tr>
+                          <td>
+                            <table cellspacing="0" cellpadding="0" width="100%">
+                              <tr>
+                                <td>
+                                  <table
+                                    cellspacing="0"
+                                    cellpadding="3"
+                                    width="100%"
+                                    class="table-border"
+                                  >
+                                    <tr>
+                                      <th class="text-left">Particular</th>
+                                      <th class="text-left">Naration</th>
+                                      <th class="text-center">
+                                        Voucher
+                                      </th>
+                                      <th class="text-right">Debit Amount</th>
+                                      <th class="text-right">Credit Amount</th>
+                                    </tr>
+                                    <!-- record start -->
+                                    {{#each journalDetails}}
+                                    <tr>
+                                      <td class="text-left" style="text-transform: capitalize;">
+                                        {{this.subcategory}}
+                                      </td>
+                                      <td class="text-left" style="max-width: 120px; text-transform: capitalize;">{{this.naration}}</td>
+                                      <td class="text-right" style="text-transform: capitalize;">
+                                        {{this.voucher}}
+                                      </td>
+                                      <td class="text-right">{{this.debitAmount}}</td>
+                                      <td class="text-right">
+                                        {{ this.creditAmount }}
+                                      </td>
+                          
+                                    </tr>
+                                    {{/each}}
+                                    <!-- record end -->
+
+                                    <!-- record start -->
+                                    <tr>
+                                      <td
+                                        class="text-left"
+                                        colspan="3"
+                                        style="
+                                          border: 0;
+                                          padding-top: 0;
+                                          padding-bottom: 0;
+                                          background-color: transparent;
+                                        "
+                                      >
+                                        &nbsp;
+                                      </td>
+                                      <td
+                                        class="text-right"
+                                        style="
+                                          border: 0;
+                                          padding-top: 0;
+                                          padding-bottom: 0;
+                                          background-color: transparent;
+                                        "
+                                      >
+                                        &nbsp;
+                                      </td>
+                                      <td
+                                        class="text-right"
+                                        style="
+                                          border: 0;
+                                          padding-top: 0;
+                                          padding-bottom: 0;
+                                          background-color: transparent;
+                                        "
+                                      >
+                                        &nbsp;
+                                      </td>
+                                    </tr>
+                                    <!-- record end -->
+
+                                    <!-- record start -->
+                                    <tr>
+                                      <td
+                                        class="text-left"
+                                        colspan="3"
+                                        style="
+                                          border-top: 1px solid #444;
+                                          font-weight: bold;
+                                        "
+                                      >
+                                        Total:
+                                      </td>
+                                      <td
+                                        class="text-right"
+                                        style="
+                                          border-top: 1px solid #444;
+                                          font-weight: bold;
+                                        "
+                                      >
+                                        {{totalDebit}}
+                                      </td>
+                                      <td
+                                        class="text-right"
+                                        style="
+                                          border-top: 1px solid #444;
+                                          font-weight: bold;
+                                        "
+                                      >
+                                        {{totalCredit}}
+                                      </td>
+                                    </tr>
+                                    
+                                    <!-- record end -->
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="line-height: 30px">&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <table cellspacing="0" cellpadding="10" width="100%">
+                              <tr>
+                                <td class="text-left"><span style="border-top: 1px solid;">Prepared by</span> </td>
+                                <td class="text-center"><span style="border-top: 1px solid;">Received by</span></td>
+                                <td class="text-center"><span style="border-top: 1px solid;">Checked by</span></td>
+                                <td class="text-right"><span style="border-top: 1px solid;">Approved by</span> </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                        <!-- payment information end -->
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- user info and payment info end -->
+                </table>
+              </td>
+            </tr>
+            <!-- Payment method info part end -->
+            <tr>
+              <td>
+                <table cellspacing="0" cellpadding="10" width="100%">
+                  <tr>
+                    <td class="text-left"><span>Printed on</span> - <span>{{today}}  {{createTime}}</span> </td>
+                  </tr>
+                </table>
+              </td>
+          </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

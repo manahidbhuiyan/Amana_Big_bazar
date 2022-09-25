@@ -1,0 +1,584 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Report By Cash Register No</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-size: 7px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            margin-bottom: 0;
+            margin-top: 0;	
+        }
+
+        .bg-grey {
+            background-color: #f3f5f7;
+        }
+
+        .bg-white {
+            background-color: #fff;
+        }
+
+        /* .header {
+            background-color: #f0f0f0;
+        } */
+
+        /* global classes start */
+        .wrapper {
+            width: 530px;
+            min-width: 530px;
+            max-width: 530px;
+        }
+
+        .inner-wrapper {
+            width: 510px;
+            margin: 0 auto;
+        }
+
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-capitalize {
+            text-transform: capitalize;
+        }
+
+        /* global classes end */
+    </style>
+</head>
+
+<body>
+    <table cellspacing=0 cellpadding=0 width="100%">
+        <tr>
+            <td>
+                <table class="center bg-white wrapper" cellspacing=0 cellpadding=0 style="">
+                    <!-- header start -->
+                    <tr>
+                        <td style="line-height: 2px;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="center header" cellspacing=0 cellpadding=0 style="">
+                                <tr>
+                                    <td style="width: 38%; text-align: center;">
+                                        <img src={{company_logo}} width="100" height="48" alt="Company image">
+                                    </td>
+                                    <td>
+                                        <h1
+                                            style="font-size: 16px; text-align: left; text-transform: uppercase; margin-bottom: 5px;">
+                                            <span>{{company_name}}</span>
+                                        </h1>
+                                        <p style="font-size: 9px; text-align: left; text-transform: capitalize; font-weight: bold; margin-bottom: 5px; width: 250px;">{{branch_name}}, {{branch_address}}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="line-height: 5px;">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="header" cellspacing=0 cellpadding=0 style="width: 100%;">
+                                <tr>
+                                    <td style="line-height: 5px;">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="center header inner-wrapper" cellspacing=0 cellpadding=0>
+                                            <tr>
+                                                <td>
+                                                    <h1 style="font-size: 12px; text-align: center;">Sales Person Wise Sell Report</h1>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="line-height: 5px;">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- header end -->
+                    <!-- shop info part start -->
+                    <tr>
+                        <td>
+                            <table class="center bg-white" cellspacing=0 cellpadding=0 width="100%" style="">
+                            <tr>
+                                    <td>
+                                        <table class="center" cellspacing=0 cellpadding=0 width="510" style="">
+                                            <tr>
+                                                <td style="line-height: 5px;">&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <h2 style="font-size:8px">Sales Person Information</h2>
+                                                    <hr>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table class="two-column" cellspacing=0 cellpadding=0 width="100%">
+                                                        <tr>
+                                                            <td style="line-height: 5px;">&nbsp;</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!-- column item start -->
+                                                            <td width="50%">
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%">
+                                                                    <tr>
+                                                                        <td width="100">
+                                                                            <b>Sales Perrson No</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="147">{{sales_person_no}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;" colspan="3">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td width="100">
+                                                                            <b>Sales Person Name</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="147">{{sales_person_name}}
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <!-- column item start -->
+                                                            <!-- column item end -->
+                                                            <td width="50%">
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%" style="text-align: right;">
+                                                                    <tr>
+                                                                        <td width="120">
+                                                                            <b>Contact No.</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="127">{{sales_person_contact}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;" colspan="3">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <!-- column item end -->
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="line-height: 5px;" colspan="2">
+                                                                &nbsp;</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="center" cellspacing=0 cellpadding=0 width="510" style="">
+                                            <tr>
+                                                <td style="line-height: 5px;">&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <h2 style="font-size:8px">Shop Information</h2>
+                                                    <hr>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table class="two-column" cellspacing=0 cellpadding=0 width="100%">
+                                                        <tr>
+                                                            <td style="line-height: 5px;">&nbsp;</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!-- column item start -->
+                                                            <td width="50%">
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%">
+                                                                    <tr>
+                                                                        <td width="100">
+                                                                            <b>Shop Code</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="147">{{branch_id}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;" colspan="3">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td width="100">
+                                                                            <b>Phone</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="147">{{branch_phone}}
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <!-- column item start -->
+                                                            <!-- column item end -->
+                                                            <td width="50%">
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%" style="text-align: right;">
+                                                                    <tr>
+                                                                        <td width="120">
+                                                                            <b>Date From</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="127">{{fromDate}}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;" colspan="3">
+                                                                            &nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td width="120">
+                                                                            <b>Date To</b>
+                                                                        </td>
+                                                                        <td width="20">:</td>
+                                                                        <td width="127">{{toDate}}</td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                            <!-- column item end -->
+                                                        </tr>
+                                                        
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- shop info part end -->
+                    <tr>
+                        <td style="line-height: 10px;">&nbsp;</td>
+                    </tr>
+                    <!-- Payment method info part start -->
+                    <tr>
+                        <td>
+                            <table class="center bg-white" cellspacing=0 cellpadding=0 width="100%">
+                                <!-- Payment report start -->
+                                <tr>
+                                    <td>
+                                        <table class="inner-wrapper center" cellspacing=0 cellpadding=0>
+                                            <tr>
+                                                <td>
+                                                    <h2>Transaction Information</h2>
+                                                    <hr>
+                                                </td>
+                                            </tr>
+                                            <!-- payment report by method wise start -->
+                                            {{#data}}
+                                            <tr>
+                                                <td>
+                                                    <table class="center" cellspacing=0 cellpadding=0 width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%">
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;">&nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <!-- column item start -->
+                                                                        <td width="60%" class="text-capitalize">
+                                                                            <b>Receipt No : </b> <span
+                                                                                class="text-uppercase">{{orderID}}</span>
+                                                                        </td>
+                                                                        <!-- column item start -->
+                                                                        <!-- column item end -->
+                                                                        <td width="40%" style="text-align: right;">
+                                                                            <b>Date :</b> {{createDate}}
+                                                                        </td>
+                                                                        <!-- column item end -->
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td style="line-height: 10px;">&nbsp;</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <!-- column item start -->
+                                                                        <td width="60%">
+                                                                            <b>Order Type : </b><span
+                                                                                class="text-uppercase">{{orderType}}</span>
+                                                                        </td>
+                                                                        <!-- column item start -->
+                                                                        <!-- column item end -->
+                                                                        <td width="40%" style="text-align: right;">
+                                                                            <b>Slip Generated By :</b> {{soldBy}}
+                                                                        </td>
+                                                                        <!-- column item end -->
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- user information end -->
+                                                        <tr>
+                                                            <td style="line-height: 5px;" colspan="3">
+                                                                &nbsp;</td>
+                                                        </tr>
+                                                        <!-- payment information start -->
+                                                        <tr>
+                                                            <td>
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%">
+                                                                    <tr>
+                                                                        <th style="text-align: center;">Barcode</th>
+                                                                        <th style="text-align: center;">Description</th>
+                                                                        <th style="text-align: center;">Unit Price</th>
+                                                                        <th style="text-align: center;">Quantity </th>
+                                                                        <th style="text-align: center;">Tax </th>
+                                                                        <th style="text-align: center;">P.Discount</th>
+                                                                        <th style="text-align: center;">Total</th>
+                                                                    </tr>
+                                                                    <!-- hr divider start -->
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <hr>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <!-- hr divider end -->
+
+                                                                    <!-- records start  -->
+                                                                    {{#each products}}
+                                                                    <tr>
+                                                                        {{#each this}}
+                                                                        <td
+                                                                            style="text-align: center;border-bottom: 1px dotted #aaa; padding-top: 7px; padding-bottom: 7px;">
+                                                                            {{this}}
+                                                                        </td>
+                                                                        {{/each}}
+                                                                        
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <hr>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {{/each}}
+                                                                    <!-- records end -->
+                                                                   
+                                                                    <!-- hr divider start -->
+                                                                    <tr>
+                                                                        <td colspan="3"
+                                                                            style="text-align: left; text-transform: capitalize; font-weight: bold;">
+
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: left; font-weight: bold;">
+
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: left; text-transform: capitalize; font-weight: bold;">
+                                                                            Paid Amount
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: right; font-weight: bold;">
+
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: center; font-weight: bold;">
+                                                                            {{totalBill}}
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <hr>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <!-- paid amount start -->
+                                                                    <tr>
+                                                                        <td colspan="3"
+                                                                            style="text-align: left; text-transform: capitalize; font-weight: bold;">
+                                                                            Receipt Date Wise Total
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: center; font-weight: bold;">
+                                                                            {{totalQuantity}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: center; text-transform: capitalize; font-weight: bold;">
+                                                                            {{totalVat}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: right; font-weight: bold;">
+
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: center; font-weight: bold;">
+                                                                            {{totalBill}}
+                                                                        </td>
+                                                                    </tr>
+                                                                    <!-- paid amount end -->
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <hr>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- payment information end -->
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="line-height: 5px;">&nbsp;</td>
+                                            </tr>
+                                            {{/data}}
+                                            <!-- payment report by method wise end -->
+                                            
+                                            <tr>
+                                                <td style="line-height: 10px;">
+                                                    &nbsp;</td>
+                                            </tr>
+                                            <!-- grand total part start -->
+                                            <tr>
+                                                <td>
+                                                    <table class="center" cellspacing=0 cellpadding=0 width="100%">
+                                                        <!-- payment information start -->
+                                                        <tr>
+                                                            <td>
+                                                                <table class="two-column" cellspacing=0 cellpadding=0
+                                                                    width="100%">
+                                                                    <tr>
+                                                                        <th style="text-align: left;"></th>
+                                                                        <th style="text-align: left;"></th>
+                                                                        <th style="text-align: left;"></th>
+                                                                        <th style="text-align: left;">Quantity </th>
+                                                                        <th style="text-align: left;">Tax </th>
+                                                                        <th style="text-align: center;">T. Discounts</th>
+                                                                        <th style="text-align: right;">Total</th>
+                                                                    </tr>
+                                                                    <!-- hr divider start -->
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <hr>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="3"
+                                                                            style="text-align: left; text-transform: capitalize; font-weight: bold; padding-top: 7px;">
+                                                                            Shop wise total
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: left; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotalQuantityPrice}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: left; text-transform: capitalize; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotalVat}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: center; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotalProductDiscount}} + {{reportTotalOtherDiscount}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: right; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotal}}
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td colspan="3"
+                                                                            style="text-align: left; text-transform: capitalize; font-weight: bold; padding-top: 7px;">
+                                                                            Grand total
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: left; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotalQuantityPrice}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: left; text-transform: capitalize; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotalVat}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: center; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotalProductDiscount}} + {{reportTotalOtherDiscount}}
+                                                                        </td>
+                                                                        <td
+                                                                            style="text-align: right; font-weight: bold; padding-top: 7px;">
+                                                                            {{reportTotal}}
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <hr>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <b>Total Receipt: {{totalSlip}}</b>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- payment information end -->
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <!-- grand total part end -->
+                                            <tr>
+                                                <td style="line-height: 10px;">
+                                                    &nbsp;</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <!-- Payment report end -->
+
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- Payment method info part end -->
+                    <tr>
+                        <td>
+                          <table cellspacing="0" cellpadding="10" width="100%">
+                            <tr>
+                              <td class="text-left"><span>Printed on</span> - <span>{{today}}  {{createTime}}</span> </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; text-align: center;"><span>' This is a Computer Generated Report Hence No Signature Will Not Be Required. '</span> </td>
+                              </tr>
+                          </table>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

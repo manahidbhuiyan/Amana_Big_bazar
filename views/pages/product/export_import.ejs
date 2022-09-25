@@ -1,0 +1,217 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <!-- Main Content -->
+            <section class="content">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid" id="export_import_data">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="body">
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <p class="text-center text-primary">Your current branch is :
+                                                    <strong>{{branch.name}}</strong>
+                                                </p>
+                                                <button @click="changeBranch" class="btn btn-primary mb-2">Change
+                                                    Branch</button>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6 offset-lg-3">
+                                                <% include ../notification/message %>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12" v-if="isLoading==true">
+                                                <div class="loading_image text-center">
+                                                    <img src="https://i.postimg.cc/VvvhV2Lj/loading-processing-gif.gif"
+                                                        alt="" srcset="">
+                                                    <p>Processing please wait...</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 offset-lg-3"  v-show="adminAccess.length>0?adminAccess.includes('export import product import'):false">
+                                                <h6 class="mt-2 mb-2">Upload your product data</h6>
+                                                <div class="upload_fields mb-3">
+                                                    <div class="custom-file">
+                                                        <input type="file" @change="uploadFile" :disabled="isLoading"
+                                                            id="uploadedFile" class="custom-file-input" />
+                                                        <label class="custom-file-label" for="customFile">Upload excel
+                                                            file of product
+                                                            data</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-3 offset-sm-3"  v-show="adminAccess.length>0?adminAccess.includes('export import product export'):false">
+                                                <h6>Category</h6>
+                                                <div class="form-group">
+                                                    <select class="form-control" @change="getSubcategoryInfo(category)"
+                                                        v-model="category" required>
+                                                        <option value="">-- Select Category --</option>
+                                                        <option
+                                                            :value="{id: category._id, name: category.name, vat: category.vat}"
+                                                            v-for="(category, index) in allCategory" :key="index"
+                                                            class="text-capitalize">{{category.name}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <div class="mb-3 mt-4">
+                                                    <a :href="exportLink" target="_blank"
+                                                        class="btn btn-primary btn-block"
+                                                        :disabled="!isCategorySelected">Export
+                                                        Product</a>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12">
+                                                <div class="row">
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <script>
+                const uploadExcelImportFile = (requestLink, dataInfo, token) => {
+                    return new Promise((resolve, reject) => {
+                        axios({
+                            method: 'post',
+                            url: requestLink,
+                            data: dataInfo,
+                            timeout: 60 * 120 * 1000, // Let's say you want to wait at least 120 mins
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                                'x-auth-token': token
+                            },
+                            json: true
+                        }).then((response) => {
+                            console.log(response)
+                            resolve({
+                                response: response.data
+                            })
+                        }).catch((error) => {
+                            console.log(error.response)
+                            resolve({
+                                response: error.response.data.errors
+                            })
+                        });
+                    })
+                }
+            </script>
+            <script>
+                new Vue({
+                    el: '#export_import_data',
+                    data: {
+                        allBranch: [],
+                        allCategory: [],
+                        projectData: [],
+                        branch: '',
+                        category: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isLoading: false,
+                        exportLink: "<%= host %>/api/product/data/export/excel/" + localStorage.getItem('token') + "?branch=" + localStorage.getItem('branch'),
+                        isCategorySelected: false,
+                        adminAccess: []
+                    },
+                    mounted() {
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                        this.checkBranchInfo()
+                        this.getBranchInfo()
+                        this.getCategoryInfo()
+                    },
+                    methods: {
+                        clearNotification() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        getCategoryInfo() {
+                            let branchID = '?branch=' + localStorage.getItem('branch')
+                            let requestLink = '/api/category' + branchID
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCategory = result.response.data
+                                }
+                            })
+                        },
+                        getSubcategoryInfo(value) {
+                            this.exportLink += ("&category=" + value.id)
+                            if (value) {
+                                this.isCategorySelected = true
+                            } else {
+                                this.isCategorySelected = false
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            name: result.response.data.name
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        uploadFile() {
+                            this.isLoading = true
+                            this.clearNotification();
+                            let file = document.getElementById("uploadedFile").files[0]
+                            let data = new FormData()
+                            data.append('file', file)
+                            let requestLink = '/api/product/data/import/excel'
+                            let token = localStorage.getItem('token')
+                            uploadExcelImportFile(requestLink, data, token).then((result) => {
+                                if (result.response.auth == false) {
+                                    this.errorResponse = result.response.errors
+                                    this.isLoading = false
+                                } else {
+                                    this.successResponse = result.response
+                                    this.isLoading = false
+                                }
+                            })
+                        }
+                    }
+                })
+            </script>
+
+
+            <% include ../../partials/footer %>

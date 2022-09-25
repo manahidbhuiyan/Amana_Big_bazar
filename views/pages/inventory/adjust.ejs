@@ -1,0 +1,401 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <style>
+                body {
+                    padding-right: 0px !important;
+                }
+
+                .dtp .p10>a {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .dtp>.dtp-content>.dtp-date-view>header.dtp-header {
+                    background: #7e6990;
+                    color: #fff;
+                    text-align: center;
+                    padding: 0.3em;
+                }
+
+                .dtp div.dtp-date,
+                .dtp div.dtp-time {
+                    background: #7e6990;
+                    text-align: center;
+                    color: #fff;
+                    padding: 10px;
+                }
+
+                .dtp table.dtp-picker-days tr>td>a.selected {
+                    background: #7e6990;
+                    color: #fff;
+                }
+
+
+                /*dropdown style*/
+                .dropdown-custom {
+                    width: 100%;
+                }
+
+                .dropdown-content-custom {
+                    background-color: #fff;
+                    min-width: 160px;
+                    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                    border: 1px solid #f1f1f1;
+                    z-index: 1;
+                    width: 90%;
+                    max-height: 250px;
+                    overflow-y: scroll;
+                    top: 38px !important;
+                }
+
+                .dropdown-custom>.searchField {
+                    width: 80% !important;
+                }
+            </style>
+            <div id="add_data_section">
+
+                <!-- Main Content -->
+                <section class="content">
+
+                    <% include ../../partials/content/header %>
+
+                        <div class="container-fluid">
+
+                            <div class="row clearfix">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="header">
+                                            <h2><strong>Adjust</strong> Inventory</h2>
+                                            <div class="row">
+                                                <div class="col-sm-12 text-center">
+                                                    <p class="text-center text-primary">Your current branch is :
+                                                        <strong>{{branch.name}}</strong>
+                                                    </p>
+                                                    <button @click="changeBranch" class="btn btn-primary">Change
+                                                        Branch</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="body">
+                                            <div class="row">
+                                                <div class="col-lg-6 offset-lg-3">
+                                                    <% include ../notification/message %>
+                                                </div>
+                                            </div>
+                                            <form @submit.prevent="adjustInventoryProduct">
+                                                <div class="row clearfix justify-content-center">
+                                                    <div class="col-sm-6">
+                                                        <h6 class="mt-2 mb-2">Category<span style="color: red;">*</span>
+                                                        </h6>
+                                                        <div class="form-group">
+                                                            <select class="form-control" @change="getSubcategoryInfo(category)" v-model="category" required>
+                                                                <option value="">-- Select Category --</option>
+                                                                <option value="all">All</option>
+                                                                <option :value="{id: category._id, name: category.name, vat: category.vat}" v-for="(category, index) in allCategory"
+                                                                    :key="index" class="text-capitalize">
+                                                                    {{category.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <h6 class="mt-2 mb-2">Subcategory</h6>
+                                                        <div class="form-group">
+                                                            <select class="form-control" @change="selectSubCategory(subcategory)" v-model="subcategory"
+                                                                :disabled="category == 'all'">
+                                                                <option value="">-- Select Subcategory --</option>
+                                                                <option
+                                                                    :value="{id: subcategory._id, name: subcategory.name, isSizeAvailable: subcategory.isSizeAvailable, isWeightAvailable: subcategory.isWeightAvailable}"
+                                                                    v-for="(subcategory, index) in allSubcategory" :key="index" class="text-capitalize">
+                                                                    {{subcategory.name}}
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <h6 class="mt-2 mb-2">Brand</h6>
+                                                        <div class="form-group">
+                                                            <select class="form-control" @change="getSupplierInfo(brand)" v-model="brand" :disabled="category == 'all'">
+                                                                <option value="">-- Select Brand --</option>
+                                                                <option :value="{id: brand._id, name: brand.name}" v-for="(brand, index) in allBrand" :key="index"
+                                                                    class="text-capitalize">
+                                                                    {{brand.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <h6 class="mt-2 mb-2">Supplier</h6>
+                                                        <div class="form-group">
+                                                            <select class="form-control" v-model="supplier" :disabled="category == 'all'">
+                                                                <option value="">-- Select Supplier --</option>
+                                                                <option :value="{id: supplier._id, name: supplier.name}" v-for="(supplier, index) in allSupplier"
+                                                                    :key="index" class="text-capitalize">{{supplier.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                    <div class="row clearfix">
+                                                        <div class="col-sm-12">
+                                                            <button type="submit" :disabled="isDisable" class="btn btn-primary btn-round waves-effect mt-4"
+                                                                data-backdrop="static" data-keyboard="false" @click="" :disabled="isLoading"><span
+                                                                    v-if="isDisable">Adjusting...</span><span v-else>Adjust</span>
+                                                            </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </section>
+
+            </div>
+
+
+            <script>
+                new Vue({
+                    el: '#add_data_section',
+                    data: {
+                        category: '',
+                        subcategory: '',
+                        brand: '',
+                        supplier: '',
+                        allCategory: [],
+                        allSupplier: [],
+                        allBrand: [],
+                        allSubcategory: [],
+                        isSearchLoading: false,
+                        branch: '',
+                        errorResponse: null,
+                        tempInventoryStock: 11,
+                        successResponse: null,
+                        type_section: null,
+                        isDisable: false,
+                        isLoading: false,
+                        isUpdateState: false,
+                        isAdjusted: false,
+                        inventoryProductList: [],
+                        _id: "",
+                        adminAccess: []
+                    },
+                    mounted() {
+                        this.checkBranchInfo()
+                        this.getBranchInfo()
+                        this.getCategoryInfo()
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                    },
+                    methods: {
+                        getCategoryInfo() {
+                            let branchID = '?branch=' + localStorage.getItem('branch')
+                            let requestLink = '/api/category' + branchID
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCategory = result.response.data
+                                }
+                            })
+                        },
+                        getSubcategoryInfo(value) {
+                            if (value != 'all') {
+                                let branchID = '?branch=' + localStorage.getItem('branch')
+                                let requestLink = '/api/subcategory/category/' + value.id + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.allSubcategory = result.response.data
+                                        this.subcategory = ''
+                                    }
+                                })
+                            }
+                        },
+                        getBrandInfo(value) {
+                            let branchID = '?branch=' + localStorage.getItem('branch')
+                            let requestLink = '/api/brand/subcategory/' + value.id + branchID
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBrand = result.response.data
+                                    this.brand = ''
+                                }
+                            })
+                        },
+                        getSupplierInfo(value) {
+                            let branchID = '?branch=' + localStorage.getItem('branch')
+                            let requestLink = '/api/supplier/brand/' + value.id + branchID
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSupplier = result.response.data
+                                    this.supplier = ''
+                                }
+                            })
+                        },
+
+                        clearResponseMessage() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        add_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'add'
+                        },
+                        remove_type_section() {
+                            this.clearResponseMessage()
+                            this.type_section = null
+                            this.clear_fields()
+                        },
+                        getInventoryProduct() {
+                            if (this.category == "") {
+                                this.inventoryProductList = []
+                                this.inventoryProductListFilter = []
+                                this.clear_forms()
+                            } else {
+                                this.clear_forms()
+                                this.isDisable = true
+                                let branchID = localStorage.getItem('branch')
+
+                                let link = ''
+                                if (this.category != 'all') {
+                                    link = '&category=' + this.category.id
+
+                                    if (this.subcategory != "") {
+                                        link = link + '&subcategory=' + this.subcategory.id
+                                    }
+                                    if (this.brand != "") {
+                                        link = link + '&brand=' + this.brand.id
+                                    }
+                                    if (this.supplier != "") {
+                                        link = link + '&supplier=' + this.supplier.id
+                                    }
+                                } else {
+                                    link = '&category=' + this.category
+                                }
+                                let requestLink = '/api/inventory/category' +
+                                    '?branch=' + branchID + link
+
+                                getType(requestLink).then((result) => {
+                                    if (result.auth == true) {
+                                        this.productName = ""
+                                        this.inventoryProductList = []
+                                        this.inventoryProductList = result.response.data
+                                        this.inventoryProductListFilter = result.response.data
+                                    } else {
+                                        this.inventoryProductList = []
+                                        this.inventoryProductListFilter = []
+                                    }
+                                    this.isDisable = false
+                                    this.category = ''
+                                    this.subcategory = ''
+                                    this.brand = ''
+                                    this.supplier = ''
+                                })
+                            }
+
+                        },
+
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            serialNo: result.response.data.serialNo,
+                                            name: result.response.data.name,
+                                            address: result.response.data.address,
+                                            thana: result.response.data.thana.name,
+                                            district: result.response.data.district.name,
+                                            phone: result.response.data.phone,
+                                            flat_order: result.response.data.flat_order,
+                                            point_bench_mark: result.response.data.point_settings.bench_mark,
+                                            point_purchase: result.response.data.point_settings.purchase,
+                                            point_expand: result.response.data.point_settings.expand,
+                                            use_points_on: result.response.data.point_settings.use_points_on
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        adjustInventoryProduct() {
+                            this.clearResponseMessage()
+                            this.isDisable = true
+                            if (this.category == "") {
+                                alert('Please Select a Category and give a barcode')
+                            } else {
+                                let token = localStorage.getItem('token')
+                                let branchID = localStorage.getItem('branch')
+                                let link = ''
+                                if (this.category != 'all') {
+                                    link = '&category=' + this.category.id
+
+                                    if (this.subcategory != "") {
+                                        link = link + '&subcategory=' + this.subcategory.id
+                                    }
+                                    if (this.brand != "") {
+                                        link = link + '&brand=' + this.brand.id
+                                    }
+                                    if (this.supplier != "") {
+                                        link = link + '&supplier=' + this.supplier.id
+                                    }
+                                } else {
+                                    link = '&category=' + this.category
+                                }
+                                let requestLink = '/api/inventory/adjust' +
+                                    '?branch=' + branchID + link
+
+                                let item = null
+                                this.isSearchLoading = true
+
+                                updateDataInfo(requestLink, item, token).then((result) => {
+
+                                    if (result.auth === true) {
+                                        this.successResponse = result.response
+                                    }
+                                    else {
+                                        this.errorResponse = result.response
+                                    }
+                                    this.isDisable = false
+                                    this.category = ''
+                                    this.subcategory = ''
+                                    this.brand = ''
+                                    this.supplier = ''
+                                })
+                            }
+                        },
+                        checkAdjust() {
+                            this.getInventoryProduct()
+                        }
+                    }
+                })
+            </script>
+
+            <script>
+                $("#add_data_section").on('wheel', function () {
+                    $('input[type=number]').on('mousewheel', function (e) { $(this).blur(); });
+                });
+            </script>
+
+            <% include ../../partials/footer %>

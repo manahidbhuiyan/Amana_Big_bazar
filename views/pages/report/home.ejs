@@ -1,0 +1,125 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content">
+    
+    <% include ../../partials/content/header %>
+    
+    <div class="container-fluid" id="property_home_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">                   
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+                        <div class="row" v-if="isLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive" v-else>
+                            <template v-if="propertyPartitionData.data && propertyPartitionData.data.length > 0">
+                                <table class="table td_2 table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Name</th>
+                                            <th>Partition Type</th>
+                                            <th>Project</th>
+                                            <th>Property</th>
+                                            <th>Price</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                        <tbody>
+                                            <tr v-for="(propertyPartitionData, index) in propertyPartitionData.data" :key="propertyPartitionData._id">
+                                                <td>{{ index + 1 }}</td>
+                                                <td style="text-transform: capitalize;">{{propertyPartitionData.name}}</td>
+                                                <td style="text-transform: capitalize;">
+                                                    <span class="badge badge-primary mb-0 mr-2">{{propertyPartitionData.ads_type.name}}</span>
+                                                </td>
+                                                <td style="text-transform: capitalize;">{{propertyPartitionData.project.name}}</td>
+                                                <td style="text-transform: capitalize;">{{propertyPartitionData.property.name}}</td>
+                                                <td style="text-transform: capitalize;">{{propertyPartitionData.price}}</td>
+                                                <td>
+                                                    <button :disabled="isDisable" class="btn btn-icon btn-neutral btn-icon-mini"><i class="zmdi zmdi-eye"></i></button>
+                                                    <a :href="'<%= host %>/dashboard/partition/update/'+propertyPartitionData._id"><button :disabled="isDisable" class="btn btn-icon btn-neutral btn-icon-mini"><i class="zmdi zmdi-edit"></i></button></a>
+                                                    <button :disabled="isDisable" @click="deletePropertyPartition(propertyPartitionData._id)" class="btn btn-icon btn-neutral btn-icon-mini"><i class="zmdi zmdi-delete"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </template>
+                                        
+                                    
+                                </table>
+                            </template>
+                            <template v-else>
+                                <p class="text-center mt-4">No data is available about project.</p>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="<%= host %>/javascript/data_manipulation.js"></script>
+<script>
+    new Vue({
+        el: '#property_home_section',
+        data:{
+            propertyPartitionData: [],
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: true,
+            adminAccess: []
+        },
+        mounted(){
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.getpropertyData()
+        },
+        methods: {
+            getpropertyData(){
+                let requestLink = '/api/property/division/table'
+                getData(requestLink).then((result) => {
+                    if(result.auth === true){
+                        this.propertyPartitionData = result.response
+                        this.isLoading = false
+                    }
+                })
+            },
+            clear_notifications(){
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            deletePropertyPartition(propertyPartitionID){
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/property/division/'
+                let token = localStorage.getItem('token')
+                deleteData(requestLink, propertyPartitionID, token).then((result) => {
+                    if(result.auth===false)
+                    {
+                        this.errorResponse = result.response 
+                    }else{
+                        this.getpropertyData()
+                        this.successResponse = result.response
+                    }
+                    this.isDisable = false
+                })
+            }
+        }
+    })
+</script>
+
+
+<% include ../../partials/footer %>

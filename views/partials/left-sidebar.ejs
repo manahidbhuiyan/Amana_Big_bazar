@@ -1,0 +1,1386 @@
+<!-- Left Sidebar -->
+<aside id="leftsidebar" class="sidebar">
+    <ul class="nav nav-tabs justify-content-center">
+        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="<%= host %>/dashboard"><i
+                    class="zmdi zmdi-home m-r-5"></i><%= companyInfo.name  %> </a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane stretchRight active" id="dashboard" style="display:none">
+            <div class="menu">
+                <ul class="list">
+                    <li>
+                        <div class="user-info">
+                            <div class="image"><a href="<%= host %>/dashboard"><img :src="avatar" alt="User"></a></div>
+                            <div class="detail">
+                                <h4>{{name}}</h4>
+                                <small>{{adminType}}</small>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="header">MAIN</li>
+                    <li class=""><a href="<%= host %>/dashboard"><i
+                                class="zmdi zmdi-home"></i><span>Dashboard</span></a></li>
+
+                    <li id="orderVisible" <% if(breadcumb.main.text==='order'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-city"></i><span>Orders</span></a>
+                        <ul class="ml-menu">
+                            <li id="manageOrderVisible" <% if(breadcumb.main.text==='order' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/order/list">Manage order</a></li>
+                        </ul>
+                    </li>
+
+                    <li id="branchVisible" <% if(breadcumb.main.text==='branch'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-city"></i><span>Branchs</span></a>
+                        <ul class="ml-menu">
+                            <li id="manageBranchVisible" <% if(breadcumb.main.text==='branch' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/branch/list">Manage Branch</a></li>
+                        </ul>
+                    </li>
+                    <li id="categoryVisible" <% if(breadcumb.main.text==='category'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-city"></i><span>Categories</span></a>
+                        <ul class="ml-menu">
+                            <li id="manageCategoryVisible" <% if(breadcumb.main.text==='category' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/category/list">Manage Category</a></li>
+                        </ul>
+                    </li>
+                    <li id="subcategoryVisible" <% if(breadcumb.main.text==='subcategory'){ %> class="active open"
+                        <% } %>><a href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-city"></i><span>Subcategories</span></a>
+                        <ul class="ml-menu">
+                            <li id="manageSubcategoryVisible" <% if(breadcumb.main.text==='subcategory' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/subcategory/list">Manage Subcategory</a></li>
+                        </ul>
+                    </li>
+                    <li id="brandVisible" <% if(breadcumb.main.text==='brand'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-city"></i><span>Brands</span></a>
+                        <ul class="ml-menu">
+                            <li id="manageBrandVisible" <% if(breadcumb.main.text==='brand' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/brand/list">Manage Brand</a></li>
+                        </ul>
+                    </li>
+                    <li id="supplierVisible" <% if(breadcumb.main.text==='supplier'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-city"></i><span>Suppliers</span></a>
+                        <ul class="ml-menu">
+                            <li id="manageSupplierVisible" <% if(breadcumb.main.text==='supplier' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/supplier/list">Manage Supplier</a></li>
+                        </ul>
+                    </li>
+                    <li id="posCart" <% if(breadcumb.main.text==='pos cart'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-city"></i><span>POS
+                                System</span></a>
+                        <ul class="ml-menu">
+                            <!-- <li <% if(breadcumb.main.text==='pos cart' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='period wise create'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/pos/order/period-wise/create?tabID=<%= Date.now()+Math.floor(Math.random()*(99-10+1)+10) %>">Period Wise Sell</a>
+                            </li> -->
+                            <li id="posSellVisible" <% if(breadcumb.main.text==='pos cart' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='create'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/pos/order/create?tabID=<%= Date.now()+Math.floor(Math.random()*(99-10+1)+10) %>">Sell</a>
+                            </li>
+                            <li id="orderListVisible" <% if(breadcumb.main.text==='pos cart' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/pos/order/list">Order List</a></li>
+                            <li id="exchangeListVisible" <% if(breadcumb.main.text==='pos cart' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='exchanges list' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/pos/order/exchanges/list">Exchange List</a>
+                            </li>
+                            <li id="refundListVisible" <% if(breadcumb.main.text==='pos cart' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='refunds list' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/pos/order/refunds/list"">Refund List</a></li> 
+                        </ul>
+                    </li>
+                    <li id="accountsVisible" <% if(breadcumb.main.text==='accounts' ){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-reader"></i><span>
+                            Accounts</span></a>
+                        <ul class="ml-menu">
+                            <li id="addBranchGeneralJournalVisible" <% if(breadcumb.main.text==='accounts' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='branch general journal add' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/accounts/branch/general_journal/add">Add Branch General Book</a>
+                            </li>
+                            <li id="branchGeneralJournalVisible" <% if(breadcumb.main.text==='accounts' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='branch general journal manage' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/accounts/branch/general_journal/manage">Branch General Book</a>
+                            </li>
+                            <li id="addWarehouseGeneralJournalVisible" <% if(breadcumb.main.text==='accounts' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='warehouse general journal add' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/accounts/warehouse/general_journal/add">Add warehouse
+                                                General Book</a>
+                            </li>
+                            <li id="warehouseGeneralJournalVisible" <% if(breadcumb.main.text==='accounts' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='warehouse general journal manage' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/accounts/warehouse/general_journal/manage">warehouse General Book</a>
+                            </li>
+                            <li id="branchReceivingAdjustVisible" <% if(breadcumb.main.text==='accounts' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='branch receiving adjust' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/accounts/branch/receiving/adjust">Branch Receiving Adjust</a>
+                            </li>
+                            <li id="warehouseReceivingAdjustVisible" <% if(breadcumb.main.text==='accounts' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='warehouse receiving adjust' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/accounts/warehouse/receiving/adjust">Warehouse Receiving Adjust</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li id="chartOfAccountsVisible" <% if(breadcumb.main.text==='chart of accounts' ){ %> class="active open" <% } %>><a
+                                href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-reader"></i><span>
+                                    Chart Of Accounts</span></a>
+                            <ul class="ml-menu">
+                                <li id="manageGroupVisible" <% if(breadcumb.main.text==='chart of accounts' && breadcumb.sub.length>0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage group' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/chart_of_accounts/group/manage">Manage Group</a>
+                                </li>
+                                <li id="manageSubGroupVisible" <% if(breadcumb.main.text==='chart of accounts' && breadcumb.sub.length>0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage subgroup' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/chart_of_accounts/subgroup/manage">Manage SubGroup</a>
+                                </li>
+                                <li id="categoryManageVisible" <% if(breadcumb.main.text==='chart of accounts' && breadcumb.sub.length>0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage category' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/chart_of_accounts/category/manage">Manage Category</a>
+                                </li>
+                                <li id="manageSubCategoryVisible" <% if(breadcumb.main.text==='chart of accounts' && breadcumb.sub.length>
+                                    0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage subcategory' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/chart_of_accounts/subcategory/manage">Manage
+                                                    SubCategory</a>
+                                </li>
+                            </ul>
+                    </li>
+                    <li id="accountsSettingsVisible" <% if(breadcumb.main.text==='accounts settings' ){ %> class="active open" <% } %>><a
+                                href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-wrench"></i><span>
+                                    Accounts Settings</span></a>
+                            <ul class="ml-menu">
+                                <li id="manageVoucherVisible" <% if(breadcumb.main.text==='accounts settings' && breadcumb.sub.length>0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage voucher' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/accounts_settings/voucher/manage">Manage Voucher </a>
+                                </li>
+                                <!-- <li id="manageCostCenterVisible" <% if(breadcumb.main.text==='accounts settings' && breadcumb.sub.length>0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage cost center' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/accounts_settings/cost_center/manage">Manage Cost
+                                                    Center</a>
+                                </li> -->
+                                <!-- <li id="manageBankVisible" <% if(breadcumb.main.text==='accounts settings' && breadcumb.sub.length>0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage bank' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/accounts_settings/bank/manage">Manage Bank </a>
+                                </li> -->
+                                <li id="manageCurrencyVisible" <% if(breadcumb.main.text==='accounts settings' && breadcumb.sub.length>
+                                    0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='manage currency' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/accounts_settings/currency/manage">Manage
+                                                    Currency </a>
+                                </li>
+                                <li id="manageSupplierOpeningBalanceVisible" <% if(breadcumb.main.text==='accounts settings' && breadcumb.sub.length>
+                                    0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='opening balance' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/accounts_settings/opening-balance/supplier">Supplier Opening Balance</a>
+                                <li id="manageGeneralSettingsVisible" <% if(breadcumb.main.text==='accounts settings' && breadcumb.sub.length>
+                                    0){
+                                    %>
+                                    <% if(breadcumb.sub[0].text==='general settings' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/accounts_settings/general_settings">General
+                                                    Settings </a>
+                                </li>
+                            </ul>
+                    </li>
+                    <li id="imageUploadVisible"
+                        <% if(breadcumb.main.text==='manage images' && breadcumb.sub.length==0){ %> class="active"
+                        <% } %>><a href="<%= host %>/dashboard/manage/images/list"><i
+                                class="zmdi zmdi-reader"></i><span>Manage Images</span></a>
+                    </li>
+
+                    <li id="clientReviewVisible"
+                        <% if(breadcumb.main.text==='client review' && breadcumb.sub.length==0){ %> class="active"
+                        <% } %>><a href="<%= host %>/dashboard/clientreview/list"><i
+                                class="zmdi zmdi-reader"></i><span>Client Review</span></a>
+                    </li>
+                    <li id="offerVisible" <% if(breadcumb.main.text==='offer' && breadcumb.sub.length==0){ %>
+                        class="active" <% } %>><a href="<%= host %>/dashboard/offer/list"><i
+                                class="zmdi zmdi-reader"></i><span>Manage offer</span></a>
+                    </li>
+
+                    <!-- Coupon code start -->
+
+                    <li id="couponCodeVisible" <% if(breadcumb.main.text==='coupon code' ){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-city"></i><span>Coupon Code</span></a>
+                            <ul class="ml-menu">
+                                <li id="addNewCouponVisible" <% if(breadcumb.main.text==='coupon code' && breadcumb.sub.length>0){ %>
+                                    <% if(breadcumb.sub[0].text==='create' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/coupon_code/create">Add New Coupon</a>
+                                </li>
+                                <li id="manageCouponVisible" <% if(breadcumb.main.text==='coupon code' && breadcumb.sub.length>0){ %>
+                                    <% if(breadcumb.sub[0].text==='manage' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/coupon_code/list">Manage Coupon</a>
+                                </li>
+                            </ul>
+                    </li>
+                    <!-- Coupon code End -->
+
+                    <li id="shopManagerVisible" <% if(breadcumb.main.text==='pos manager' && breadcumb.sub.length==0){ %>
+                        class="active" <% } %>><a href="<%= host %>/dashboard/manager/list"><i
+                                class="zmdi zmdi-reader"></i><span>POS Manager</span></a>
+                    </li>
+                    
+                    <li id="softwareReplaceVisible" <% if(breadcumb.main.text==='software replace' && breadcumb.sub.length==0){ %>
+                        class="active" <% } %>><a href="<%= host %>/dashboard/software-replace/load-products"><i
+                                class="zmdi zmdi-reader"></i><span>Software Replace</span></a>
+                    </li>
+
+                    <li id="backOfficeVisible" <% if(breadcumb.main.text==='backoffice settings'){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i
+                            class="zmdi zmdi-city"></i><span>Backoffice Settings</span></a>
+                        <ul class="ml-menu">
+                            <li id="searchOptionsVisible" <% if(breadcumb.main.text==='backoffice settings' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='lookup'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/back-office/lookup/list">Search Options</a></li>
+                            <li id="personalDiscountVisible" <% if(breadcumb.main.text==='backoffice settings' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='personal discount'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/back-office/personal-discount/list">Personal Discount</a></li>
+                            <li id="specialDiscountVisible" <% if(breadcumb.main.text==='backoffice settings' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='special discount'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/back-office/special-discount/list">Special Discount</a></li>
+                            <li id="salesPersonVisible" <% if(breadcumb.main.text==='backoffice settings' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='sales person'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/back-office/sales-person/list">Sales Person</a></li>
+                            <li id="deliveryChargesVisible" <% if(breadcumb.main.text==='backoffice settings' && breadcumb.sub.length>0){ %>
+                                                <% if(breadcumb.sub[0].text==='delivery charges'){ %> class="active" <% } %> <% } %>><a
+                                                    href="<%= host %>/dashboard/back-office/delivery/charge/list">Delivery Changes</a></li>                        
+                        </ul>
+                    </li>
+
+                    <li id="warehouseProductVisible" <% if(breadcumb.main.text==='warehouse product'){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i
+                            class="zmdi zmdi-city"></i><span>Store Products</span></a>
+                        <ul class="ml-menu">
+                            <li id="addNewProductVisible" <% if(breadcumb.main.text==='warehouse product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='create'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/product/create">Add New Product</a></li>
+                            <li id="manageProductVisible" <% if(breadcumb.main.text==='warehouse product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='manage'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/product/list">Manage Product</a></li>
+                            <li id="prticeMarkVisible" <% if(breadcumb.main.text==='warehouse product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='price mark'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/product/price-mark/up-down">Price Mark Change</a>
+                            </li>
+                            <li id="barcodePrintVisible" <% if(breadcumb.main.text==='warehouse product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='barcode print'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/product/barcode-print">Barcode Print</a>
+                            </li>
+                            <li id="productSizeVisible" <% if(breadcumb.main.text==='warehouse product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='size'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/product/size">Product Size</a></li>
+                            <li id="weightUnitVisible" <% if(breadcumb.main.text==='warehouse product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='weight'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/product/weight">Weight Unit</a></li>
+                            <li id="productReconciliationVisible" <% if(breadcumb.main.text==='warehouse product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='reconciliation' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/warehouse/product/reconciliation">Reconciliation</a>
+                            </li>
+                        </ul>
+                    </li>
+
+
+                    <li id="productVisible" <% if(breadcumb.main.text==='product'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-city"></i><span>Products</span></a>
+                        <ul class="ml-menu">
+                            <li id="branchNewProductVisible" <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='create'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/product/create">Add New Product</a></li>
+                            <li id="branchManageProductVisible" <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='manage'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/product/list">Manage Product</a></li>
+                            <!-- <li <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='category discount'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/product/category-wise-discount">Category Discount</a>
+                            </li> -->
+                            <li id="branchBarcodePrintVisible" <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='barcode print'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/product/barcode-print">Barcode Print</a>
+                            </li>
+                            <li id="branchPriceMarkChangeVisible" <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/price-mark/up-down">Price Mark Change</a></li>
+                            <li id="branchProductReconciliationVisible" <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='reconciliation' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/product/reconciliation">Reconciliation</a>
+                            </li>
+                            <!-- <li <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='size'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/product/size">Product Size</a></li>
+                            <li <% if(breadcumb.main.text==='product' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='weight'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/product/weight">Weight Unit</a></li> -->
+                        </ul>
+                    </li>
+
+                    <li id="transactionVisible" <% if(breadcumb.main.text==='transaction'){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i
+                            class="zmdi zmdi-city"></i><span>Transaction</span></a>
+                        <ul class="ml-menu">
+                            <li id="branchRequisitionVisible" <% if(breadcumb.main.text==='transaction' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='requisition'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/transaction/supplier-requisition">Requisition Supplier</a></li>
+                            <li id="branchReceivingVisible" <% if(breadcumb.main.text==='transaction' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='receive'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/transaction/supplier-receive">Receive Supplier</a></li>
+                            <li id="branchReturnVisible" <% if(breadcumb.main.text==='transaction' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='return'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/transaction/supplier-return">Return Supplier</a></li>
+                            <li id="branchManageDisposalVisible" <% if(breadcumb.main.text==='transaction' && breadcumb.sub.length>0){ %>
+                                                <% if(breadcumb.sub[0].text==='disposal'){ %> class="active" <% } %> <% } %>><a
+                                                    href="<%= host %>/dashboard/transaction/manage-disposal">Manage Disposal</a></li>
+                            <li id="branchManageDiscountVisible" <% if(breadcumb.main.text==='transaction' && breadcumb.sub.length>0){ %>
+                                                        <% if(breadcumb.sub[0].text==='discount'){ %> class="active" <% } %> <% } %>><a
+                                                            href="<%= host %>/dashboard/transaction/manage-discount">Manage Discount</a></li>
+                            <li id="branchMangeVatVisible" <% if(breadcumb.main.text==='transaction' && breadcumb.sub.length>0){ %>
+                                                                <% if(breadcumb.sub[0].text==='vat'){ %> class="active" <% } %> <% } %>><a
+                                                                    href="<%= host %>/dashboard/transaction/manage-vat">Manage Vat</a></li>                                                
+                        </ul>
+                    </li>
+
+                    <li id="warehouseTransactionVisible" <% if(breadcumb.main.text==='warehouse transaction'){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i
+                            class="zmdi zmdi-city"></i><span>Store Transaction</span></a>
+                        <ul class="ml-menu">
+                            <li id="storeRequisitionVisible" <% if(breadcumb.main.text==='warehouse transaction' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='requisition'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/transaction/supplier-requisition">Requisition Supplier</a></li>
+                            <li id="storeReceivingVisible" <% if(breadcumb.main.text==='warehouse transaction' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='receive'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/warehouse/transaction/supplier-receive">Receive Supplier</a></li>
+                            <li id="storeReturnVisible" <% if(breadcumb.main.text==='warehouse transaction' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='return'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/warehouse/transaction/supplier-return">Return Supplier</a></li>
+                            <li id="storeManageDisposalVisible" <% if(breadcumb.main.text==='warehouse transaction' && breadcumb.sub.length>0){ %>
+                                                <% if(breadcumb.sub[0].text==='disposal'){ %> class="active" <% } %> <% } %>><a
+                                                    href="<%= host %>/dashboard/warehouse/transaction/manage-disposal">Manage Disposal</a></li>
+                            <!-- <li <% if(breadcumb.main.text==='warehouse transaction' && breadcumb.sub.length>0){ %>
+                                                        <% if(breadcumb.sub[0].text==='discount'){ %> class="active" <% } %> <% } %>><a
+                                                            href="<%= host %>/dashboard/warehouse/transaction/manage-discount">Manage Discount</a></li>
+                            <li <% if(breadcumb.main.text==='warehouse transaction' && breadcumb.sub.length>0){ %>
+                                                                <% if(breadcumb.sub[0].text==='vat'){ %> class="active" <% } %> <% } %>><a
+                                                                    href="<%= host %>/dashboard/warehouse/transaction/manage-vat">Manage Vat</a></li>                                                 -->
+                        </ul>
+                    </li>
+
+                    <li id="warehouseSupplyVisible" <% if(breadcumb.main.text==='supply'){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i
+                            class="zmdi zmdi-city"></i><span>Manange Supply</span></a>
+                        <ul class="ml-menu">
+                            <li id="storeSupplyToBranchVisible" <% if(breadcumb.main.text==='supply' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a
+                                    href="<%= host %>/dashboard/supply/manage">Supply To Branch</a></li>  
+                                    
+                            <li id="storeReceiveFromBranchVisible" <% if(breadcumb.main.text==='supply' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='return'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/supply/return/manage">Receive From Branch</a></li>       
+                        </ul>
+                    </li>
+                    
+                    <li id="inventoryVisible" <% if(breadcumb.main.text==='inventory' ){ %> class="active open" <% } %>><a
+                                href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-chart"></i><span>Inventory</span></a>
+                            <ul class="ml-menu">
+                                <li id="createInventoryVisible" <% if(breadcumb.main.text==='inventory' && breadcumb.sub[0].text == 'create'){ %>
+                                    <% if(breadcumb.sub[0].text==='create' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/inventory/create">Create Inventory</a>
+                                </li>
+                                <li id="resetInventoryVisible" <% if(breadcumb.main.text==='inventory' && breadcumb.sub[0].text=='reset'){ %>
+                                    <% if(breadcumb.sub[0].text==='reset' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/inventory/reset">Reset Inventory</a>
+                                </li>
+                                <li id="inventoryAdjustVisible" <% if(breadcumb.main.text==='inventory' && breadcumb.sub[0].text=='adjustment'){ %>
+                                    class="active"
+                                    <% } %>><a href="<%= host %>/dashboard/inventory/adjustment">Inventory Adjustment</a>
+                                </li>
+                                <li id="inventoryReconciliationVisible" <% if(breadcumb.main.text==='inventory' &&
+                                    breadcumb.sub[0].text=='reconciliation' ){ %>
+                                    <% if(breadcumb.sub[0].text==='reconciliation' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/inventory/reconciliation">Inventory Reconciliation</a>
+                                </li>
+                                <li id="inventoryViewVisible" <% if(breadcumb.main.text==='inventory' && breadcumb.sub[0].text=='view' ){ %>
+                                    <% if(breadcumb.sub[0].text==='view' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/inventory/view">View Inventory</a>
+                                </li>
+                            </ul>
+                    </li>
+
+                    <li id="warehouseInventoryVisible" <% if(breadcumb.main.text==='warehouse inventory' ){ %> class="active open" <% } %>
+                        ><a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-chart"></i><span>Store
+                                Inventory</span></a>
+                        <ul class="ml-menu">
+                            <li id="createStoreInventoryVisible" <% if(breadcumb.main.text==='warehouse inventory' &&
+                                breadcumb.sub[0].text=='create' ){ %>
+                                <% if(breadcumb.sub[0].text==='create' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/warehouse/inventory/create">Create Inventory</a>
+                            </li>
+                            <li id="resetStoreInventoryVisible" <% if(breadcumb.main.text==='warehouse inventory' &&
+                                breadcumb.sub[0].text=='reset' ){ %>
+                                <% if(breadcumb.sub[0].text==='reset' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/warehouse/inventory/reset">Reset Inventory</a>
+                            </li>
+                            <li id="adjustStoreInventoryVisible" <% if(breadcumb.main.text==='warehouse inventory' &&
+                                breadcumb.sub[0].text=='adjustment' ){ %>
+                                class="active"
+                                <% } %>><a href="<%= host %>/dashboard/warehouse/inventory/adjustment">Inventory Adjustment</a>
+                            </li>
+                            <li id="storeInventoryReconciliationVisible" <% if(breadcumb.main.text==='warehouse inventory' &&
+                                breadcumb.sub[0].text=='reconciliation' ){ %>
+                                <% if(breadcumb.sub[0].text==='reconciliation' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/warehouse/inventory/reconciliation">Inventory Reconciliation</a>
+                            </li>
+                            <li id="storeInventoryViewVisible" <% if(breadcumb.main.text==='warehouse inventory' && breadcumb.sub[0].text=='view' ){
+                                %>
+                                <% if(breadcumb.sub[0].text==='view' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/warehouse/inventory/view">Inventory View</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li id="adminVisible" <% if(breadcumb.main.text==='admin'){ %> class="active open" <% } %>><a
+                            href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-folder-person"></i><span>Admin</span></a>
+                        <ul class="ml-menu">
+                            <li id="addAdminVisible" <% if(breadcumb.main.text==='admin' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='create'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/admin/create">Add New Admin</a></li>
+                            <li id="adminListVisible" <% if(breadcumb.main.text==='admin' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/admin/list">Admin List</a></li>
+                            <li id="menuListVisible" <% if(breadcumb.main.text==='admin' && breadcumb.sub.length> 0){ %>
+                                <% if(breadcumb.sub[0].text==='menu' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/admin/menu">Menu List</a>
+                            </li>
+                            <li id="permissionListVisible" <% if(breadcumb.main.text==='admin' && breadcumb.sub.length> 0){ %>
+                                <% if(breadcumb.sub[0].text==='permission' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/admin/permission">Permission List</a>
+                            </li>
+                            <li id="adminRoleListVisible" <% if(breadcumb.main.text==='admin' && breadcumb.sub.length> 0){ %>
+                                <% if(breadcumb.sub[0].text==='admin role' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/admin/admin-role">Admin Role List</a>
+                            </li>    
+                        </ul>
+                    </li>
+
+                    <li id="notificationVisible" <% if(breadcumb.main.text==='notification'){ %> class="active open"
+                        <% } %>><a href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-folder-person"></i><span>Notification</span></a>
+                        <ul class="ml-menu">
+                            <li id="emailNotificationVisible" <% if(breadcumb.main.text==='notification' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='email notification'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/notification/email">Email Notification</a></li>
+                            <li id="mobileNotificationVisible" <% if(breadcumb.main.text==='notification' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='mobile notification'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/notification/mobile">Mobile Notification</a></li>
+                        </ul>
+                    </li>
+                    <li id="shopSetupVisible" <% if(breadcumb.main.text==='shop setup'){ %> class="active open" <% } %>>
+                        <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-city"></i><span>Shop
+                                Setup</span></a>
+                        <ul class="ml-menu">
+                            <!-- <li <% if(breadcumb.main.text==='shop setup' && breadcumb.sub.length==0){ %> class="active"
+                                <% } %>><a href="<%= host %>/dashboard/manage/shop/list">Manage Setup</a></li> -->
+                                <li id="brandSetupVisible" <% if(breadcumb.main.text==='shop setup' && breadcumb.sub.length> 0){ %>
+                                    <% if(breadcumb.sub[0].text==='brand setup' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/manage/shop/brand_setup">Brand Setup</a>
+                                </li>
+                                <li id="supplierSetupVisible" <% if(breadcumb.main.text==='shop setup' && breadcumb.sub.length> 0){ %>
+                                    <% if(breadcumb.sub[0].text==='supplier setup' ){ %> class="active" <% } %>
+                                            <% } %>><a href="<%= host %>/dashboard/manage/shop/supplier_setup">Supplier Setup</a>
+                                </li>        
+                        </ul>
+                    </li>
+
+                    <li id="exportImportVisible" <% if(breadcumb.main.text==='export import'){ %> class="active open"
+                        <% } %>><a href="javascript:void(0);" class="menu-toggle"><i
+                                class="zmdi zmdi-folder-person"></i><span>Export Import</span></a>
+                        <ul class="ml-menu">
+                            <li id="branchExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='branch'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/branch">Branch</a></li>
+                            <li id="categoryExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='category'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/category">Category</a></li>
+                            <li id="subcategoryExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='sub category'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/sub-category">Sub Category</a></li>
+                            <li id="brandExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='brand'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/brand">Brand</a></li>
+                            <li id="supplierExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='supplier'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/supplier">Supplier</a></li>
+                            <li id="productExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='product'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/product">Product</a></li>
+                            <li id="warehouseExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='warehouse product'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/warehouse/product">Warehouse Product</a></li>
+                            <li id="posClientExportImportVisible" <% if(breadcumb.main.text==='export import' && breadcumb.sub.length > 0){ %>
+                                <% if(breadcumb.sub[0].text==='pos client'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/export-import/pos-client">POS Client</a></li>
+                        </ul>
+                    </li>
+
+                    <li id="warehouseReportVisible" <% if(breadcumb.main.text==='warehouse report'){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i
+                            class="zmdi zmdi-city"></i><span>Warehouse Reports</span></a>
+                        <ul class="ml-menu">
+                            <li id="warehouseSupplierReceivingReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='supplier receiving'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/report/warehouse/supplier-receiving">Supplier Receiving</a></li>
+                            <li id="warehouseSupplierReturnReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='supplier return'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/warehouse/supplier-return">Supplier Return</a></li>        
+                            <li id="warehouseCurrentStockReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='current stock report'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/report/warehouse/current-stock-report">Current Stock Report</a></li>
+                            <li id="warehouseDailyStockReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='daily stock report'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/report/warehouse/daily-stock-report">Daily Stock Report</a></li>        
+                            <li id="warehousePriceMarkReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='price mark'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/warehouse/price-mark-up-down">Price Mark Report</a></li>
+                            <li id="warehouseDisposalReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                                <% if(breadcumb.sub[0].text==='disposal'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/warehouse/disposal">Disposal Report</a></li>    
+                            <li id="warehouseBranchSupplyReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                                <% if(breadcumb.sub[0].text==='supply branch'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/warehouse/supply/branch">Branch Supply</a></li>                                    
+                            <li id="warehouseBranchReceivingReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                                <% if(breadcumb.sub[0].text==='receiving branch'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/warehouse/receiving/branch">Branch Receiving</a></li>     
+                            <li id="warehouseInventoryStockReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>
+                                                0){%><% if(breadcumb.sub[0].text==='inventory stock report' ){ %> class="active" <% } %>
+                                                        <% } %>><a href="<%= host %>/dashboard/report/warehouse/inventory-stock-report">Inventory Stock Report</a></li>
+                            <li id="warehouseProductReconciliationReportVisible" <% if(breadcumb.main.text==='warehouse report' &&
+                                breadcumb.sub.length>
+                                0){%><% if(breadcumb.sub[0].text==='reconciliation' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/report/warehouse/product/reconciliation">Reconciliation</a>
+                            </li>
+                            <li id="warehouseAnalysisReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='analysis'){ %> class="active" <% } %> <% } %>><a
+                                        href="<%= host %>/dashboard/report/warehouse/analysis">Analysis Report</a>
+                            </li>
+                            <li id="warehouseAccountsReportVisible" <% if(breadcumb.main.text==='warehouse report' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='accounts'){ %> class="active" <% } %> <% } %>><a
+                                        href="<%= host %>/dashboard/report/warehouse/accounts">Accounts Report</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- my create menu -->
+
+                    <li id="ecommerceReportVisible" <% if(breadcumb.main.text==='ecommerce report'){ %> class="active open" <% } %> >
+                        <a href="javascript:void(0);" class="menu-toggle">
+                            <i class="zmdi zmdi-city"></i><span>Ecommerce Reports</span> </a>
+
+                            <ul class="ml-menu">
+                                <li id="ecommerceCashMemoReportVisible" <% if(breadcumb.main.text==='ecommerce report' && breadcumb.sub.length>0){ %>
+                                    <% if(breadcumb.sub[0].text==='cash memo'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/ecommerce/cash_memo">Cash Memo</a></li>
+                                <li id="ecommerceSalesReportVisible" <% if(breadcumb.main.text==='ecommerce report' && breadcumb.sub.length>0){ %>
+                                    <% if(breadcumb.sub[0].text==='sales report'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/ecommerce/sales_report">Sales Reports</a></li>
+                            </ul>
+                    </li>
+
+                    <!-- my create menu -->
+
+                    <li id="reportVisible" <% if(breadcumb.main.text==='report'){ %> class="active open" <% } %>><a
+                        href="javascript:void(0);" class="menu-toggle"><i
+                            class="zmdi zmdi-city"></i><span>Reports</span></a>
+                    <ul class="ml-menu">
+                        <li id="cashMemoReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='cash memo'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/cash-memo">Cash Memo</a></li>
+                        <li id="salesReportReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='sales report'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/sales-report">Sales Report</a></li>
+                        <li id="paymentReportReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='payment report'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/payment-received">Payment Report</a>
+                        </li>
+                        <li id="supplierReceivingReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='supplier receiving'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/supplier-receiving">Supplier Receiving</a></li>
+                        <li id="supplierRequisitionReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='supplier requisition' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/supplier-requisition"> Supplier Requisition</a>
+                        </li>
+                        <li id="supplierReturnReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                                    <% if(breadcumb.sub[0].text==='supplier return'){ %> class="active" <% } %> <% } %>><a
+                                        href="<%= host %>/dashboard/report/supplier-return">Supplier Return</a></li>        
+                        <li id="currentStockReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='current stock report'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/current-stock-report">Current Stock Report</a></li>
+                        <li id="dailyStockReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='daily stock report'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/daily-stock-report">Daily Stock Report</a></li>
+                        <li id="inventoryStockReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='inventory stock report' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/inventory-stock-report">Inventory Stock Report</a></li>        
+                        <li id="stockPeriodWiseReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='supplier stock period wise'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/period-wise-supplier-stock">Stock Period Wise By Supplier</a></li>
+                        <li id="priceMarkReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                                    <% if(breadcumb.sub[0].text==='price mark'){ %> class="active" <% } %> <% } %>><a
+                                        href="<%= host %>/dashboard/report/price-mark-up-down">Price Mark Report</a></li>
+                        <li id="disposalReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                                            <% if(breadcumb.sub[0].text==='disposal'){ %> class="active" <% } %> <% } %>><a
+                                                href="<%= host %>/dashboard/report/disposal">Disposal Report</a></li>                        
+                        <li id="vatReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='vat report'){ %> class="active" <% } %> <% } %>><a
+                                href="<%= host %>/dashboard/report/vat-report">VAT Report</a></li>
+                        <li id="customerReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='customer'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/report/customer">Customer</a></li>
+                       <li id="onlineUsersReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                                <% if(breadcumb.sub[0].text==='online users' ){ %> class="active" <% } %>
+                                <% } %>><a href="<%= host %>/dashboard/report/online-users">Online Users</a>
+                        </li>                
+                        <li id="personalDiscountReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='personal discount'){ %> class="active" <% } %> <% } %>><a
+                                                href="<%= host %>/dashboard/report/personal-discount">Personal Discount</a></li>              
+                        <li id="analysisReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='analysis'){ %> class="active" <% } %> <% } %>><a
+                                                href="<%= host %>/dashboard/report/analysis">Analysis</a></li> 
+                        <li id="accountsReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='accounts'){ %> class="active" <% } %> <% } %>><a
+                                    href="<%= host %>/dashboard/report/accounts">Accounts Report</a></li>
+                        <li id="noPaymentResetReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                                        <% if(breadcumb.sub[0].text==='no payment reset' ){ %> class="active" <% } %>
+                                                <% } %>><a href="<%= host %>/dashboard/report/no-payment-reset">No Payment Reset</a>
+                        </li>
+                        <li id="performanceReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='performance' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/performance">Performance Report</a>
+                        </li>
+                        <li id="stockStatusReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='stock status' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/stock_status">Stock Status Report</a>
+                        </li>
+                        <li id="discountReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='discount' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/discounts">Discount Report</a>
+                        </li>
+                        <li id="basketReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='basket' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/basket">Basket Report</a>
+                        </li>
+                        <li id="productReconciliationReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='reconciliation' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/product/reconciliation">Reconciliation Report</a>
+                        </li>
+                        <li id="branchWiseProductReportVisible" <% if(breadcumb.main.text==='report' && breadcumb.sub.length>0){ %>
+                            <% if(breadcumb.sub[0].text==='branch wise product' ){ %> class="active" <% } %>
+                                    <% } %>><a href="<%= host %>/dashboard/report/branch_wise/product"> Branch Wise Product</a>
+                        </li>
+                    </ul>
+                </li>
+                <li id="billingVisible" <% if(breadcumb.main.text==='billing'){ %> class="active open" <% } %>>
+                    <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-city"></i><span>Billing</span></a>
+                    <ul class="ml-menu">
+                        <!-- <li <% if(breadcumb.main.text==='shop setup' && breadcumb.sub.length==0){ %> class="active"
+                            <% } %>><a href="<%= host %>/dashboard/manage/shop/list">Manage Setup</a></li> -->
+                            <li id="billingServiceVisible" <% if(breadcumb.main.text==='billing' && breadcumb.sub.length> 0){ %>
+                                <% if(breadcumb.sub[0].text==='billing service' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/billing/service">Service</a>
+                            </li>
+                            <li id="billingPaymentVisible" <% if(breadcumb.main.text==='billing' && breadcumb.sub.length> 0){ %>
+                                <% if(breadcumb.sub[0].text==='billing payment' ){ %> class="active" <% } %>
+                                        <% } %>><a href="<%= host %>/dashboard/billing/payment">Payment</a>
+                            </li>        
+                    </ul>
+                </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<script>
+    new Vue({
+        el: 'aside',
+        data: {
+            errorResponse: null,
+            token: null,
+            adminRoles: [],
+            avatar: null,
+            name: '',
+            adminType: '',
+        },
+        mounted() {
+            if (localStorage.token) {
+                this.token = localStorage.token
+
+                authChecker(this.token).then((result) => {
+                    this.avatar = result.response.data.avatar
+                    this.name = result.response.data.name
+                    this.adminType = result.response.data.superAdmin == true ? 'Super Admin' : 'Admin'
+
+                    let allBranchListID = []
+
+                    result.response.data.branches.map(branchInfo=>{
+                        allBranchListID.push(branchInfo._id)
+                    })
+
+                    if(localStorage.getItem('branch')){
+                        if(!allBranchListID.includes(localStorage.getItem('branch'))){
+                            localStorage.clear()
+                            result.auth = false
+                        }
+                    }
+                    
+
+                    if (result.auth === false) {
+                        window.location = '/login'
+                    }
+
+                    this.adminRoles = result.response.data.admin_roles
+
+                    if (!this.adminRoles.includes('backoffice settings')) {
+                        $("#backOfficeVisible").remove()
+                    }
+                    
+                    if (!this.adminRoles.includes('backoffice search option')) {
+                        $("#searchOptionsVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('backoffice personal discount')) {
+                        $("#personalDiscountVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('backoffice special discount')) {
+                        $("#specialDiscountVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('backoffice sales person')) {
+                        $("#salesPersonVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('backoffice delivery charge')) {
+                        $("#deliveryChargesVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('branch')) {
+                        $("#branchVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('manage branch')) {
+                        $("#manageBranchVisible").remove()
+                    }
+                    
+                    if (!this.adminRoles.includes('coupon code')) {
+                        $("#couponCodeVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('coupon code list')) {
+                        $("#manageCouponVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('coupon code create')) {
+                        $("#addNewCouponVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('pos manager')) {
+                        $("#shopManagerVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('software replace')) {
+                        $("#softwareReplaceVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('online order')) {
+                        $("#orderVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('manage order')) {
+                        $("#manageOrderVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('subcategory')) {
+                        $("#subcategoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('manage subcategory')) {
+                        $("#manageSubcategoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('category')) {
+                        $("#categoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('manage category')) {
+                        $("#manageCategoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('brand')) {
+                        $("#brandVisible").remove()
+                    }
+                    
+                    if (!this.adminRoles.includes('manage brand')) {
+                        $("#manageBrandVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('supplier')) {
+                        $("#supplierVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('manage supplier')) {
+                        $("#manageSupplierVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse product')) {
+                        $("#warehouseProductVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse product create')) {
+                        $("#addNewProductVisible").remove()
+                    } 
+                    
+                    if (!this.adminRoles.includes('warehouse manage product')) {
+                        $("#manageProductVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse product price mark')) {
+                        $("#prticeMarkVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse product size')) {
+                        $("#productSizeVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse product unit')) {
+                        $("#weightUnitVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse product barcode print')) {
+                        $("#barcodePrintVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('product')) {
+                        $("#productVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('product create')) {
+                        $("#branchNewProductVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('product manage')) {
+                        $("#branchManageProductVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('product barcode print')) {
+                        $("#branchBarcodePrintVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('product price mark')) {
+                        $("#branchPriceMarkChangeVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('product reconciliation')) {
+                        $("#branchProductReconciliationVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('report')) {
+                        $("#reportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report cash memo')) {
+                        $("#cashMemoReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report sales report')) {
+                        $("#salesReportReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report payment report')) {
+                        $("#paymentReportReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report supplier receiving')) {
+                        $("#supplierReceivingReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('report supplier requisition')) {
+                        $("#supplierRequisitionReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('report supplier return')) {
+                        $("#supplierReturnReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report current stock report')) {
+                        $("#currentStockReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('report daily stock report')) {
+                        $("#dailyStockReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report inventory stock report')) {
+                        $("#inventoryStockReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report stock period wise by supplier')) {
+                        $("#stockPeriodWiseReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report price mark report')) {
+                        $("#priceMarkReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report disposal report')) {
+                        $("#disposalReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report vat report')) {
+                        $("#vatReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report customer')) {
+                        $("#customerReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report online users')) {
+                        $("#onlineUsersReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report personal discount')) {
+                        $("#personalDiscountReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report analysis')) {
+                        $("#analysisReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report no payment reset sell')) {
+                        $("#noPaymentResetReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report performance')) {
+                        $("#performanceReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report stock status')) {
+                        $("#stockStatusReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report discount')) {
+                        $("#discountReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('report basket')) {
+                        $("#basketReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('report reconciliation')) {
+                        $("#productReconciliationReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('report branch wise product')) {
+                        $("#branchWiseProductReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse report')) {
+                        $("#warehouseReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse report supplier receiving')) {
+                        $("#warehouseSupplierReceivingReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse report supplier return')) {
+                        $("#warehouseSupplierReturnReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse report current stock')) {
+                        $("#warehouseCurrentStockReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse report daily stock')) {
+                        $("#warehouseDailyStockReportVisible").remove()
+                    }
+                    
+                    if (!this.adminRoles.includes('warehouse report price mark')) {
+                        $("#warehousePriceMarkReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse report disposal')) {
+                        $("#warehouseDisposalReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse report branch supply')) {
+                        $("#warehouseBranchSupplyReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse report branch receiving')) {
+                        $("#warehouseBranchReceivingReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse report inventory stock')) {
+                        $("#warehouseInventoryStockReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse report reconciliation')) {
+                        $("#warehouseProductReconciliationReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse report accounts')) {
+                        $("#warehouseAccountsReportVisible").remove()
+                    }
+
+                    // my create menu 
+
+                    if (!this.adminRoles.includes('ecommerce report')) {
+                        $("#ecommerceReportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('ecommerce report sales report')) {
+                        $("#ecommerceSalesReportVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('ecommerce cash memo report')) {
+                        $("#ecommerceCashMemoReportVisible").remove()
+                    }
+
+                    // my create menu 
+                    
+                    if (!this.adminRoles.includes('warehouse transaction')) {
+                        $("#warehouseTransactionVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse transaction supplier requisition')) {
+                        $("#storeRequisitionVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse transaction supplier receive')) {
+                        $("#storeReceivingVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse transaction supplier return')) {
+                        $("#storeReturnVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse transaction manage disposal')) {
+                        $("#storeManageDisposalVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('transaction')) {
+                        $("#transactionVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('transaction supplier requisition')) {
+                        $("#branchRequisitionVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('transaction supplier receive')) {
+                        $("#branchReceivingVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('transaction supplier return')) {
+                        $("#branchReturnVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('transaction manage disposal')) {
+                        $("#branchManageDisposalVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('transaction manage discount')) {
+                        $("#branchManageDiscountVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('transaction manage vat')) {
+                        $("#branchMangeVatVisible").remove()
+                    }
+
+
+                    if (!this.adminRoles.includes('supply')) {
+                        $("#warehouseSupplyVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('supply to branch')) {
+                        $("#storeSupplyToBranchVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('receive from branch')) {
+                        $("#warehouseSupplyVisible").remove()
+                    }
+                    
+                    if (!this.adminRoles.includes('inventory')) {
+                        $("#inventoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('inventory create')) {
+                        $("#createInventoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('inventory reset')) {
+                        $("#resetInventoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('inventory adjustment')) {
+                        $("#inventoryAdjustVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('inventory reconciliation')) {
+                        $("#inventoryReconciliationVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('inventory view')) {
+                        $("#inventoryViewVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('price mark')) {
+                        $("#priceMarkVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('admin')) {
+                        $("#adminVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('admin create')) {
+                        $("#addAdminVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('admin list')) {
+                        $("#adminListVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('admin menu')) {
+                        $("#menuListVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('admin permission')) {
+                        $("#permissionListVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('admin role list')) {
+                        $("#adminRoleListVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('image upload')) {
+                        $("#imageUploadVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('client review')) {
+                        $("#clientReviewVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('notification')) {
+                        $("#notificationVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('notification email')) {
+                        $("#emailNotificationVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('notification mobile')) {
+                        $("#mobileNotificationVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('offer')) {
+                        $("#offerVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('shop setup')) {
+                        $("#shopSetupVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import')) {
+                        $("#exportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import branch')) {
+                        $("#branchExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import category')) {
+                        $("#categoryExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import subcategory')) {
+                        $("#subcategoryExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import brand')) {
+                        $("#brandExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import supplier')) {
+                        $("#supplierExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import product')) {
+                        $("#productExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import warehouse product')) {
+                        $("#warehouseExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('export import pos client')) {
+                        $("#posClientExportImportVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('pos cart')) {
+                        $("#posCart").remove()
+                    }
+
+                    if (!this.adminRoles.includes('pos sell')) {
+                        $("#posSellVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('pos order list')) {
+                        $("#orderListVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('pos exchange list')) {
+                        $("#exchangeListVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('pos refund list')) {
+                        $("#refundListVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('billing')) {
+                        $("#billingVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('billing service')) {
+                        $("#billingServiceVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('billing payment')) {
+                        $("#billingPaymentVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('warehouse inventory')) {
+                        $("#warehouseInventoryVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse inventory create')) {
+                        $("#createStoreInventoryVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse inventory reset')) {
+                        $("#resetStoreInventoryVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse inventory adjustment')) {
+                        $("#adjustStoreInventoryVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse inventory reconciliation')) {
+                        $("#storeInventoryReconciliationVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse inventory view')) {
+                        $("#storeInventoryViewVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('accounts')) {
+                        $("#accountsVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('accounts general book add')) {
+                        $("#addBranchGeneralJournalVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('accounts general book')) {
+                        $("#branchGeneralJournalVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse accounts general book add')) {
+                        $("#addWarehouseGeneralJournalVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse accounts general book')) {
+                        $("#warehouseGeneralJournalVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('accounts receiving adjust')) {
+                        $("#branchReceivingAdjustVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('warehouse accounts receiving adjust')) {
+                        $("#warehouseReceivingAdjustVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('chart of accounts')) {
+                        $("#chartOfAccountsVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('chart of accounts group')) {
+                        $("#manageGroupVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('chart of accounts subgroup')) {
+                        $("#manageSubGroupVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('chart of accounts category')) {
+                        $("#categoryManageVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('chart of accounts subcategory')) {
+                        $("#manageSubCategoryVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('accounts settings')) {
+                        $("#accountsSettingsVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('accounts settings voucher')) {
+                        $("#manageVoucherVisible").remove()
+                    }
+                    // if (!this.adminRoles.includes('manage cost center')) {
+                    //     $("#manageCostCenterVisible").remove()
+                    // }
+                    // if (!this.adminRoles.includes('manage bank')) {
+                    //     $("#manageBankVisible").remove()
+                    // }
+                    if (!this.adminRoles.includes('accounts settings currency')) {
+                        $("#manageCurrencyVisible").remove()
+                    }
+
+                    if (!this.adminRoles.includes('supplier opening balance')) {
+                        $("#manageSupplierOpeningBalanceVisible").remove()
+                    }
+                    if (!this.adminRoles.includes('accounts settings scheduler')) {
+                        $("#manageGeneralSettingsVisible").remove()
+                    }
+                    $("#dashboard").show()
+
+                })
+
+            } else {
+                window.location = '/login'
+            }
+
+            this.branch = true
+            this.checkBranchBillingAccess(localStorage.token)
+        },
+        methods:{
+            showAlertMessage(title, msg){
+                showWithTitleMessage(title, msg)
+            },
+            checkBranchBillingAccess(token){
+                if(localStorage.getItem('branch')){
+                    let requestLink = '/api/billing/payment/branch-last-payment/'+localStorage.getItem('branch')
+                    getSecureData(requestLink, token).then((result) => {
+                        if (result.auth === true) {
+                            if(result.response.data!=null){
+                                if(!result.response.data.isLifetimeFreeAccess){
+                                    var date1 = new Date();
+                                    var date2 = new Date(result.response.data.expire_date);
+    
+                                    var diff = date2.getTime() - date1.getTime();
+    
+                                    var msec = diff;
+                                    if(msec>0){
+                                        date2 = new Date(result.response.data.validate_till)
+                                        diff = date2.getTime() - date1.getTime();
+                                        msec = diff;
+                                        if(msec<0){
+                                            this.showAlertMessage("<strong>Expired Notice</strong>", "Your service validation date has been expired "+result.response.data.validate_till.split("T")[0]+" payment due date is "+result.response.data.expire_date.split("T")[0]+". If you don't pay service charge with in due date your application sales service will be restricted.")
+                                        }else{
+                                            var remaining_days = (Math.floor(msec / 1000 / 60 / 60))/24;
+    
+                                            if(remaining_days<result.response.data.notificationBeforeToUpgrade){
+                                                this.showAlertMessage("<strong>Notice</strong>", "Your service validation will be expired on "+result.response.data.validate_till.split("T")[0]+" your payment due date is "+result.response.data.expire_date.split("T")[0]+". If you don't pay service charge with in due date your application sales service will be restricted.")
+                                            }
+                                        }
+                                    }else{
+                                        if("<%= data.serviceRestriction %>"){
+                                            location.href="/dashboard"
+                                        }else{
+                                            this.showAlertMessage("<strong style='color: darkred;'>Sales Service Restriction Notice</strong>", "Your service charge payment due date has been expired. Your sales feature access has been restricted. Please contact with your application provider to actived your service.")
+                                        }
+                                    }
+                                }
+                            }else{
+                                if("<%= data.serviceRestriction %>"){
+                                    location.href="/dashboard"
+                                }else{
+                                    this.showAlertMessage("<strong style='color: darkred;'>Sales Service Restriction Notice</strong>", "Please ask your application provider to assign this branch in a service plan otherwise you will not able to use sales service for this branch.")
+                                }
+                            }
+                        }
+                    })
+                }
+            }
+        }
+    })
+</script>

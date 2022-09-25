@@ -1,0 +1,1126 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <style>
+                .dropdown-menu {
+                    min-width: 100% !important;
+                }
+
+                .dropdown-custom {
+                    width: 100%;
+                }
+
+                .dropdown-content-custom {
+                    background-color: #fff;
+                    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                    border: 1px solid #f1f1f1;
+                    z-index: 1;
+                    max-height: 250px;
+                    overflow-y: scroll;
+                    top: 38px !important;
+                }
+
+                .modal-backdrop {
+                    z-index: -1;
+                }
+
+                .navbar {
+                    z-index: 0 !important;
+                }
+                .sidebar{
+                    z-index: 0 !important;
+                }
+                .my-wrap tr td{
+                    white-space: normal !important;
+                }
+                @media (min-width: 992px) {
+                    .modal-lg {
+                        max-width: 990px !important;
+                    }
+                }
+            </style>
+
+            <!-- Main Content -->
+            <section class="content" id="property_type_section">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="body" v-on:scroll="handleScroll">
+                                        <div class="row justify-content-center clearfix">
+                                            <div class="col-lg-5">
+                                                <div v-if="type_section === 'delete'">
+                                                    <div v-if="errorResponse!==null">
+                                                        <div class="alert alert-danger" v-for="error in errorResponse">
+                                                            {{error.msg}}
+                                                            <button type="button" class="close" data-dismiss="alert"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div v-if="successResponse!==null">
+                                                        <div class="alert alert-success">
+                                                            {{successResponse.msg}}
+                                                            <button type="button" class="close" data-dismiss="alert"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="modal fade" :id="'generalBookViewModal'" tabindex="-1"
+                                            role="dialog" >
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="title">General Journal Details</h4>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <p> <b>Date</b> : {{journalDetails.date}}</p>
+                                                                <p> <b>Voucher No :</b> {{journalDetails.voucherNo}} </p>
+                                                                <div class="">
+                                                                    <table
+                                                                        class="table td_2 table-striped table-hover js-basic-example dataTable my-wrap"
+                                                                        id="infoListTable">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Particular</th>
+                                                                                <th>Naration</th>
+                                                                                <th>Voucher</th> 
+                                                                                <th class="text-right">Debit Amount</th>
+                                                                                <th class="text-right">Credit Amount</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr v-for="(item2, index2) in journalDetails.journals">
+                                                                                <td style="width: 20%; vertical-align: middle; text-transform: capitalize;">{{item2.particular}}</td>
+                                                                                <td style="width: 20%; text-transform: capitalize;">{{item2.naration}}</td>
+                                            
+                                                                                <td style="width: 20%; vertical-align: middle; text-transform: capitalize;">
+                                                                                    {{item2.voucher}}
+                                                                                </td>
+                                                                                <td class="text-right" style="width: 20%; vertical-align: middle;">
+                                                                                    {{item2.isDebit ? item2.amount.toLocaleString('en-In', {minimumFractionDigits: 1, maximumFractionDigits: 1}) : ''}}
+                                                                                </td>
+                                                                                <td class="text-right" style="width: 20%; vertical-align: middle;">
+                                                                                    {{item2.isCredit ?  item2.amount.toLocaleString('en-In', {minimumFractionDigits: 1, maximumFractionDigits: 1}) : ''}}
+                                                                                </td>
+                                                                            </tr>
+                                        
+                                                                            <tr>
+                    
+                                                                                <td colspan="3" class="text-left">
+                                                                                    <b>Total Amount</b>: 
+                                                                                </td>                                                                         
+                                                                                <td class="text-right">
+                                                                                    
+                                                                                    {{journalDetails.totalDebit}}
+                                                                                </td>
+                                                                                <td class="text-right">
+                                                                                    
+                                                                                    {{journalDetails.totalCredit}}
+                                                                                </td>
+
+                                                                            </tr>
+                                                                        </tbody>
+                                                                        <tbody v-else>
+                                                                            <tr>
+                                                                                <td class="text-center" colspan="6">No
+                                                                                    data found here</td>
+                                                                            </tr>
+                                                                        </tbody>
+
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit"  class="btn btn-primary waves-effect" data-backdrop="static"
+                                                        data-keyboard="false" @click="downloadGeneralJournal(journalDetails._id)" :disabled="isLoading">Download PDF</button>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal fade" :id="'generalBookReconcilListModal'" tabindex="-1"
+                                            role="dialog">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="title">General Journal Details</h4>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <div class="table-responsive">
+                                                                    <table
+                                                                        class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                                                        id="infoListTable">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>#</th>
+                                                                                <th class="text-center">Type</th>
+                                                                                <th class="text-center">Group</th>
+                                                                                <th class="text-center">SubGroup</th>
+                                                                                <th class="text-center">Category</th>
+                                                                                <th class="text-center">Amount</th>
+                                                                                <th class="text-center">Actions</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr v-for="(item2, index2) in journalDetails.journals"> 
+                                                                                <td style="vertical-align: middle;">{{ index2 + 1 }}</td>
+                                                                                <td style="vertical-align: middle; text-align: center;">{{item2.isCredit ? "Credit" : "Debit"}}</td>
+                                                                                <td
+                                                                                    style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                                                    {{item2.group}}
+                                                                                </td>
+                                                                                <td
+                                                                                    style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                                                    {{item2.subgroup}}
+                                                                                </td>
+                                                                                <td
+                                                                                    style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                                                    {{item2.category}}
+                                                                                </td>
+                                                                                <td
+                                                                                    style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                                                    {{item2.amount.toLocaleString('en-In', {minimumFractionDigits: 1, maximumFractionDigits: 1})}}
+                                                                                </td>
+                                                                                <td style="text-align: center;">
+                                                                                    <button :disabled="isDisable" @click="changeRoute(item2._id)"
+                                                                                        class="btn btn-neutral"
+                                                                                        v-show="adminAccess.length>0?adminAccess.includes('accounts general book reconciliation'):false">Reconcil</button>
+                                                                                    <button :disabled="isDisable" @click="deleteItem(item2._id)"
+                                                                                        class="btn btn-icon btn-neutral btn-icon-mini"
+                                                                                        v-show="adminAccess.length>0?adminAccess.includes('accounts general book delete'):false"><i
+                                                                                            class="zmdi zmdi-delete"></i>
+                                                                                    </button>
+                                                                                </td>
+                                                                                
+                                                                            </tr>
+                                                                        </tbody>
+                                                                        <tbody v-else>
+                                                                            <tr>
+                                                                                <td class="text-center" colspan="6">No
+                                                                                    data found here</td>
+                                                                            </tr>
+                                                                        </tbody>
+
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal fade" :id="'searchGeneralBookViewModal_'+index" tabindex="-1"
+                                            role="dialog" v-for="(item, index) in displaySearchDataList" :key="item._id">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="title">General Journal Details</h4>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-12">
+                                                                <p> <b>Date</b> : {{item.journalDate}}</p>
+                                                                <p> <b>Voucher No :</b> {{item.voucherNo}} </p>
+                                                                <div class="table-responsive">
+                                                                    <table
+                                                                        class="table td_2 table-striped table-hover js-basic-example dataTable my-wrap"
+                                                                        id="infoListTable">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Particular</th>
+                                                                                <th>Naration</th>
+                                                                                <th>Voucher</th> 
+                                                                                <th class="text-right">Debit Amount</th>
+                                                                                <th class="text-right">Credit Amount</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <tr v-for="(item2, index2) in item.data">
+                                                                                <td style="width: 20%; vertical-align: middle;">{{item2.subcategory ?
+                                                                                    item2.subcategory.name : item2.supplier.name}}</td>
+                                                                                <td style="width: 20%">{{item2.narration}}</td>
+                                            
+                                                                                <td style="width: 20%; vertical-align: middle;">
+                                                                                    {{item2.voucher.name}}
+                                                                                </td>
+                                                                                <td class="text-right" style="width: 20%; vertical-align: middle;">
+                                                                                    {{!item2.isCredit ? item2.amount : ''}}
+                                                                                </td>
+                                                                                <td class="text-right" style="width: 20%; vertical-align: middle;">
+                                                                                    {{item2.isCredit ?  item2.amount : ''}}
+                                                                                </td>
+                                                                            </tr>
+                                        
+                                                                            <tr>
+                    
+                                                                                <td colspan="3" class="text-left">
+                                                                                    <b>Total Amount</b>: 
+                                                                                </td>                                                                         
+                                                                                <td class="text-right">
+                                                                                    
+                                                                                    {{item.totalDebit}}
+                                                                                </td>
+                                                                                <td class="text-right">
+                                                                                    
+                                                                                    {{item.totalCredit}}
+                                                                                </td>
+
+                                                                            </tr>
+                                                                        </tbody>
+                                                                        <tbody v-else>
+                                                                            <tr>
+                                                                                <td class="text-center" colspan="6">No
+                                                                                    data found here</td>
+                                                                            </tr>
+                                                                        </tbody>
+
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="submit"  class="btn btn-primary waves-effect" data-backdrop="static"
+                                                        data-keyboard="false" @click="downloadGeneralJournal(item)" :disabled="isLoading">Download PDF</button>
+                                                        <!-- <button type="submit"  class="btn btn-primary waves-effect" data-backdrop="static"
+                                                        data-keyboard="false" @click="downloadGeneralJournalExcel(item)" :disabled="isLoading">Download Excel</button> -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="container" v-if="type_section == 'search'">
+                                            <div class="row clearfix">
+                                                <div class="col-lg-8 offset-lg-2">
+                                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                        <div class="header">
+                                                            <h2><strong>Search</strong> General Journal </h2>
+                                                            <ul class="header-dropdown m-r--5">
+                                                                <li> <a href="javascript:void(0);"
+                                                                        @click="remove_type_section" role="button"
+                                                                        aria-haspopup="true" aria-expanded="false"><i
+                                                                            class="material-icons">close</i></a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="body">
+                                                          <form @submit.prevent="searchData">
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Group<span style="color: red;">*</span></h6>
+                                                                    <div class="form-group  dropdown dropdown-custom">
+                                                                        <input type="text" v-model="groupName"
+                                                                            @keyup="filterGroupList()"
+                                                                            class="form-control searchField dropdown-toggle"
+                                                                            data-toggle="dropdown" placeholder="select a Group">
+                                
+                                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                                            <a @click.prevent="groupSearchData({id: group._id, name: group.name})"
+                                                                                v-for="(group, index) in groupFilter"
+                                                                                :key="index"
+                                                                                class="dropdown-item text-capitalize"
+                                                                                href="">{{group.name}}</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">SubGroup</h6>
+                                                                    <div class="form-group  dropdown dropdown-custom">
+                                                                        <input type="text" v-model="subgroupName"
+                                                                            @keyup="filterSubGroupList()"
+                                                                            class="form-control searchField dropdown-toggle"
+                                                                            data-toggle="dropdown"
+                                                                            placeholder="select a SubGroup">
+                                
+                                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                                            <a @click.prevent="subgroupSearchData({id: subgroup._id, name: subgroup.name})"
+                                                                                v-for="(subgroup, index) in subgroupFilter"
+                                                                                :key="index"
+                                                                                class="dropdown-item text-capitalize"
+                                                                                href="">{{subgroup.name}}</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Category</h6>
+                                                                    <div class="form-group  dropdown dropdown-custom">
+                                                                        <input type="text" v-model="categoryName"
+                                                                            @keyup="filterCategoryList()"
+                                                                            class="form-control searchField dropdown-toggle"
+                                                                            data-toggle="dropdown"
+                                                                            placeholder="select a Category">
+                                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                                            <a @click.prevent="categorySearchData({id: category._id, name: category.name, pay_to_supplier: category.pay_to_supplier})"
+                                                                                v-for="(category, index) in categoryFilter"
+                                                                                :key="index"
+                                                                                class="dropdown-item text-capitalize"
+                                                                                href="">{{category.name}}</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Subcategory</h6>
+                                                                    <div class="form-group  dropdown dropdown-custom">
+                                                                        <input type="text" v-model="subcategoryName"
+                                                                            @keyup="filterSubCategoryList()"
+                                                                            class="form-control searchField dropdown-toggle"
+                                                                            data-toggle="dropdown"
+                                                                            placeholder="select a Subcategory">
+                                
+                                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                                            <a @click.prevent="subcategorySearchData({id: subcategory._id, name: subcategory.name})"
+                                                                                v-for="(subcategory, index) in subcategoryFilter"
+                                                                                :key="index"
+                                                                                class="dropdown-item text-capitalize"
+                                                                                href="">{{subcategory.name}}</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                  
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Slip no</h6>
+                                                                    <div class="form-group">
+                                                                        <input type="text" v-model="slip"
+                                                                            class="form-control" placeholder="slip no">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Voucher no</h6>
+                                                                    <div class="form-group">
+                                                                        <input type="number" v-model="voucher_no"
+                                                                            class="form-control" placeholder="Voucher no">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-sm-12">
+                                                                    <h6 class="mt-4 mb-4 text-center"
+                                                                        style="font-size: 12px;">Common
+                                                                        Information
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Voucher</h6>
+                                                                    <div class="form-group  dropdown dropdown-custom">
+                                                                        <input type="text" v-model="voucherName"
+                                                                            @keyup="filterVoucherList()"
+                                                                            class="form-control searchField dropdown-toggle"
+                                                                            data-toggle="dropdown"
+                                                                            placeholder="select a voucher">
+
+                                                                        <div
+                                                                            class="dropdown-menu dropdown-content-custom">
+                                                                            <a @click.prevent="voucherSearchData({id: voucher._id, name: voucher.name})"
+                                                                                v-for="(voucher, index) in voucherFilter"
+                                                                                :key="index"
+                                                                                class="dropdown-item text-capitalize"
+                                                                                href="">{{voucher.name}}</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Currency</h6>
+                                                                    <div class="form-group  dropdown dropdown-custom">
+                                                                        <input type="text" v-model="currencyName"
+                                                                            @keyup="filterCurrencyList()"
+                                                                            class="form-control searchField dropdown-toggle"
+                                                                            data-toggle="dropdown"
+                                                                            placeholder="select a currency">
+
+                                                                        <div
+                                                                            class="dropdown-menu dropdown-content-custom">
+                                                                            <a @click.prevent="currencySearchData({id: currency._id, name: currency.name})"
+                                                                                v-for="(currency, index) in currencyFilter"
+                                                                                :key="index"
+                                                                                class="dropdown-item text-capitalize"
+                                                                                href="">{{currency.name}}</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <button type="submit" :disabled="isDisable"
+                                                                        class="btn btn-primary btn-round">Search</button>
+                                                                </div>
+                                                            </div>
+                                                          </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-3 col-md-3 col-lg-3 col-xl-3">
+                                                <button class="btn btn-primary btn-xs" type="button"
+                                                    @click="search_type_section">Advance
+                                                    Search</button>
+                                            </div>
+                                            
+                                        </div>
+                                        <div class="row" v-if="isLoading">
+                                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive" v-else>
+                                            <table
+                                                class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                                id="infoListTable" style="font-size: 13px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th class="text-center">Date</th>
+                                                        <th class="text-center">Voucher No</th>
+                                                        <th class="text-center">Voucher</th>
+                                                        <th class="text-center">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody v-if="allListItem.length > 0 ">
+                                                    <tr v-for="(item, index) in allListItem" :key="item._id">
+                                                        <td style="vertical-align: middle;">{{ index + 1 }}</td>
+                                                        <td style="vertical-align: middle; text-align: center;">{{item.record_date}}</td>
+                                                        <td style="vertical-align: middle; text-align: center;">{{item.voucherNo}}</td>
+                                                        <td style="vertical-align: middle; text-align: center;">{{item.voucher}}</td>
+
+                                                        <td style="text-align: center;">
+                                                            <button :disabled="isDisable" class="btn btn-neutral"
+                                                                data-toggle="modal"
+                                                                :data-target="'#generalBookReconcilListModal'"
+                                                                data-backdrop="static" data-keyboard="false"
+                                                                title="General Book Reconcil"
+                                                                @click="getJournalDetails(item._id)"
+                                                                v-show="adminAccess.length>0?adminAccess.includes('accounts general book reconciliation'):false">Reconcil List</button>
+                                                            <button :disabled="isDisable" class="btn btn-neutral"
+                                                                data-toggle="modal"
+                                                                :data-target="'#generalBookViewModal'"
+                                                                data-backdrop="static" data-keyboard="false"
+                                                                title="General Book view"
+                                                                @click="getJournalDetails(item._id)"
+                                                                v-show="adminAccess.length>0?adminAccess.includes('accounts general book view'):false">view</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                
+                                                <tbody v-else>
+                                                    <tr>
+                                                        <td class="text-center" colspan="8">No data found here</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <script>
+                var pageNo = 1
+
+                new Vue({
+                    el: '#property_type_section',
+                    data: {
+                        allListItem: [],
+                        allBranch: [],
+                        allGeneralJournal:[],
+                        searchedGeneralJournals:[],
+                        displaySearchDataList: [],
+                        displaySearchData: false,
+                        name: '',
+                        type_section: null,
+                        editItemID: '',
+                        editItemValue: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: true,
+                        isNextDataLastEmpty: false,
+                        searchQueryString: '',
+                        advanceSearch: false,
+                        adminAccess: [],
+                        category: '',
+                        amount: null,
+                        naration: "",
+                        allCategory: [],
+                        allGroup: [],
+                        allSubgroup: [],
+                        allVoucher: [],
+                        allCurrency: [],
+                        allSupplier:[],
+                        supplier: "",
+                        narration: '',
+                        groupName: "",
+                        group: "",
+                        groupFilter: [],
+                        subgroupName: "",
+                        subgroup: "",
+                        subgroupFilter: [],
+                        categoryFilter: [],
+                        categoryName: "",
+                        subcategoryName: "",
+                        subcategory: "",
+                        subcategoryFilter: [],
+                        voucherName: "",
+                        voucher: "",
+                        voucherFilter: [],
+                        currencyName: "",
+                        currency: "",
+                        currencyFilter: [],
+                        costcenterName:"",
+                        costcenter: "",
+                        slip: '',
+                        supplierShow: false,
+                        general_journal_type: true,
+                        general_journals_list: [],
+                        sorted_general_journals_details_list:[],
+                        totalCredit: 0,
+                        totalDebit: 0,
+                        allSearchListItem: [],
+                        voucher_no: null,
+                        journalDetails: {}
+                    },
+                    mounted() {
+                        this.getAllItemData()
+                        this.getGroupInfo()
+                        this.getVoucherInfo()
+                        this.getCurrencyInfo()
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                    },
+                    created() {
+                        window.addEventListener('scroll', this.handleScroll);
+                    },
+                    destroyed() {
+                        window.removeEventListener('scroll', this.handleScroll);
+                    },
+                    methods: {
+                        searchData() {
+                            pageNo = 1
+                            this.advanceSearch = true
+                            this.allListItem = []
+                            this.allSearchListItem = []
+                            this.searchQueryString = ''
+                            
+                            if (this.group != "" && this.groupName != "") {
+                                this.searchQueryString += 'group=' + this.group
+                            }
+                            if (this.subgroup != "" && this.subgroupName != "") {
+                                this.searchQueryString += '&&subgroup=' + this.subgroup
+                            }
+                            if (this.category != "" && this.categoryName) {
+                                this.searchQueryString += '&&category=' + this.category
+                            }
+                            if (this.subcategory != "" && this.subcategoryName != "") {
+                                this.searchQueryString += '&&subcategory=' + this.subcategory
+                            }
+                            if (this.voucher != "" && this.voucherName != "") {
+                                this.searchQueryString += '&&voucher=' + this.voucher
+                            }
+                            if (this.currency != "" && this.currencyName != "") {
+                                this.searchQueryString += '&&currency=' + this.currency
+                            }
+                            if (this.slip != "") {
+                                this.searchQueryString += '&&slip=' + this.slip
+                            }
+                            if (this.voucher_no != null && this.voucher_no != "") {
+                                this.searchQueryString += '&&serialNo=' + this.voucher_no
+                            }
+                            if (this.supplier != "" && this.supplierName) {
+                                this.searchQueryString += '&&supplier=' + this.supplier
+                            }
+                            this.searchQueryString += '&&cost_center=null'
+                            this.getAllItemData()
+
+                        },
+                        getAllItemData() {
+                            if(!this.advanceSearch){
+                                this.searchQueryString = 'cost_center=null'
+                            }
+                            let requestLink = '/api/accounts/generaljournal/' + pageNo + '?' + this.searchQueryString
+                            let token = localStorage.getItem('token')
+                            
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    if (result.response.data.length === 0) {
+                                        this.isNextDataLastEmpty = true
+                                    } else { 
+                                        result.response.data.map((data) => {    
+                                            let date = new Date(data.record_date) 
+                                            let hours = date.getHours()
+                                            let minutes = date.getMinutes()
+                                            let ampm = hours >= 12 ? 'pm' : 'am'
+                                            hours = hours % 12
+                                            hours = hours ? hours : 12 // the hour '0' should be '12'
+                                            minutes = minutes < 10 ? '0' + minutes : minutes
+                                            let recordTime = hours + ':' + minutes + ' ' + ampm
+                                            if (data.cost_center == null) {
+                                                let itemIndex = this.allListItem.findIndex((dataInfo) => dataInfo._id == data.general_journal._id)
+                                                if(itemIndex == -1){
+                                                    this.allListItem.push({
+                                                        _id : data.general_journal._id,
+                                                        record_date : ("0" + date.getDate()).slice(-2) + '-' + (date.getMonth() + 1) + '-' + date.getUTCFullYear() + ' ' + recordTime,
+                                                        voucherNo : data.general_journal.serialNo,
+                                                        voucher : data.voucher.name,
+                                                    })
+                                                  }
+                                              }
+                                          })
+                                        this.isNextDataLastEmpty = false
+                                    }
+                                    this.isLoading = false
+                                    //this.advanceSearch = false
+                                }
+                            })
+                        },
+                        getJournalDetails(journalId){
+                            let requestLink = '/api/accounts/generaljournal/data/' + journalId 
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                this.journalDetails = {} 
+                                let journals = []
+                                if (result.auth === true) {
+                                    if (result.response.data.length === 0) {
+                                        this.isNextDataLastEmpty = true
+                                    } else {
+                                        result.response.data.map((data, index) => {
+                                            let date = new Date(data.record_date) 
+                                            let hours = date.getHours()
+                                            let minutes = date.getMinutes()
+                                            let ampm = hours >= 12 ? 'pm' : 'am'
+                                            hours = hours % 12
+                                            hours = hours ? hours : 12 // the hour '0' should be '12'
+                                            minutes = minutes < 10 ? '0' + minutes : minutes
+                                            let recordTime = hours + ':' + minutes + ' ' + ampm
+                                            if(index == 0){
+                                                this.journalDetails._id = data.general_journal._id
+                                                this.journalDetails.date = ("0" + date.getDate()).slice(-2) + '-' + (date.getMonth() + 1) + '-' + date.getUTCFullYear() + '   ' + recordTime
+                                                this.journalDetails.voucherNo = data.general_journal.serialNo
+                                            }  
+                                            
+                                            if (data.cost_center == null) {   
+                                                journals.push({
+                                                    _id : data._id,
+                                                    particular : data.subcategory ? data.subcategory.name : data.supplier.name,
+                                                    naration : data.narration,
+                                                    voucher : data.voucher.name,
+                                                    isDebit : data.isCredit ? false : true,
+                                                    isCredit : data.isCredit ? true : false,
+                                                    amount : data.amount,
+                                                    group : data.group.name,
+                                                    subgroup : data.subgroup.name,
+                                                    category : data.category.name
+                                                })
+                                            }
+                                            
+                                            if(result.response.data.length == (index + 1)){
+                                                this.journalDetails.journals = journals
+                                            }
+                                        })
+                                        this.totalDebitCreditCalculation(this.journalDetails)    
+                                    } 
+                                }
+                            })
+                        },
+                        totalDebitCreditCalculation(generalJournalList){
+                            let totalCredit = 0
+                            let totalDebit = 0
+                            
+                            generalJournalList.journals.map((dataInfo) => {
+                                if(dataInfo.isCredit){
+                                    totalCredit += dataInfo.amount
+                                }else{
+                                    totalDebit += dataInfo.amount
+                                }
+                            })
+                            
+                            this.journalDetails.totalDebit =  totalDebit.toLocaleString('en-In', {minimumFractionDigits: 1, maximumFractionDigits: 1})
+                            this.journalDetails.totalCredit =  totalCredit.toLocaleString('en-In', {minimumFractionDigits: 1, maximumFractionDigits: 1})    
+                        },
+                        downloadGeneralJournal(itemId){
+                            this.isLoading = true
+                            let requestLink = '/api/accounts/generaljournal/print'
+                            let token = localStorage.getItem('token')
+                            
+                            let itemInfo = {
+                                item: itemId
+                            }
+                            addNewType(requestLink, itemInfo, token).then((result) => {
+                                if(result.response.auth==true){
+                                    var link = document.createElement('a');
+                                    link.href = result.response.fileLink;
+                                    link.download = 'general_journal_details.pdf';
+                                    link.dispatchEvent(new MouseEvent('click'));
+                                }
+                                this.isLoading = false
+                            })
+                        },
+                        downloadGeneralJournalExcel(item){
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+                            let requestLink = '/api/accounts/generaljournal/download/excel'
+                            let itemInfo = {
+                                item: item
+                            }
+                            requestLink+= '?branch='+localStorage.getItem('branch')
+                            var link = document.createElement('a');
+                            link.target = "_blank";
+
+                            addNewType(requestLink, itemInfo, token).then((result) => {
+                                if(result.response.auth==true){
+                                    var link = document.createElement('a');
+                                    link.href = result.response.fileLink;
+                                    //link.download = 'general_journal_details.pdf';
+                                    link.dispatchEvent(new MouseEvent('click'));
+                                }
+                                this.isLoading = false
+                            })
+                            //link.href = "/api/accounts/generaljournal/print/" + token + "/" + itemInfo.item + "/"  + "?branch=" + localStorage.getItem('branch');
+
+                            //link.download = 'all_customer_summery.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            this.from = ''
+                            this.to = ''
+                        },
+                        getSearchedJournal(searchedData){
+                            
+                            searchedData.map((searchDataInfo) => {
+                                this.searchedGeneralJournals.map((journalInfo) => {
+                                   
+                                    if(journalInfo.general_journal == searchDataInfo.general_journal._id){
+                                        let index = this.displaySearchDataList.findIndex((dataInfo) => dataInfo.general_journal == journalInfo.general_journal)
+                                       
+                                        if(index == -1){
+                                            this.displaySearchDataList.push(journalInfo)
+                                        } 
+                                    } 
+                                })
+
+                            })
+                            
+                            this.displaySearchData = true
+                            this.advanceSearch = false
+                            this.clear_forms()
+                        },
+                        filterGroupList() {
+                            if (this.group != "") {
+                                let search = new RegExp(this.group, 'i');
+                                this.groupFilter = this.allGroup.filter(groupInfo => search.test(groupInfo.name))
+                            } else {
+                                this.groupFilter = this.allGroup
+                            }
+                        },
+                        filterSubGroupList() {
+                            if (this.subgroup != "") {
+                                let search = new RegExp(this.subgroup, 'i');
+                                this.subgroupFilter = this.allSubgroup.filter(subgroupInfo => search.test(subgroupInfo.name))
+                            } else {
+                                this.subgroupFilter = this.allSubgroup
+                            }
+                        },
+                        filterCategoryList() {
+                            if (this.category != "") {
+                                let search = new RegExp(this.category, 'i');
+                                this.categoryFilter = this.allCategory.filter(categoryInfo => search.test(categoryInfo.name))
+                            } else {
+                                this.categoryFilter = this.allCategory
+                            }
+                        },
+                        filterSubCategoryList() {
+                            if (this.subcategory != "") {
+                                let search = new RegExp(this.subcategory, 'i');
+                                this.subcategoryFilter = this.allSubcategory.filter(subcategoryInfo => search.test(subcategoryInfo.name))
+                            } else {
+                                this.subcategoryFilter = this.allSubcategory
+                            }
+                        },
+                        filterSupplierList() {
+                            if (this.supplier != "") {
+                                let search = new RegExp(this.supplier, 'i');
+                                this.supplierFilter = this.allSupplier.filter(supplierInfo => search.test(supplierInfo.name))
+                            } else {
+                                this.supplierFilter = this.allSupplier
+                            }
+                        },
+                        filterCurrencyList() {
+                            if (this.currencyName != "") {
+                                let search = new RegExp(this.currencyName, 'i');
+                                this.currencyFilter = this.allCurrency.filter(currencyInfo => search.test(currencyInfo.name))
+                            } else {
+                                this.currencyFilter = this.allCurrency
+                            }
+                        },
+                        filterVoucherList() {
+                            if (this.voucherName != "") {
+                                let search = new RegExp(this.voucherName, 'i');
+                                this.voucherFilter = this.allVoucher.filter(voucherInfo => search.test(voucherInfo.name))
+                            } else {
+                                this.voucherFilter = this.allVoucher
+                            }
+                        },
+                        groupSearchData(data) {
+                            this.groupName = data.name
+                            this.group = data.id
+                            this.getSubgroupInfo(data.id)
+                        },
+                        subgroupSearchData(data) {
+                            this.subgroupName = data.name
+                            this.subgroup = data.id
+                            this.getCategoryInfo(data.id)
+                        },
+                        categorySearchData(data) {
+                            this.categoryName = data.name
+                            this.category = data.id
+                            this.pay_to_supplier = data.pay_to_supplier
+                            if (data.pay_to_supplier == true) {
+                                this.supplierShow = true
+                                this.amountDisable = true
+                                this.supplier_selected = true
+                                this.getSupplierInfo(data.id)
+                            } else {
+                                this.supplierShow = false
+                                this.amountDisable = false
+                                this.supplier_selected = false
+                                this.getSubCategoryInfo(data.id)
+                            }
+
+                        },
+                        subcategorySearchData(data) {
+                            this.subcategoryName = data.name
+                            this.subcategory = data.id
+                        },
+                        supplierSearchData(data) {
+                            this.supplierName = data.name
+                            this.supplier = data.id
+                        },
+            
+                        currencySearchData(data) {
+                            this.currencyName = data.name
+                            this.currency = data.id
+                        },
+                        voucherSearchData(data) {
+                            this.voucherName = data.name
+                            this.voucher = data.id
+                        },
+                        getGroupInfo() {
+                            let requestLink = '/api/accounts/chart/group'
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allGroup = result.response.data
+                                    this.groupFilter = result.response.data
+                                }
+                            })
+                        },
+                        getSubgroupInfo(value) {
+                            let requestLink = '/api/accounts/chart/subgroup/group-wise/' + value
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSubgroup = result.response.data
+                                    this.subgroupFilter = result.response.data
+                                }
+                            })
+                        },
+                        getCategoryInfo(value) {
+                            let requestLink = '/api/accounts/chart/category/subgroup-wise/' + value
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCategory = result.response.data
+                                    this.categoryFilter = result.response.data
+                                }
+                            })
+                        },
+                        getSubCategoryInfo(value) {
+                            let requestLink = '/api/accounts/chart/subcategory/category-wise/' + value
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSubcategory = result.response.data
+                                    this.subcategoryFilter = result.response.data
+                                }
+                            })
+                        },
+                        getSupplierInfo() {
+                            let requestLink = '/api/supplier?&activeSupplier=true&warehouseSupplier=true'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSupplier = result.response.data
+                                    this.supplierFilter = result.response.data
+                                }
+                            })
+                        },
+                        getCurrencyInfo() {
+                            let requestLink = '/api/accounts/settings/currency'
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCurrency = result.response.data
+                                    this.currencyFilter = result.response.data
+
+                                    this.currencyFilter.map((currencyInfo) => {
+                                        if(currencyInfo.name == 'bdt'){
+                                            this.currencyName = currencyInfo.name
+                                            this.currency = currencyInfo._id
+                                        }
+                                    })
+                                }
+                            })
+                        },
+                        getVoucherInfo() {
+                            let requestLink = '/api/accounts/settings/voucher'
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allVoucher = result.response.data
+                                    this.voucherFilter = result.response.data
+                                }
+                            })
+                        },
+                        clear_forms() {
+                            this.groupName = ''
+                            this.group =''
+                            this.subgroupName = ''
+                            this.subgroup = ''
+                            this.categoryName = ''
+                            this.category = ''
+                            this.subcategoryName = ''
+                            this.subcategory = ''
+                            this.voucher_no = null
+                            this.slip =''
+                            this.voucherName = ''
+                            this.supplier = ''
+                            this.supplierName = ''
+                            this.currency = ''
+                        },
+                        getPositionHeight(element) {
+                            var rect = element.getBoundingClientRect();
+                            return (rect.y + 100) < $(window).height()
+                        },
+                        handleScroll(event) {
+                            // Any code to be executed when the window is scrolled
+                            if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                                .isNextDataLastEmpty === false) {
+                                if (!this.isNextDataLastEmpty) {
+                                    pageNo++
+                                    this.isNextDataLastEmpty = true
+                                    this.getAllItemData()
+                                }
+                            }
+                        },
+                        search_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'search'
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        add_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'add'
+                        },
+                        remove_type_section() {
+                            this.clear_notifications()
+                            this.type_section = null
+                            this.clear_fields()
+                        },
+                        clear_fields() {
+                            this.cr_groupName = ''
+                            this.cr_subgroupName = ''
+                            this.cr_categoryName = ''
+                            this.cr_subcategoryName = ''
+                            this.cr_group = ''
+                            this.cr_subgroup = ''
+                            this.cr_category = ''
+                            this.cr_subcategory = ''
+                            this.cr_slip = ''
+                            this.de_slip = ''
+                            this.de_groupName = ''
+                            this.de_group = ''
+                            this.de_subgroupName = ''
+                            this.de_categoryName = ''
+                            this.de_subcategoryName = ''
+                            this.de_subgroup = ''
+                            this.de_category = ''
+                            this.de_subcategory = ''
+                            this.voucherName = ''
+                            this.voucher = ''
+                            this.currencyName = ''
+                            this.currency = ''
+                        },
+                        changeRoute(value) {
+                            localStorage.setItem('itemId', value)
+                            location.href = '<%= host %>' + '/dashboard/accounts/warehouse/general_journal/reconciliation'
+                        },
+                        deleteItem(ItemID) {
+                            showDeleteConfirmationMessage().then((value) => {
+                                if (value === true) {
+                                    this.remove_type_section()
+                                    this.isDisable = true
+                                    this.isLoading = true
+                                    let requestLink = '/api/accounts/generaljournal/'
+                                    let token = localStorage.getItem('token')
+                                    deleteType(requestLink, ItemID, token).then((result) => {
+                                        this.type_section = 'delete'
+                                        if (result.auth === false) {
+                                            this.errorResponse = result.response
+                                        } else {
+                                            this.allListItem = []
+                                            pageNo = 1
+                                            this.getAllItemData()
+                                            this.successResponse = result.response
+                                            $('html, body').animate({
+                                                scrollTop: 0
+                                            }, 'slow', function () { });
+                                        }
+                                        this.isLoading = false
+                                        this.isDisable = false
+                                    })
+                                }
+                            })
+                            this.sorted_general_journals_details_list.map((journalInfo) => {
+                                let index = journalInfo.data.findIndex(dataInfo => dataInfo._id == ItemID)
+                                if(index !== -1){
+                                    journalInfo.data.splice(index, 1)
+                                }
+                            })
+                        }
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>

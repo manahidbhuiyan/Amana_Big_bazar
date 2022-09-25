@@ -1,0 +1,526 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <!-- Main Content -->
+            <section class="content" id="property_type_section">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="body" v-on:scroll="handleScroll">
+                                        <div class="container" v-if="type_section === 'add'">
+                                            <div class="row clearfix">
+                                                <div class="col-lg-8 offset-lg-2">
+                                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                        <div class="header">
+                                                            <h2><strong>Create</strong> New Permission </h2>
+                                                            <ul class="header-dropdown m-r--5">
+                                                                <li> <a href="javascript:void(0);"
+                                                                        @click="remove_type_section" role="button"
+                                                                        aria-haspopup="true" aria-expanded="false"><i
+                                                                            class="material-icons">close</i></a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="body">
+                                                            <div v-if="errorResponse!==null">
+                                                                <div class="alert alert-danger"
+                                                                    v-for="error in errorResponse">
+                                                                    {{error.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div v-if="successResponse!==null">
+                                                                <div class="alert alert-success">
+                                                                    {{successResponse.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <input type="text" v-model="name"
+                                                                            class="form-control"
+                                                                            placeholder="Permission Name">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <select class="form-control"
+                                                                            @change="getMenuSelect($event, menu)"
+                                                                            v-model="menu">
+                                                                            <option value="">-- Select Menu --
+                                                                            </option>
+                                                                            <option
+                                                                                :value="{id: menu._id, name: menu.name}"
+                                                                                v-for="(menu, index) in allMenu"
+                                                                                :key="index" class="text-capitalize">
+                                                                                {{menu.name}}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <span
+                                                                        class="badge badge-primary text-capitalize mr-2"
+                                                                        style="font-size: 12px; cursor: pointer;"
+                                                                        v-show="selectedMenu !=''">{{selectedMenu.name}}
+                                                                        <span @click="removeMenuSelect()"
+                                                                            aria-hidden="true">&times;</span></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <button type="submit" :disabled="isDisable"
+                                                                        @click="addItem"
+                                                                        class="btn btn-primary btn-round">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="container" v-if="type_section == 'edit'">
+                                            <div class="row clearfix">
+                                                <div class="col-lg-8 offset-lg-2">
+                                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                        <div class="header">
+                                                            <h2><strong>Edit</strong> Permission </h2>
+                                                            <ul class="header-dropdown m-r--5">
+                                                                <li> <a href="javascript:void(0);"
+                                                                        @click="remove_type_section" role="button"
+                                                                        aria-haspopup="true" aria-expanded="false"><i
+                                                                            class="material-icons">close</i></a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="body">
+                                                            <div v-if="errorResponse!==null">
+                                                                <div class="alert alert-danger"
+                                                                    v-for="error in errorResponse">
+                                                                    {{error.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div v-if="successResponse!==null">
+                                                                <div class="alert alert-success">
+                                                                    {{successResponse.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <input type="text" v-model="name"
+                                                                            class="form-control"
+                                                                            placeholder="Permission Name">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-12">
+                                                                    <div class="form-group">
+                                                                        <select class="form-control"
+                                                                            @change="getMenuSelect($event, menu)"
+                                                                            v-model="menu">
+                                                                            <option value="">-- Select Menu --
+                                                                            </option>
+                                                                            <option
+                                                                                :value="{id: menu._id, name: menu.name}"
+                                                                                v-for="(menu, index) in allMenu"
+                                                                                :key="index" class="text-capitalize">
+                                                                                {{menu.name}}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <span
+                                                                        class="badge badge-primary text-capitalize mr-2"
+                                                                        style="font-size: 12px; cursor: pointer;"
+                                                                        v-show="selectedMenu !=''">{{selectedMenu.name}}
+                                                                        <span @click="removeMenuSelect()"
+                                                                            aria-hidden="true">&times;</span></span>
+                                                                </div>
+                                                                <div class="col-sm-12">
+                                                                    <h6 class="text-capitalize my-2"
+                                                                        style="font-weight: normal;">Active</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="load_on_scan"
+                                                                                id="active_yes" v-model="active"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="load_on_scan"
+                                                                                id="active_no" v-model="active"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="active_no">No</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <button type="submit" :disabled="isDisable"
+                                                                        @click="updateProjectType"
+                                                                        class="btn btn-primary btn-round">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row justify-content-center clearfix">
+                                            <div class="col-lg-5">
+                                                <div v-if="type_section === 'delete'">
+                                                    <div v-if="errorResponse!==null">
+                                                        <div class="alert alert-danger" v-for="error in errorResponse">
+                                                            {{error.msg}}
+                                                            <button type="button" class="close" data-dismiss="alert"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div v-if="successResponse!==null">
+                                                        <div class="alert alert-success">
+                                                            {{successResponse.msg}}
+                                                            <button type="button" class="close" data-dismiss="alert"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row my-3" v-show="adminAccess.length>0?adminAccess.includes('admin permission create'):false">
+                                            <div class="col-md-12 d-flex justify-content-end">
+                                                <button type="button" class="btn btn-primary waves-effect"
+                                                    @click="add_type_section" v-show="type_section !== 'add'">Add New</button>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div
+                                                class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                                <div class="form-group">
+                                                    <select class="form-control" v-model="searchType">
+                                                        <option value="name">Permission Name</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                                <div class="form-group">
+                                                    <input type="text" @keyup="searchData($event)" class="form-control"
+                                                        v-model="searchText" placeholder="Search Keyword">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" v-if="isLoading">
+                                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive" v-else>
+                                            <table
+                                                class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                                id="infoListTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th class="text-center" style="vertical-align: middle;">Menu
+                                                        </th>
+                                                        <th class="text-center" style="vertical-align: middle;">Name
+                                                        </th>
+                                                        <!-- <th>Phone</th> -->
+                                                        <th class="text-center" style="vertical-align: middle;">Actions
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody v-if=" allListItem.length> 0">
+                                                    <tr v-for="(item, index) in allListItem" :key="item._id">
+                                                        <td style="vertical-align: middle;">{{ index + 1 }}</td>
+                                                        <td
+                                                            style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                            {{item.menuName}}</td>
+                                                        <td
+                                                            style="text-transform: capitalize; text-align: center; vertical-align: middle;">
+                                                            {{item.name}}</td>
+                                                        <!-- <td style="text-transform: capitalize;"><span class="badge badge-primary"
+                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;"
+                                                v-for="(phone, index) in item.contact.phone"
+                                                :key="index">{{phone}}</span></td> -->
+
+                                                        <td class="text-center">
+                                                            <button :disabled=" isDisable"
+                                                                @click="edit_item_section(item._id)"
+                                                                class="btn btn-icon btn-neutral btn-icon-mini" v-show="adminAccess.length>0?adminAccess.includes('admin permission update'):false"><i
+                                                                    class="zmdi zmdi-edit"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                <tbody v-else>
+                                                    <tr>
+                                                        <td class="text-center" colspan="10">No data found here</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+            </section>
+
+            <script>
+                var pageNo = 1
+
+                new Vue({
+                    el: '#property_type_section',
+                    data: {
+                        allListItem: [],
+                        searchType: 'name',
+                        searchText: '',
+                        allBrand: [],
+                        selectedBrands: [],
+                        allSubcategory: [],
+                        selectedSubcategories: [],
+                        allCategory: [],
+                        selectedCategories: [],
+                        allBranch: [],
+                        allMenu: [],
+                        selectedBranches: [],
+                        selectedMenu: '',
+                        name: '',
+                        phoneNumber: '',
+                        phone: [],
+                        address: '',
+                        branch: '',
+                        menu: '',
+                        category: '',
+                        subcategory: '',
+                        brand: '',
+                        instantPayment: false,
+                        type_section: null,
+                        editItemID: '',
+                        editItemValue: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: true,
+                        isNextDataLastEmpty: false,
+                        searchQueryString: '',
+                        active: true,
+                        adminAccess: []
+                    },
+                    mounted() {
+                        this.getAllItemData()
+                        this.getBranchInfo()
+                        this.getMenuInfo()
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                    },
+                    created() {
+                        window.addEventListener('scroll', this.handleScroll);
+                    },
+                    destroyed() {
+                        window.removeEventListener('scroll', this.handleScroll);
+                    },
+                    methods: {
+                        searchData(e) {
+                            if (e.keyCode === 13) {
+                                pageNo = 1
+                                this.allListItem = []
+                                if (this.searchText == '') {
+                                    this.searchQueryString = ''
+                                } else {
+                                    this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                                }
+                                this.getAllItemData()
+                            }
+                        },
+                        getPositionHeight(element) {
+                            var rect = element.getBoundingClientRect();
+                            return (rect.y + 100) < $(window).height()
+                        },
+                        handleScroll(event) {
+                            // Any code to be executed when the window is scrolled
+                            if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                                .isNextDataLastEmpty === false) {
+                                if (!this.isNextDataLastEmpty) {
+                                    pageNo++
+                                    this.isNextDataLastEmpty = true
+                                    this.getAllItemData()
+                                }
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        getMenuInfo() {
+                            let requestLink = '/api/admin/menu'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allMenu = result.response.data
+                                }
+                            })
+                        },
+                        getMenuSelect(e, menu) {
+                            let menuData = menu
+                            if (menuData !== '') {
+                                this.selectedMenu = menuData
+                                this.menu = ''
+                            }
+                        },
+                        removeMenuSelect() {
+                            this.selectedMenu = ''
+                        },
+
+                        getAllItemData() {
+                            let requestLink = '/api/admin/permission/' + pageNo + '?' + this.searchQueryString
+                            getSecureData(requestLink, localStorage.getItem('token')).then((result) => {
+                                if (result.auth === true) {
+                                    if (result.response.data.length === 0) {
+                                        this.isNextDataLastEmpty = true
+                                    } else {
+                                        result.response.data.map((data) => {
+                                            data.menuName = data.menu.name
+                                            this.allListItem.push(data)
+                                        })
+                                        this.isNextDataLastEmpty = false
+                                    }
+                                    this.isLoading = false
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        add_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'add'
+                        },
+                        edit_item_section(ItemID) {
+                            this.editItemID = ItemID
+                            this.remove_type_section()
+                            this.isDisable = true
+                            this.type_section = 'edit'
+                            let requestLink = '/api/admin/permission/single/' + ItemID
+
+                            getSecureData(requestLink, localStorage.getItem('token')).then((result) => {
+                                if (result.auth === true) {
+                                    this.name = result.response.data.name
+                                    this.active = result.response.data.active
+                                    let requestLink2 = '/api/admin/menu/single/' + result.response.data.menu
+                                    getSecureData(requestLink2, localStorage.getItem('token')).then((result2) => {
+                                        if (result2.auth === true) {
+                                            this.selectedMenu = result2.response.data
+                                        }
+                                    })
+                                }
+                                this.isDisable = false
+                            })
+                        },
+                        remove_type_section() {
+                            this.clear_notifications()
+                            this.type_section = null
+                            this.clear_fields()
+                        },
+                        clear_fields() {
+                            this.selectedBranches = []
+                            this.selectedCategories = []
+                            this.selectedSubcategories = []
+                            this.selectedBrands = []
+                            this.name = ''
+                            this.phone = []
+                            this.phoneNumber = ''
+                            this.address = ''
+                            this.branch = ''
+                            this.category = ''
+                            this.subcategory = ''
+                            this.brand = ''
+                            this.instantPayment = false
+                        },
+                        addItem() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/admin/permission'
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                name: this.name.toLowerCase(),
+                                menuID: this.selectedMenu.id
+                            }
+
+                            addNewType(requestLink, itemInfo, token).then((result) => {
+                                if (result.auth === false) {
+                                    this.errorResponse = result.response
+                                } else {
+                                    // this.clear_fields()
+                                    this.allListItem = []
+                                    this.successResponse = result.response
+                                    pageNo = 1
+                                    this.getAllItemData()
+                                }
+                                this.isDisable = false
+                                this.isLoading = false
+                            })
+                        },
+                        updateProjectType() {
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/admin/permission'
+                            let token = localStorage.getItem('token')
+                            let menu
+                            if (this.selectedMenu.id == undefined) {
+                                menu = this.selectedMenu._id
+                            } else {
+                                menu = this.selectedMenu.id
+                            }
+                            updateTypeInfo(requestLink, {
+                                permissionID: this.editItemID,
+                                name: this.name.toLowerCase(),
+                                menu: menu,
+                                active: this.active
+                            }, token).then((result) => {
+                                if (result.auth === false) {
+                                    this.errorResponse = result.response
+                                } else {
+                                    this.allListItem = []
+                                    pageNo = 1
+                                    this.successResponse = result.response
+                                    this.getAllItemData()
+                                }
+                                this.isDisable = false
+                            })
+                        }
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>

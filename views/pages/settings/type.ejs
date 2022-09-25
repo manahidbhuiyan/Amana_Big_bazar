@@ -1,0 +1,287 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content" id="property_type_section">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body">
+                        <div class="row" v-if="isLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive" v-else>
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(projectType, index) in projectTypes.data" :key="projectType._id">
+                                        <td>{{ index + 1 }}</td>
+                                        <td style="text-transform: capitalize;">{{projectType.name}}</td>
+                                        <td>
+                                            <button :disabled="isDisable" @click="edit_type_section(projectType._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini"><i
+                                                    class="zmdi zmdi-edit"></i></button>
+                                            <button :disabled="isDisable" @click="deleteProjectType(projectType._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini"><i
+                                                    class="zmdi zmdi-delete"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center clearfix">
+            <div class="col-lg-5">
+                <div v-if="type_section === 'delete'">
+                    <div v-if="errorResponse!==null">
+                        <div class="alert alert-danger" v-for="error in errorResponse">
+                            {{error.msg}}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div v-if="successResponse!==null">
+                        <div class="alert alert-success">
+                            {{successResponse.msg}}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" v-if="type_section === 'add'">
+        <div class="row clearfix">
+            <div class="col-lg-6 offset-lg-3">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Create</strong> Property Type </h2>
+                        <ul class="header-dropdown m-r--5">
+                            <li> <a href="javascript:void(0);" @click="remove_type_section" role="button"
+                                    aria-haspopup="true" aria-expanded="false"><i class="material-icons">close</i></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="body">
+                        <div v-if="errorResponse!==null">
+                            <div class="alert alert-danger" v-for="error in errorResponse">
+                                {{error.msg}}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div v-if="successResponse!==null">
+                            <div class="alert alert-success">
+                                {{successResponse.msg}}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <input type="text" v-model="addTypeValue" class="form-control"
+                                        placeholder="Project Type">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-sm-12">
+                                <button type="submit" :disabled="isDisable" @click="addProjectType"
+                                    class="btn btn-primary btn-round">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" v-if="type_section == 'edit'">
+        <div class="row clearfix">
+            <div class="col-lg-6 offset-lg-3">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Edit</strong> Property Type </h2>
+                        <ul class="header-dropdown m-r--5">
+                            <li> <a href="javascript:void(0);" @click="remove_type_section" role="button"
+                                    aria-haspopup="true" aria-expanded="false"><i class="material-icons">close</i></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="body">
+                        <div v-if="errorResponse!==null">
+                            <div class="alert alert-danger" v-for="error in errorResponse">
+                                {{error.msg}}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div v-if="successResponse!==null">
+                            <div class="alert alert-success">
+                                {{successResponse.msg}}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" v-model="editTypeValue"
+                                        placeholder="Project Type">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row clearfix">
+                            <div class="col-sm-12">
+                                <button type="submit" :disabled="isDisable" @click="updateProjectType"
+                                    class="btn btn-primary btn-round">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    new Vue({
+        el: '#property_type_section',
+        data: {
+            projectTypes: [],
+            type_section: null,
+            addTypeValue: '',
+            editTypeID: '',
+            editTypeValue: '',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: true
+        },
+        mounted() {
+            this.getAllTypeData()
+        },
+        methods: {
+            getAllTypeData() {
+                let requestLink = '/api/partition/type'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.projectTypes = result.response
+                        this.isLoading = false
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            add_type_section() {
+                this.clear_notifications()
+                this.type_section = 'add'
+            },
+            edit_type_section(typeID) {
+                this.editTypeID = typeID
+                this.clear_notifications()
+                this.isDisable = true
+                this.type_section = 'edit'
+                let requestLink = '/api/partition/type/' + typeID
+
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.editTypeValue = result.response.data.name
+                    }
+                    this.isDisable = false
+                })
+            },
+            remove_type_section() {
+                this.clear_notifications()
+                this.type_section = null
+                this.editTypeID = null
+            },
+            addProjectType() {
+                this.clear_notifications()
+                let requestLink = '/api/partition/type'
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                addNewType(requestLink, {
+                    name: this.addTypeValue
+                }, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.addTypeValue = ''
+                        this.successResponse = result.response
+                        this.projectTypes.data.push(result.response.data)
+                    }
+                    this.isDisable = false
+                    this.isLoading = false
+                })
+            },
+            updateProjectType() {
+                this.clear_notifications()
+                let requestLink = '/api/partition/type'
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                updateTypeInfo(requestLink, {
+                    name: this.editTypeValue,
+                    type: this.editTypeID
+                }, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.editTypeValue = ''
+                        this.successResponse = result.response
+                        this.getAllTypeData()
+                    }
+                    this.isDisable = false
+                })
+            },
+            deleteProjectType(typeID) {
+                this.remove_type_section()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/partition/type/'
+                let token = localStorage.getItem('token')
+                deleteType(requestLink, typeID, token).then((result) => {
+                    this.type_section = 'delete'
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.getAllTypeData()
+                        this.successResponse = result.response
+                    }
+                    this.isDisable = false
+                })
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

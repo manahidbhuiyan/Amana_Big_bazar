@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cash memo Report</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-size: 7px;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+
+        .bg-grey {
+            background-color: #f3f5f7;
+        }
+
+        .bg-white {
+            background-color: #fff;
+        }
+
+        .header {
+            background-color: #f0f0f0;
+        }
+
+        /* global classes start */
+        .wrapper {
+            width: 530px;
+            min-width: 530px;
+            max-width: 530px;
+        }
+
+        .inner-wrapper {
+            width: 510px;
+            margin: 0 auto;
+        }
+
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* .records td {
+            border-bottom: 1px dotted #aaa;
+            padding-top: 7px;
+            padding-bottom: 7px;
+        } */
+
+        /* global classes end */
+    </style>
+</head>
+
+<body>
+    <table cellspacing="0" cellpadding="0" width="100%">
+        <tr>
+            <td>
+                <table class="center bg-white wrapper" cellspacing="0" cellpadding="0" style="border: 1px solid #ddd">
+                    <!-- header start -->
+                    <tr>
+                        <td>
+                            <table cellspacing="0" cellpadding="0" style="width: 100%">
+                                <tr>
+                                    <td style="line-height: 10px">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table class="center inner-wrapper" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td>
+                                                    <h1 style="
+                                font-size: 14px;
+                                text-align: center;
+                                text-transform: uppercase;
+                              ">
+                                                        Subscribed User report <br />
+                                                    </h1>
+                                                    <p style="text-align: center; margin-top: 5px">
+                                                        All Subscriber information
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- header end -->
+                    <tr>
+                        <td style="line-height: 20px">&nbsp;</td>
+                    </tr>
+                    <!-- Payment method info part start -->
+                    <tr>
+                        <td>
+                            <table class="center bg-white" cellspacing="0" cellpadding="0" width="100%">
+                                <!-- user info and payment info start -->
+                                <tr>
+                                    <td>
+                                        <table class="center inner-wrapper" cellspacing="0" cellpadding="0">
+                                            <!-- payment information start -->
+                                            <tr>
+                                                <td>
+                                                    <table cellspacing="0" cellpadding="0" width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <table cellspacing="0" cellpadding="0" width="100%">
+                                                                    <tr>
+                                                                        <th class="text-center">Serial</th>
+                                                                        <th class="text-center">Email</th>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td colspan="7">
+                                                                            <hr />
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    {{#each data}}
+                                                                    <!-- record start -->
+
+                                                                    <tr>
+                                                                        <td class="text-center" style="
+                                                                        border-bottom: 1px dotted #aaa;
+                                                                        padding-top: 7px;
+                                                                        padding-bottom: 7px;
+                                                                        ">
+                                                                            {{serial}}
+                                                                        </td>
+                                                                        <td class="text-center" style="
+                                                                        border-bottom: 1px dotted #aaa;
+                                                                        padding-top: 7px;
+                                                                        padding-bottom: 7px;
+                                                                        ">
+                                                                            {{email}}
+                                                                        </td>
+                                                                        <td class="text-center" style="
+                                                                        border-bottom: 1px dotted #aaa;
+                                                                        padding-top: 7px;
+                                                                        padding-bottom: 7px;
+                                                                        text-transform: capitalize;
+                                                                        ">
+
+                                                                    </tr>
+                                                                    <!-- record end -->
+                                                                    {{/each}}
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <!-- payment information end -->
+                                        </table>
+                                    </td>
+                                </tr>
+                                <!-- user info and payment info end -->
+                                <tr>
+                                    <td style="line-height: 30px">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <!-- Payment method info part end -->
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

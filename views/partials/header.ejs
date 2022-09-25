@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="csrf-token" content="CL2tR2J4UHZXcR9BjRtSYOKzSmL8U1zTc7T8d6Jz">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="RealEstate Admin Dashboard template, UI kit, Bootstrap 4x">
+    <meta name="author" content="Thememakker">
+
+    <title><%= data.siteTitle %></title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Favicon-->
+    <link rel="stylesheet" href="<%= host %>/assets/plugins/sweetalert/sweetalert.css" />
+    <% if(typeof(styles) != "undefined" && styles !== null){  %>
+    <% styles.forEach(function(styleLink) { %>
+    <link rel="stylesheet" href="<%= host+styleLink %>">
+    <% }); %>
+    <% } %>
+    <link rel="stylesheet" href="<%= host %>/assets/css/style.css">
+    <script>
+        function IEdetection() {
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf('MSIE ');
+            if (msie > 0) {
+                // IE 10 or older, return version number
+
+                return parseInt(ua.substring(
+                    msie + 5, ua.indexOf('.', msie)), 10);
+            }
+            var trident = ua.indexOf('Trident/');
+            if (trident > 0) {
+                // IE 11, return version number
+
+                var rv = ua.indexOf('rv:');
+                return parseInt(ua.substring(
+                    rv + 3, ua.indexOf('.', rv)), 10);
+            }
+
+            return 12;
+        }
+
+        var result = IEdetection();
+        if (result <= 11) {
+            alert(
+                'To use all of the features of this application, please use modern browsers. Ex. Microsoft Edge, Chrome, Firefox'
+            );
+            document.execCommand('Stop');
+        }
+    </script>
+
+    <% if(typeof(before_scripts) != "undefined" && before_scripts !== null){  %>
+    <% before_scripts.forEach(function(beforeScriptLink) { %>
+    <script src="<%= host+beforeScriptLink %>"></script>
+    <% }); %>
+    <% } %>
+
+    <script src="<%= host %>/javascript/lib/bluebird.min.js"></script>
+    <script src="<%= host %>/javascript/lib/jquery.min.js"></script>
+    <script src="<%= host %>/javascript/lib/vue@2.6.11.js"></script>
+    <script src="<%= host %>/javascript/lib/axios.min.js"></script>
+    <script src="<%= host %>/javascript/lib/printThis.min.js"></script>
+    <script src="<%= host %>/javascript/auth.js"></script>
+
+
+</head>
+
+<body class="theme-purple">
+    <!-- Page Loader -->
+    <div class="page-loader-wrapper" id="page_loader">
+        <div class="loader">
+            <div class="m-t-30"><img class="zmdi-hc-spin" src="<%= host %>/assets/images/icons/dashboard_logo.svg"
+                    width="48" height="48" alt="Oreo"></div>
+            <p>Please wait...</p>
+        </div>
+    </div>
+
+    <!-- Overlay For Sidebars -->
+    <!-- <div class="overlay"></div> -->
+
+    <script>
+        // new Vue({
+        //     el: '#page_loader',
+        //     data:{
+        //         errorResponse: null,
+        //         token: null
+        //     },
+        //     mounted(){
+        //         if (localStorage.token) {
+        //             this.token = localStorage.token
+        //             authChecker(this.token).then((result) => {
+        //                 if(result.auth===false){
+        //                     window.location = '/login'
+        //                 }
+        //                 adminRoles = result.response.data.roles
+        //             })
+        //         }else{
+        //             window.location = '/login'
+        //         }
+        //     }
+        // })
+    </script>

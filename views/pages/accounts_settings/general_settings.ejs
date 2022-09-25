@@ -1,0 +1,1168 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+        <style>
+            .dropdown-menu {
+                min-width: 100% !important;
+            }
+        
+            .dropdown-custom {
+                width: 100%;
+            }
+        
+            .dropdown-content-custom {
+                background-color: #fff;
+                box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                border: 1px solid #f1f1f1;
+                z-index: 1;
+                max-height: 250px;
+                overflow-y: scroll;
+                top: 38px !important;
+            }
+        </style>
+
+            <!-- Main Content -->
+            <section class="content" id="property_type_section">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="body" v-on:scroll="handleScroll">
+                                        <div class="container" v-if="type_section === 'add'">
+                                            <div class="row clearfix">
+                                                <div class="col-lg-10 offset-lg-1">
+                                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                        <div class="header">
+                                                            <h2><strong>Add</strong> General Settings </h2>
+                                                            <ul class="header-dropdown m-r--5">
+                                                                <li> <a href="javascript:void(0);"
+                                                                        @click="remove_type_section" role="button"
+                                                                        aria-haspopup="true" aria-expanded="false"><i
+                                                                            class="material-icons">close</i></a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="body">
+                                                            <div v-if="errorResponse!==null">
+                                                                <div class="alert alert-danger"
+                                                                    v-for="error in errorResponse">
+                                                                    {{error.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div v-if="successResponse!==null">
+                                                                <div class="alert alert-success">
+                                                                    {{successResponse.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <h6 class="mt-2 mb-2">Branch</h6>
+                                                                    <div class="form-group">
+                                                                        <select class="form-control" v-model="branch" required>
+                                                                            <option value="">Warehouse</option> 
+                                                                            <option :value="{id: branch._id, name: branch.name}"
+                                                                                v-for="(branch, index) in allBranch" :key="index"
+                                                                                class="text-capitalize">{{branch.name}}</option>   
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Receiving start -->
+                                                                <div class="col-sm-4">
+                                                                    <h6 class="mt-2 mb-2">Receiving</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isReceivingActive"
+                                                                                id="receiving_active_yes" v-model="isReceivingActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="receiving_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isReceivingActive"
+                                                                                id="receiving_active_no" v-model="isReceivingActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="receiving_active_no">No</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isReceivingActive">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_categorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="category serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_subcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="subcategory serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no">
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Return start -->
+                                                                <div class="col-sm-4">
+                                                                    <h6 class="mt-2 mb-2">Return</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isReturnActive"
+                                                                                id="return_active_yes" v-model="isReturnActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="return_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isReturnActive"
+                                                                                id="return_active_no" v-model="isReturnActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="return_active_no">No</label>
+                                                                        </div>
+                                                                    </div>                                                                      
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isReturnActive">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_categorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="category serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_subcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="subcategory serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Dispose start -->
+                                                                <!-- <div class="col-sm-4">
+                                                                    <h6 class="mt-2 mb-2">Dispose</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isDisposeActive"
+                                                                                id="dispose_active_yes" v-model="isDisposeActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="dispose_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isDisposeActive"
+                                                                                id="dispose_active_no" v-model="isDisposeActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="dispose_active_no">No</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isDisposeActive">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_categorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="category serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_subcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="subcategory serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                                <!-- Sell Start -->
+                                                                <div class="col-sm-4" v-if="branch!=''">
+                                                                    <h6 class="mt-2 mb-2">Sell</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isSellActive"
+                                                                                id="mb_bank_active_yes" v-model="isSellActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="mb_bank_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isSellActive"
+                                                                                id="mb_bank_active_no" v-model="isSellActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="mb_bank_active_no">No</label>
+                                                                        </div>
+                                                                    </div>   
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isSellActive && branch!=''">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-4">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_crsubcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="credit subcategory serial no.">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_degroupSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="debit group serial no.">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_desubgroupSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="debit subgroup serial no.">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_decategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="debit category serial no.">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no.">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no.">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix mt-4">
+                                                                <div class="col-sm-12">
+                                                                    <button type="submit" :disabled="isDisable"
+                                                                        @click="addItem"
+                                                                        class="btn btn-primary btn-round">Add</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="container" v-if="type_section == 'edit'">
+                                            <div class="row clearfix">
+                                                <div class="col-lg-10 offset-lg-1">
+                                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                        <div class="header">
+                                                            <h2><strong>Edit</strong> General Settings </h2>
+                                                            <ul class="header-dropdown m-r--5">
+                                                                <li> <a href="javascript:void(0);"
+                                                                        @click="remove_type_section" role="button"
+                                                                        aria-haspopup="true" aria-expanded="false"><i
+                                                                            class="material-icons">close</i></a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="body">
+                                                            <div v-if="errorResponse!==null">
+                                                                <div class="alert alert-danger"
+                                                                    v-for="error in errorResponse">
+                                                                    {{error.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div v-if="successResponse!==null">
+                                                                <div class="alert alert-success">
+                                                                    {{successResponse.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12 text-center" v-if="branch==''">
+                                                                    <h6 class="mt-2 mb-2">Warehouse</h6>
+                                                                </div>
+                                                                <div class="col-sm-12" v-else>
+                                                                    <h6 class="mt-2 mb-2">Branch</h6>
+                                                                    <div class="form-group">
+                                                                        <select class="form-control" v-model="branch" disabled>
+                                                                            <option :value="branch._id"
+                                                                                v-for="(branch, index) in allBranch" :key="index"
+                                                                                class="text-capitalize">{{branch.name}}</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Receiving start -->
+                                                                <div class="col-sm-4">
+                                                                    <h6 class="mt-2 mb-2">Receiving</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isReceivingActive"
+                                                                                id="receiving_active_yes" v-model="isReceivingActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="receiving_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isReceivingActive"
+                                                                                id="receiving_active_no" v-model="isReceivingActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="receiving_active_no">No</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isReceivingActive">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_categorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="category serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_subcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="subcategory serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="receiving_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no">
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Return start -->
+                                                                <div class="col-sm-4">
+                                                                    <h6 class="mt-2 mb-2">Return</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isReturnActive"
+                                                                                id="return_active_yes" v-model="isReturnActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="return_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isReturnActive"
+                                                                                id="return_active_no" v-model="isReturnActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="return_active_no">No</label>
+                                                                        </div>
+                                                                    </div>                                                                      
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isReturnActive">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_categorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="category serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_subcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="subcategory serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="return_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Dispose start -->
+                                                                <!-- <div class="col-sm-4">
+                                                                    <h6 class="mt-2 mb-2">Dispose</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isDisposeActive"
+                                                                                id="dispose_active_yes" v-model="isDisposeActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="dispose_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isDisposeActive"
+                                                                                id="dispose_active_no" v-model="isDisposeActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="dispose_active_no">No</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isDisposeActive">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_categorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="category serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_subcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="subcategory serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-3">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="dispose_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div> -->
+                                                                <!-- Sell Start -->
+                                                                <div class="col-sm-4" v-if="branch!=''">
+                                                                    <h6 class="mt-2 mb-2">Sell</h6>
+                                                                    <div class="form-group">
+                                                                        <div class="radio inlineblock m-r-20">
+                                                                            <input type="radio" name="isSellActive"
+                                                                                id="mb_bank_active_yes" v-model="isSellActive"
+                                                                                class="with-gap" :value="true">
+                                                                            <label for="mb_bank_active_yes">Yes</label>
+                                                                        </div>
+                                                                        <div class="radio inlineblock">
+                                                                            <input type="radio" name="isSellActive"
+                                                                                id="mb_bank_active_no" v-model="isSellActive"
+                                                                                class="with-gap" :value="false">
+                                                                            <label for="mb_bank_active_no">No</label>
+                                                                        </div>
+                                                                    </div>   
+                                                                </div>
+                                                                <div class="col-sm-12" v-if="isSellActive && branch!=''">
+                                                                    <div class="row">
+                                                                        <div class="col-sm-4">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_crsubcategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="credit subcategory serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_degroupSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="debit group serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_desubgroupSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="debit subgroup serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_decategorySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="debit category serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_voucherSerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="voucher serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-4">                                                                     
+                                                                            <div class="form-group">
+                                                                                <input type="text" v-model="sell_currencySerialNo"
+                                                                                    class="form-control"
+                                                                                    placeholder="currency serial no">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <button type="submit"
+                                                                        @click="updateProjectType"
+                                                                        class="btn btn-primary btn-round">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row justify-content-center clearfix">
+                                            <div class="col-lg-5">
+                                                <div v-if="type_section === 'delete'">
+                                                    <div v-if="errorResponse!==null">
+                                                        <div class="alert alert-danger" v-for="error in errorResponse">
+                                                            {{error.msg}}
+                                                            <button type="button" class="close" data-dismiss="alert"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div v-if="successResponse!==null">
+                                                        <div class="alert alert-success">
+                                                            {{successResponse.msg}}
+                                                            <button type="button" class="close" data-dismiss="alert"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <button class="btn btn-primary float-right btn-xs" type="button"
+                                                    @click="add_type_section"
+                                                    v-show="adminAccess.length>0?adminAccess.includes('accounts settings scheduler create'):false">Add
+                                                    New</button>
+                                            </div>
+                                        </div>
+                                        <!-- <div class="row">
+                                            <div
+                                                class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                                <div class="form-group">
+                                                    <select class="form-control" v-model="searchType">
+                                                        <option value="name">Currency Name</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                                <div class="form-group">
+                                                    <input type="text" @keyup="searchData($event)" class="form-control"
+                                                        v-model="searchText" placeholder="Search Keyword">
+                                                </div>
+                                            </div>
+                                        </div> -->
+                                        <div class="row" v-if="isLoading">
+                                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive" v-else>
+                                            <table
+                                                class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                                id="infoListTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Serial No</th>
+                                                        <th>Branch</th>
+                                                        <th>Receiving</th>
+                                                        <th>Return</th>
+                                                        <th>Dispose</th>
+                                                        <th>Sell</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody v-if="allListItem.length > 0">
+                                                    <tr v-for="(item, index) in allListItem" :key="item._id">
+                                                        <td style="vertical-align: middle;">{{ index + 1 }}</td>
+                                                        <td style="vertical-align: middle;">{{ item.serialNo }}</td>
+                                                        <td style="vertical-align: middle;">{{ item.branch ? item.branch.name : 'warehouse'}}</td>
+                                                        <td style="text-transform: capitalize;" v-if="item.product_receiving.isActive">
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">category sl- {{item.product_receiving.categorySerialNo ? item.product_receiving.categorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">subcategory sl- {{item.product_receiving.subcategorySerialNo ? item.product_receiving.subcategorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">voucher sl- {{item.product_receiving.voucherSerialNo ? item.product_receiving.voucherSerialNo: ''}}</span>
+                                                            <br/>  
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">currency sl- {{item.product_receiving.currencySerialNo ? item.product_receiving.currencySerialNo : ''}}</span>      
+                                                        </td>
+                                                        <td style="text-transform: capitalize; vertical-align: middle" v-else>
+                                                            <span class="badge badge-primary text-center"
+                                                            style="font-size: 12px; cursor: pointer; margin-right: 5px;">Not Active </span>
+                                                        </td>
+                                                        <td style="text-transform: capitalize;" v-if="item.product_return.isActive">
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">category sl- {{item.product_return.categorySerialNo ? item.product_return.categorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">subcategory sl- {{item.product_return.subcategorySerialNo ? item.product_return.subcategorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">voucher sl- {{item.product_return.voucherSerialNo ? item.product_return.voucherSerialNo: ''}}</span>
+                                                            <br/>  
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">currency sl- {{item.product_return.currencySerialNo ? item.product_return.currencySerialNo : ''}}</span>      
+                                                        </td>
+                                                        <td style="text-transform: capitalize; vertical-align: middle" v-else>
+                                                            <span class="badge badge-primary text-center"
+                                                            style="font-size: 12px; cursor: pointer; margin-right: 5px;">Not Active </span>
+                                                        </td>
+                                                        <td style="text-transform: capitalize;" v-if="item.product_disposal.isActive">
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">category sl- {{item.product_disposal.categorySerialNo ? item.product_disposal.categorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">subcategory sl- {{item.product_disposal.subcategorySerialNo ? item.product_disposal.subcategorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">voucher sl- {{item.product_disposal.voucherSerialNo ? item.product_disposal.voucherSerialNo: ''}}</span>
+                                                            <br/>  
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">currency sl- {{item.product_disposal.currencySerialNo ? item.product_disposal.currencySerialNo : ''}}</span>      
+                                                        </td>
+                                                        <td style="text-transform: capitalize; vertical-align: middle" v-else>
+                                                            <span class="badge badge-primary text-center"
+                                                            style="font-size: 12px; cursor: pointer; margin-right: 5px;">Not Active </span>
+                                                        </td>
+                                                        <td style="text-transform: capitalize;" v-if="item.sell.isActive">
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">cradit subcategory sl- {{item.sell.crsubcategorySerialNo ? item.sell.crsubcategorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">debit group sl- {{item.sell.degroupSerialNo ? item.sell.degroupSerialNo : ''}}</span>
+                                                            <br/>
+                                                            <span class="badge badge-primary"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">debit subgroup sl- {{item.sell.desubgroupSerialNo ? item.sell.desubgroupSerialNo : ''}}</span>
+                                                            <br/>
+                                                            <span class="badge badge-primary"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">debit category sl- {{item.sell.decategorySerialNo ? item.sell.decategorySerialNo : ''}}</span>
+                                                            <br/>    
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">voucher sl- {{item.sell.voucherSerialNo ? item.sell.voucherSerialNo: ''}}</span>
+                                                            <br/>  
+                                                            <span class="badge badge-primary text-center"
+                                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;">currency sl- {{item.sell.currencySerialNo ? item.sell.currencySerialNo : ''}}</span> 
+                                                        </td>
+                                                        <td style="text-transform: capitalize; vertical-align: middle" v-else>
+                                                            <span class="badge badge-primary text-center"
+                                                            style="font-size: 12px; cursor: pointer; margin-right: 5px;">Not Active </span>
+                                                        </td>
+                                                        <td style="text-align: left; vertical-align: middle;">
+                                                            <button :disabled="isDisable"
+                                                                @click="edit_item_section(item._id)"
+                                                                class="btn btn-icon btn-neutral btn-icon-mini"
+                                                                v-show="adminAccess.length>0?adminAccess.includes('accounts settings scheduler update'):false"><i
+                                                                    class="zmdi zmdi-edit"></i></button>
+                                                            <button :disabled="isDisable" @click="deleteItem(item._id)"
+                                                                class="btn btn-icon btn-neutral btn-icon-mini"
+                                                                v-show="adminAccess.length>0?adminAccess.includes('accounts settings scheduler delete'):false"><i
+                                                                    class="zmdi zmdi-delete"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                <tbody v-else>
+                                                    <tr>
+                                                        <td class="text-center" colspan="8">No data found here</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+            </section>
+
+            <script>
+                var pageNo = 1
+
+                new Vue({
+                    el: '#property_type_section',
+                    data: {
+                        allListItem: [],
+                        searchType: 'name',
+                        searchText: '',
+                        allBranch: [],
+                        name: '',
+                        branch: '',
+                        type_section: null,
+                        editItemID: '',
+                        editItemValue: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: true,
+                        isNextDataLastEmpty: false,
+                        searchQueryString: '',
+                        adminAccess: [],
+                        account_no: null,
+                        address: "",
+                        convertion_rate: null,
+                        converted_to: '',
+                        allCurrency: [],
+                        isReceivingActive: false,
+                        isReturnActive: false,
+                        isDisposeActive: false,
+                        isSellActive: false,
+                        currency: '',
+                        currencyName: '',
+                        currencyFilter: [],
+                        receiving: '',
+                        returning: '',
+                        dispose: '',
+                        sell: '',
+                        mobile_bank: '',
+                        cash: '',
+                        card: '',
+                        receiving_categorySerialNo: null,
+                        receiving_subcategorySerialNo: null,
+                        receiving_voucherSerialNo: null,
+                        receiving_currencySerialNo: null,
+                        return_categorySerialNo: null,
+                        return_subcategorySerialNo: null,
+                        return_voucherSerialNo: null,
+                        return_currencySerialNo: null,
+                        dispose_categorySerialNo: null,
+                        dispose_subcategorySerialNo: null,
+                        dispose_voucherSerialNo: null,
+                        dispose_currencySerialNo: null,
+                        sell_crsubcategorySerialNo: null,
+                        sell_degroupSerialNo: null,
+                        sell_desubgroupSerialNo: null,
+                        sell_decategorySerialNo: null,
+                        sell_voucherSerialNo: null,
+                        sell_currencySerialNo: null,
+                        cash_crsubcategorySerialNo: null,
+                        cash_desubcategorySerialNo: null,
+                        cash_voucherSerialNo: null,
+                        cash_currencySerialNo: null,
+                        card_crsubcategorySerialNo: null,
+                        card_desubcategorySerialNo: null,
+                        card_voucherSerialNo: null,
+                        card_currencySerialNo: null
+                    },
+                    mounted() {
+                        this.getAllItemData()
+                        this.getBranchInfo()
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                    },
+                    created() {
+                        window.addEventListener('scroll', this.handleScroll);
+                    },
+                    destroyed() {
+                        window.removeEventListener('scroll', this.handleScroll);
+                    },
+                    methods: {
+                        searchData(e) {
+                            if (e.keyCode === 13) {
+                                pageNo = 1
+                                this.allListItem = []
+                                if (this.searchText == '') {
+                                    this.searchQueryString = ''
+                                } else {
+                                    this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                                }
+                                this.getAllItemData()
+                            }
+                        },
+                        getPositionHeight(element) {
+                            var rect = element.getBoundingClientRect();
+                            return (rect.y + 100) < $(window).height()
+                        },
+                        handleScroll(event) {
+                            // Any code to be executed when the window is scrolled
+                            if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                                .isNextDataLastEmpty === false) {
+                                if (!this.isNextDataLastEmpty) {
+                                    pageNo++
+                                    this.isNextDataLastEmpty = true
+                                    this.getAllItemData()
+                                }
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        filterCurrencyList() {
+                            if (this.currencyName != "") {
+                                let search = new RegExp(this.currencyName, 'i');
+                                this.currencyFilter = this.allCurrency.filter(currencyInfo => search.test(currencyInfo.name))
+                            } else {
+                                this.currencyFilter = this.allCurrency
+                            }
+                        },
+                        currencySearchData(data) {
+                            this.currencyName = data.name
+                            this.currency = data.id
+                        },
+                        getAllItemData() {
+                            let requestLink = '/api/accounts/settings/scheduler-settings/' + pageNo + '?' + this.searchQueryString
+                            let token = localStorage.getItem('token')
+
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    if (result.response.data.length === 0) {
+                                        this.isNextDataLastEmpty = true
+                                    } else {
+                                        result.response.data.map((data) => {
+                                            this.allListItem.push(data)
+                                        })
+                                        console.log(this.allListItem)
+                                        this.isNextDataLastEmpty = false
+                                    }
+                                    this.isLoading = false
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        add_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'add'
+                        },
+                        edit_item_section(ItemID) {
+                            this.editItemID = ItemID
+                            this.remove_type_section()
+                            this.isDisable = true
+                            this.type_section = 'edit'
+                            let requestLink = '/api/accounts/settings/scheduler-settings/data/' + ItemID
+                            let token = localStorage.getItem('token')
+
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.branch =  result.response.data.branch!=null ? result.response.data.branch._id : ""
+
+                                    this.isReceivingActive = result.response.data.product_receiving.isActive
+                                    this.isReturnActive = result.response.data.product_return.isActive
+                                    this.isDisposeActive = result.response.data.product_disposal.isActive
+                                    this.isSellActive = result.response.data.sell.isActive
+
+                                    this.receiving_categorySerialNo = result.response.data.product_receiving.categorySerialNo 
+                                    this.receiving_subcategorySerialNo = result.response.data.product_receiving.subcategorySerialNo 
+                                    this.receiving_voucherSerialNo = result.response.data.product_receiving.voucherSerialNo 
+                                    this.receiving_currencySerialNo = result.response.data.product_receiving.currencySerialNo 
+
+                                    this.return_categorySerialNo = result.response.data.product_return.categorySerialNo
+                                    this.return_subcategorySerialNo = result.response.data.product_return.subcategorySerialNo
+                                    this.return_voucherSerialNo = result.response.data.product_return.voucherSerialNo
+                                    this.return_currencySerialNo = result.response.data.product_return.currencySerialNo
+
+                                    this.dispose_categorySerialNo = result.response.data.product_disposal.categorySerialNo
+                                    this.dispose_subcategorySerialNo = result.response.data.product_disposal.subcategorySerialNo
+                                    this.dispose_voucherSerialNo = result.response.data.product_disposal.voucherSerialNo
+                                    this.dispose_currencySerialNo = result.response.data.product_disposal.currencySerialNo
+
+                                    this.sell_crsubcategorySerialNo = result.response.data.sell.crsubcategorySerialNo
+                                    this.sell_degroupSerialNo = result.response.data.sell.degroupSerialNo
+                                    this.sell_desubgroupSerialNo = result.response.data.sell.desubgroupSerialNo
+                                    this.sell_decategorySerialNo = result.response.data.sell.decategorySerialNo
+                                    this.sell_voucherSerialNo = result.response.data.sell.voucherSerialNo
+                                    this.sell_currencySerialNo = result.response.data.sell.currencySerialNo
+
+                                    $('html, body').animate({
+                                        scrollTop: 0
+                                    }, 'slow', function () { });
+                                }
+                                this.isDisable = false
+                            })
+                            console.log(this.converted_to)
+                        },
+                        remove_type_section() {
+                            this.clear_notifications()
+                            this.type_section = null
+                            this.clear_fields()
+                        },
+                        clear_fields() {
+                            this.selectedBranches = []
+                            this.branch = ''
+                            this.isReceivingActive = false
+                            this.isReturnActive = false
+                            this.isDisposeActive = false
+                            this.isSellActive = false
+                            this.receiving_categorySerialNo = null
+                            this.receiving_subcategorySerialNo = null
+                            this.receiving_voucherSerialNo = null
+                            this.receiving_currencySerialNo = null
+                            this.return_categorySerialNo = null
+                            this.return_subcategorySerialNo = null
+                            this.return_voucherSerialNo = null
+                            this.return_currencySerialNo = null
+                            this.dispose_categorySerialNo = null
+                            this.dispose_subcategorySerialNo = null
+                            this.dispose_voucherSerialNo = null
+                            this.dispose_currencySerialNo = null
+                            this.sell_crsubcategorySerialNo = null
+                            this.sell_degroupSerialNo = null
+                            this.sell_desubgroupSerialNo = null
+                            this.sell_decategorySerialNo = null
+                            this.sell_voucherSerialNo = null
+                            this.sell_currencySerialNo = null
+                        },
+                        changeIconImage() {
+                            const iconFile = this.$refs.icon.files[0];
+                            this.icon = iconFile;
+                            this.iconPreview = URL.createObjectURL(iconFile);
+                        },
+                        changeCoverImage() {
+                            const coverFile = this.$refs.cover.files[0];
+                            this.cover = coverFile;
+                            this.coverPreview = URL.createObjectURL(coverFile);
+                        },
+                        addItem() {
+                            this.isDisable = true
+                            this.isLoading = true
+                            
+                            this.clear_notifications()
+                            let requestLink = '/api/accounts/settings/scheduler-settings'
+                            let token = localStorage.getItem('token')
+                            let product_receiving = {
+                                isActive: this.isReceivingActive,
+                                categorySerialNo: this.receiving_categorySerialNo,
+                                subcategorySerialNo: this.receiving_subcategorySerialNo,
+                                voucherSerialNo: this.receiving_voucherSerialNo,
+                                currencySerialNo: this.receiving_currencySerialNo
+                            }
+                            let product_return = {
+                                isActive: this.isReturnActive,
+                                categorySerialNo: this.return_categorySerialNo,
+                                subcategorySerialNo: this.return_subcategorySerialNo,
+                                voucherSerialNo: this.return_voucherSerialNo,
+                                currencySerialNo: this.return_currencySerialNo
+                            }
+                            let product_disposal = {
+                                isActive: this.isDisposeActive,
+                                categorySerialNo: this.dispose_categorySerialNo,
+                                subcategorySerialNo: this.dispose_subcategorySerialNo,
+                                voucherSerialNo: this.dispose_voucherSerialNo,
+                                currencySerialNo: this.dispose_currencySerialNo
+                            }
+                            let sell = {
+                                isActive: this.isSellActive,
+                                crsubcategorySerialNo: this.sell_crsubcategorySerialNo,
+                                degroupSerialNo: this.sell_degroupSerialNo,
+                                desubgroupSerialNo: this.sell_desubgroupSerialNo,
+                                decategorySerialNo: this.sell_decategorySerialNo,
+                                voucherSerialNo: this.sell_voucherSerialNo,
+                                currencySerialNo: this.sell_currencySerialNo
+                            }
+
+                            //console.log(this.branch)
+                            let itemInfo = {
+                                branch: this.branch.id,
+                                product_receiving: product_receiving,
+                                product_return: product_return,
+                                product_disposal: product_disposal,
+                                sell
+                            }
+
+                            addNewType(requestLink, itemInfo, token).then((result) => {
+                                if (result.auth === false) {
+                                    this.errorResponse = result.response
+                                } else {
+                                    this.allListItem = []
+                                    this.successResponse = result.response
+                                    pageNo = 1
+                                    this.getAllItemData()
+                                    // this.clear_fields()
+                                }
+                                this.isDisable = false
+                                this.isLoading = false
+                                $('html, body').animate({
+                                    scrollTop: 0
+                                }, 'slow', function () {});
+                            })
+                            
+                        },
+                        updateProjectType() {
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/accounts/settings/scheduler-settings'
+                            let token = localStorage.getItem('token')
+
+                            let product_receiving = {
+                                isActive: this.isReceivingActive,
+                                categorySerialNo: this.receiving_categorySerialNo,
+                                subcategorySerialNo: this.receiving_subcategorySerialNo,
+                                voucherSerialNo: this.receiving_voucherSerialNo,
+                                currencySerialNo: this.receiving_currencySerialNo
+                            }
+                            let product_return = {
+                                isActive: this.isReturnActive,
+                                categorySerialNo: this.return_categorySerialNo,
+                                subcategorySerialNo: this.return_subcategorySerialNo,
+                                voucherSerialNo: this.return_voucherSerialNo,
+                                currencySerialNo: this.return_currencySerialNo
+                            }
+                            let product_disposal = {
+                                isActive: this.isDisposeActive,
+                                categorySerialNo: this.dispose_categorySerialNo,
+                                subcategorySerialNo: this.dispose_subcategorySerialNo,
+                                voucherSerialNo: this.dispose_voucherSerialNo,
+                                currencySerialNo: this.dispose_currencySerialNo
+                            }
+
+                            let sell = {
+                                isActive: this.isSellActive,
+                                crsubcategorySerialNo: this.sell_crsubcategorySerialNo,
+                                degroupSerialNo: this.sell_degroupSerialNo,
+                                desubgroupSerialNo: this.sell_desubgroupSerialNo,
+                                decategorySerialNo: this.sell_decategorySerialNo,
+                                voucherSerialNo: this.sell_voucherSerialNo,
+                                currencySerialNo: this.sell_currencySerialNo
+                            }
+
+                            let itemInfo = {
+                                scheduler_settings: this.editItemID,
+                                branch: this.branch,
+                                product_receiving: product_receiving,
+                                product_return: product_return,
+                                product_disposal: product_disposal,
+                                sell
+                            }
+
+                            updateTypeInfo(requestLink, itemInfo, token).then((result) => {
+                                if (result.auth === false) {
+                                    this.errorResponse = result.response
+                                } else {
+                                    //this.clear_fields()
+                                    this.allListItem = []
+                                    pageNo = 1
+                                    this.successResponse = result.response
+                                    this.getAllItemData()
+                                }
+                                this.isDisable = false
+                                $('html, body').animate({
+                                    scrollTop: 0
+                                }, 'slow', function () {});
+                            })
+                        },
+                        deleteItem(ItemID) {
+                            showDeleteConfirmationMessage().then((value) => {
+                                if (value === true) {
+                                    this.remove_type_section()
+                                    this.isDisable = true
+                                    this.isLoading = true
+                                    let requestLink = '/api/accounts/settings/scheduler-settings/'
+                                    let token = localStorage.getItem('token')
+                                    deleteType(requestLink, ItemID, token).then((result) => {
+                                        this.type_section = 'delete'
+                                        if (result.auth === false) {
+                                            this.errorResponse = result.response
+                                        } else {
+                                            this.allListItem = []
+                                            pageNo = 1
+                                            this.getAllItemData()
+                                            this.successResponse = result.response
+                                            $('html, body').animate({
+                                                scrollTop: 0
+                                            }, 'slow', function () { });
+                                        }
+                                        this.isLoading = false
+                                        this.isDisable = false
+                                    })
+                                }
+                            })
+
+
+                        }
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>

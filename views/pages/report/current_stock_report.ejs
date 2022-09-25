@@ -1,0 +1,667 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+
+    .dtp .p10 > a {
+    color: white;
+    text-decoration: none;
+}
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #7e6990;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #7e6990;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #7e6990;
+    color: #fff;
+}
+
+</style>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Create</strong> Stock Report</h2>
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-center text-primary">Your current branch is :
+                                    <strong>{{branch.name}}</strong></p>
+                                <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="downloadCategoryStockReport">
+                            <h4 class="text-center">Category wise stock report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Category</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="category">
+                                            <option value="all">All</option>
+                                            <option :value="{id: supplier._id, name: supplier.name}"
+                                                v-for="(supplier, index) in allCategory" :key="index"
+                                                class="text-capitalize">{{supplier.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="type">
+                                            <option value="summery" class="text-capitalize">Summery</option>
+                                            <option value="details" class="text-capitalize">Details</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" v-show="type!='summery'">
+                                    <div class="form-check ml-3 mt-2">
+                                        <label class="form-check-label">
+                                          <input type="checkbox" class="form-check-input" v-model="zeroStock" value=""> zero stock
+                                        </label>
+                                    </div>
+                                </div> 
+                            </div>
+
+                            <div class="row clearfix mb-2">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+
+                        <form @submit.prevent="downloadSubcategoryStockReport">
+                            <h4 class="text-center">Subcategory wise stock report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Subcategory</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="subcategory">
+                                            <option value="all">All</option>
+                                            <option :value="{id: supplier._id, name: supplier.name}"
+                                                v-for="(supplier, index) in allSubcategory" :key="index"
+                                                class="text-capitalize">{{supplier.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="type">
+                                            <option value="summery" class="text-capitalize">Summery</option>
+                                            <option value="details" class="text-capitalize">Details</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" v-show="type!='summery'">
+                                    <div class="form-check ml-3 mt-2">
+                                        <label class="form-check-label">
+                                          <input type="checkbox" class="form-check-input" v-model="zeroStock" value=""> zero stock
+                                        </label>
+                                    </div>
+                                </div> 
+                            </div>
+
+                            <div class="row clearfix mb-2">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <form @submit.prevent="downloadSupplierStockReport">
+                            <h4 class="text-center">Supplier wise stock report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Supplier</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="supplier">
+                                            <option value="all">All</option>
+                                            <option :value="{id: supplier._id, name: supplier.name}"
+                                                v-for="(supplier, index) in allSupplier" :key="index"
+                                                class="text-capitalize">{{supplier.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="type">
+                                            <option value="summery" class="text-capitalize">Summery</option>
+                                            <option value="details" class="text-capitalize">Details</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" v-show="type!='summery'">
+                                    <div class="form-check ml-3 mt-2">
+                                        <label class="form-check-label">
+                                          <input type="checkbox" class="form-check-input" v-model="zeroStock" value=""> zero stock
+                                        </label>
+                                    </div>
+                                </div> 
+                            </div>
+
+                            <div class="row clearfix mb-2">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <form @submit.prevent="downloadBrandStockReport">
+                            <h4 class="text-center">Brand wise stock report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Brand</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="brand">
+                                            <option value="all">All</option>
+                                            <option :value="{id: supplier._id, name: supplier.name}"
+                                                v-for="(supplier, index) in allBrand" :key="index"
+                                                class="text-capitalize">{{supplier.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="type">
+                                            <option value="summery" class="text-capitalize">Summery</option>
+                                            <option value="details" class="text-capitalize">Details</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" v-show="type!='summery'">
+                                    <div class="form-check ml-3 mt-2">
+                                        <label class="form-check-label">
+                                          <input type="checkbox" class="form-check-input" v-model="zeroStock" value=""> zero stock
+                                        </label>
+                                    </div>
+                                </div> 
+                            </div>
+
+                            <div class="row clearfix mb-2">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Format</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+    integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+    crossorigin="anonymous"></script>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            branch: 'all',
+            allCategory: [],
+            category: 'all',
+            allSubcategory: [],
+            subcategory: 'all',
+            allSupplier: [],
+            supplier: 'all',
+            allBrand: [],
+            brand: 'all',
+            type: 'summery',
+            zeroStock: false,
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            reportType: 'pdf',
+            adminAccess: [],
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.getCategoryInfo()
+            this.getSubCategoryInfo()
+            this.checkBranchInfo()
+            this.getBrandInfo()
+            this.getBranchInfo()
+            this.getSupplierInfo()
+        },
+        methods: {
+            getCategoryInfo() {
+                let requestLink = '/api/category?branch=' + localStorage.getItem('branch')
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allCategory = result.response.data
+                    }
+                })
+            },
+            getSubCategoryInfo() {
+                let requestLink = '/api/subcategory?branch=' + localStorage.getItem('branch')
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSubcategory = result.response.data
+                    }
+                })
+            },
+            getSupplierInfo() {
+                let requestLink = '/api/supplier?branch=' + localStorage.getItem('branch')
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSupplier = result.response.data
+                    }
+                })
+            },
+            getBrandInfo() {
+                let requestLink = '/api/brand?branch=' + localStorage.getItem('branch')
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBrand = result.response.data
+                    }
+                })
+            },
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name
+                            }
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            clear_fields() {
+                this.zeroStock = false
+                this.type='summery'
+            },
+            downloadCategoryStockReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    zero_stock: this.zeroStock 
+                }
+
+                let requestLink = '/api/report/'
+                let filename = ''
+
+                if(this.category!='all'){
+                    itemInfo.category = this.category.id
+                }else{
+                    itemInfo.category = 'all'
+                }
+
+                if(this.type=='summery'){
+                    requestLink +='category/stock/report'
+                    filename += 'category_stock_report_summery'
+                }else{
+                    requestLink += 'category/stock/details/report'
+                    filename += 'category_stock_report_details'
+
+                    if(this.zeroStock == true){
+                        filename+='_for_zero_stock'
+                    }
+                }
+
+                requestLink+= '?branch='+localStorage.getItem('branch')
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+
+                    if (this.type == 'summery') {
+                        link.href = "/api/report/category/stock/summary/" + token + "/" + itemInfo.category + "?branch=" + localStorage.getItem('branch');
+                    } else {
+                        link.href = "/api/report/category/stock/details/" + token + "/" + itemInfo.category + "/" + itemInfo.zero_stock + "?branch=" + localStorage.getItem('branch');
+                    }
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            },
+            downloadSubcategoryStockReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    zero_stock: this.zeroStock
+                }
+
+                let requestLink = '/api/report/'
+                let filename = ''
+
+                if(this.subcategory!='all'){
+                    itemInfo.subcategory = this.subcategory.id
+                }else{
+                    itemInfo.subcategory = 'all'
+                }
+
+                if(this.type=='summery'){
+                    requestLink +='subcategory/stock/summery/report'
+                    filename += 'subcategory_stock_report_summery'
+                }else{
+                    requestLink += 'subcategory/stock/details/report'
+                    filename += 'subcategory_stock_report_details'
+
+                    if(this.zeroStock == true){
+                        filename+='_for_zero_stock'
+                    }
+                }
+
+                requestLink+= '?branch='+localStorage.getItem('branch')
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+
+                    if (this.type == 'summery') {
+                        link.href = "/api/report/subcategory/stock/summary/" + token + "/" + itemInfo.subcategory + "?branch=" + localStorage.getItem('branch');
+                    } else {
+                        link.href = "/api/report/subcategory/stock/details/" + token + "/" + itemInfo.subcategory + "/" + itemInfo.zero_stock + "?branch=" + localStorage.getItem('branch');
+                    }
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            },
+            downloadSupplierStockReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    zero_stock: this.zeroStock 
+                }
+
+                let requestLink = '/api/report/'
+                let filename = ''
+
+                if(this.supplier!='all'){
+                    itemInfo.supplier = this.supplier.id
+                }else{
+                    itemInfo.supplier = 'all'
+                }
+
+                if(this.type=='summery'){
+                    requestLink +='supplier/stock/report'
+                    filename += 'supplier_stock_report_summery'
+                }else{
+                    requestLink += 'supplier/stock/details/report'
+                    filename += 'supplier_stock_report_details'
+
+                    if(this.zeroStock == true){
+                        filename+='_for_zero_stock'
+                    }
+                }
+
+                requestLink+= '?branch='+localStorage.getItem('branch')
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+
+                    if (this.type == 'summery') {
+                        link.href = "/api/report/supplier/stock/summary/" + token + "/" + itemInfo.supplier + "?branch=" + localStorage.getItem('branch');
+                    } else {
+                        link.href = "/api/report/supplier/stock/details/" + token + "/" + itemInfo.supplier + "/" + itemInfo.zero_stock + "?branch=" + localStorage.getItem('branch');
+                    }
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            },
+            downloadBrandStockReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    zero_stock: this.zeroStock 
+                }
+
+                let requestLink = '/api/report/'
+                let filename = ''
+
+                if(this.brand!='all'){
+                    itemInfo.brand = this.brand.id
+                }else{
+                    itemInfo.brand = 'all'
+                }
+
+                if(this.type=='summery'){
+                    requestLink +='brand/stock/summery/report'
+                    filename += 'brand_stock_report_summery'
+                }else{
+                    requestLink += 'brand/stock/details/report'
+                    filename += 'brand_stock_report_details'
+
+                    if(this.zeroStock == true){
+                        filename+='_for_zero_stock'
+                    }
+                }
+
+                requestLink+= '?branch='+localStorage.getItem('branch')
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+
+                    if (this.type == 'summery') {
+                        link.href = "/api/report/brand/stock/summary/" + token + "/" + itemInfo.brand + "?branch=" + localStorage.getItem('branch');
+                    } else {
+                        link.href = "/api/report/brand/stock/details/" + token + "/" + itemInfo.brand + "/" + itemInfo.zero_stock + "?branch=" + localStorage.getItem('branch');
+                    }
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = filename + '.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            this.clear_fields()
+                        }
+                        this.isDisable = false
+                    })
+                }
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    
+    <title><%= companyInfo.name %>  Backoffice</title>
+    <!-- Favicon-->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap Css CDN -->
+    <link rel="stylesheet" href="<%= host %>/stylesheets/lib/bootstrap.min.css"/>
+    <!-- Custom Css -->
+    <% if(typeof(styles) != "undefined" && styles !== null){  %>
+        <% styles.forEach(function(styleLink) { %>
+           <link rel="stylesheet" href="<%= host+styleLink %>">
+        <% }); %>
+    <% } %>
+    <script>
+        function IEdetection() {
+            var ua = window.navigator.userAgent;
+            var msie = ua.indexOf('MSIE ');
+            if (msie > 0) {
+                // IE 10 or older, return version number
+
+                return parseInt(ua.substring(
+                  msie + 5, ua.indexOf('.', msie)), 10);
+            }
+            var trident = ua.indexOf('Trident/');
+            if (trident > 0) {
+                // IE 11, return version number
+
+                var rv = ua.indexOf('rv:');
+                return parseInt(ua.substring(
+                  rv + 3, ua.indexOf('.', rv)), 10);
+            }
+
+            return 12;
+        }
+
+        var result = IEdetection();
+        if(result<=11){
+            alert('To use all of the features of this application, please use modern browsers. Ex. Microsoft Edge, Chrome, Firefox');
+            document.execCommand('Stop');
+        }
+    </script>
+    <script src="<%= host %>/javascript/lib/vue@2.6.11.js"></script>
+    <script src="<%= host %>/javascript/lib/axios.min.js"></script>
+    <script src="<%= host %>/javascript/auth.js"></script>
+    <script>
+        new Vue({
+            el:'auth_redirect',
+            data:{
+                token: null
+            },
+            mounted(){
+                    if (localStorage.token) {
+                        this.token = localStorage.token
+                        authChecker(this.token).then((result) => {
+                            if(result.auth===true){
+                                window.location = '/dashboard'
+                            }
+                        })
+                    }
+                }
+        })
+    </script> 
+</head>
+
+<body class="theme-purple authentication sidebar-collapse">
+    <div id="auth_redirect"></div>     
+      

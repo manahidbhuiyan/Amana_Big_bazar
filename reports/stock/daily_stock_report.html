@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <mate charest="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Stock Report </title>
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        font-size: 8px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p {
+        margin-bottom: 0;
+        margin-top: 0;
+      }
+
+      .bg-grey {
+        background-color: #f3f5f7;
+      }
+
+      .bg-white {
+        background-color: #fff;
+      }
+
+      /* .header {
+        background-color: #f0f0f0;
+      } */
+
+      /* global classes start */
+      .center {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* global classes end */
+    </style>
+  </head>
+
+  <body>
+    <table cellspacing="0" cellpadding="0" width="100%">
+      <tr>
+        <td>
+          <table
+            class="center bg-white"
+            cellspacing="0"
+            cellpadding="0"
+            width="530"
+            style="min-width: 530px; max-width: 530px;"
+          >
+            <!-- header start -->
+            <tr>
+              <td>
+                <table
+                  class="header"
+                  cellspacing="0"
+                  cellpadding="0"
+                  style="width: 100%"
+                >
+                  <tr>
+                    <td style="line-height: 2px">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td>
+                        <table class="center header" cellspacing=0 cellpadding=0 style="">
+                            <tr>
+                              <td style="width: 38%; text-align: center;">
+                                <img src={{company_logo}} width="100" height="48" alt="Company image">
+                            </td>
+                                <td>
+                                    <h1
+                                        style="font-size: 16px; text-align: left; text-transform: uppercase;  margin-top: 10px;">
+                                        <span>{{company_name}}</span>
+                                    </h1>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                  </tr>
+                  <tr>
+                      <td style="line-height: 10px;">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table
+                        class="center header"
+                        cellspacing="0"
+                        cellpadding="0"
+                        width="510"
+                        style=""
+                      >
+                        <tr>
+                          <td>
+                            <h1
+                              style="
+                                font-size: 12px;
+                                text-align: center;
+                                text-transform: uppercase;
+                              "
+                            >
+                              {{title}}
+                            </h1>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="line-height: 5px">&nbsp;</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- header end -->
+            <tr>
+              <td style="line-height: 5px">&nbsp;</td>
+            </tr>
+            <tr>
+              <td>
+                <table class="center inner-wrapper" cellspacing=0 cellpadding=0
+                    style="border-bottom: 1px solid #000000; width: 510px;">
+                    <tr>
+                        <td style="width: 50%;">
+                          <table class="two-column" cellspacing=0 cellpadding=0 width="100%">
+                              <tr>
+                                  <td style="line-height: 10px;">&nbsp;</td>
+                              </tr>
+                              <tr>
+                                  <!-- <td><b>Shop Code : </b>S001</td> -->
+                                  <td>
+                                      <table cellspacing=0 cellpadding=0 width="100%">
+                                          <tr>
+                                              <td style="width: 70px; text-align: left;">
+                                                  <b>From</b>
+                                              </td>
+                                              <td style="width: 30px; text-align: left;">
+                                                  <b>:</b>
+                                              </td>
+                                              <td style="text-align: left;">{{fromDate}}</td>
+                                          </tr>
+                                      </table>
+                                  </td>
+                              </tr>
+                              <tr>
+                                  <td style="line-height: 10px;">&nbsp;</td>
+                              </tr>
+                          </table>
+                      </td>
+                      <td style="width: 50%;">
+                        <table class="two-column" cellspacing=0 cellpadding=0 width="100%">
+
+                            <tr>
+                                <td style="line-height: 10px;">&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <!-- <td><b>Shop Name: </b> Uttara Branch.</td> -->
+                                <td>
+                                    <table cellspacing=0 cellpadding=0 width="100%">
+                                        <tr>
+                                            <td style="width: 120px; text-align: right;">
+                                                <b>To </b>
+                                            </td>
+                                            <td style="width: 30px; text-align: right;">
+                                                <b>:</b>
+                                            </td>
+                                            <td style="text-align: right;">{{toDate}}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="line-height: 5px;">&nbsp;</td>
+                            </tr>
+                        </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- shop info part start -->
+            
+            <!-- shop info part end -->
+            <tr>
+              <td style="line-height: 10px">&nbsp;</td>
+            </tr>
+            <!-- Payment method info part start -->
+            <tr>
+              <td>
+                <table
+                  class="center bg-white"
+                  cellspacing="0"
+                  cellpadding="0"
+                  width="100%"
+                  style=""
+                >
+                  <!-- user info and payment info start -->
+                  <tr>
+                    <td>
+                      <table
+                        class="center"
+                        cellspacing="0"
+                        cellpadding="0"
+                        width="510"
+                        style=""
+                      >
+                        <!-- payment information start -->
+                        <tr>
+                          <td>
+                            <table cellspacing="0" cellpadding="0" width="100%">
+                              <tr>
+                                <th style="text-align: left">Date (Opening Balance)</th>
+                                <th style="text-align: right">Quantity</th>
+                                <th style="text-align: right">Cost Amount</th>
+                                <th style="text-align: right">Sales Amount</th>
+                                <th style="text-align: right">GP(%)</th>
+                              </tr>
+                              <!-- hr divider start -->
+                              <tr>
+                                <td colspan="6">
+                                  <hr />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td colspan="5" style="line-height: 7px">
+                                  &nbsp;
+                                </td>
+                              </tr>
+                              <!-- hr divider end -->
+
+                              {{#each data}}
+                              <!-- records start  -->
+                              <tr>
+                                <td style="text-align: left; text-transform: capitalize; "> <b>{{branch}}</b> </td>
+                                <td style="text-align: left"> <b>Phone</b>  : {{phone}}</td>
+                                <td style="text-align: right"> <b>Address</b>  : {{address}}</td>
+                              </tr>
+                              <tr>
+                                <td colspan="5">
+                                  <hr />
+                                </td>
+                              </tr>
+                              {{#each stockData}}
+                              <tr>
+                                <td
+                                  style="
+                                    border-bottom: 1px dotted #aaa;
+                                    padding-top: 7px;
+                                    padding-bottom: 7px;
+                                  "
+                                >
+                                  {{this.date}}
+                                </td>
+                                <td
+                                  style="
+                                    text-align: right;
+                                    border-bottom: 1px dotted #aaa;
+                                    padding-top: 7px;
+                                    padding-bottom: 7px;
+                                    text-transform: capitalize;
+                                  "
+                                >
+                                  {{this.totalQuantity}}
+                                </td>
+                                <td
+                                  style="
+                                    text-align: right;
+                                    border-bottom: 1px dotted #aaa;
+                                    padding-top: 7px;
+                                    padding-bottom: 7px;
+                                  "
+                                >
+                                  {{this.totalCostAmount}}
+                                </td>
+                                <td
+                                  style="
+                                    text-align: right;
+                                    border-bottom: 1px dotted #aaa;
+                                    padding-top: 7px;
+                                    padding-bottom: 7px;
+                                  "
+                                >
+                                  {{this.totalEarnAmount}}
+                                </td>
+                                <td
+                                  style="
+                                    text-align: right;
+                                    border-bottom: 1px dotted #aaa;
+                                    padding-top: 7px;
+                                    padding-bottom: 7px;
+                                  "
+                                >
+                                  {{this.totalGp}}
+                                </td>
+                              </tr>
+                              <!-- records end -->
+                              {{/each}}
+                              <tr>
+                                <td colspan="5" style="line-height: 5px">
+                                  &nbsp;
+                                </td>
+                              </tr>
+                              <tr>
+                                <td
+                                  style="
+                                    text-align: left;
+                                    text-transform: capitalize;
+                                    font-weight: bold;
+                                  "
+                                  colspan=""
+                                >
+                                  SubTotal
+                                </td>
+                                <td
+                                  style="text-align: right; font-weight: bold"
+                                >
+                                  {{subtotalQuantity}}
+                                </td>
+                                <td
+                                  style="text-align: right; font-weight: bold"
+                                >
+                                  {{subtotalCostAmount}}
+                                </td>
+                                <td
+                                  style="text-align: right; font-weight: bold"
+                                >
+                                  {{subtotalSellAmount}}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td colspan="5" style="line-height: 5px">
+                                  &nbsp;
+                                </td>
+                              </tr>
+                              {{/each}}
+                              <tr>
+                                <td colspan="5" style="line-height: 7px">
+                                  &nbsp;
+                                </td>
+                              </tr>
+
+                              <!-- hr divider start -->
+                              <tr>
+                                <td colspan="5">
+                                  <hr />
+                                </td>
+                              </tr>
+                              <!-- hr divider end -->
+                              <tr>
+                                <td
+                                  style="
+                                    text-align: left;
+                                    text-transform: capitalize;
+                                    font-weight: bold;
+                                  "
+                                  colspan=""
+                                >
+                                  Grand Total
+                                </td>
+                                <td
+                                  style="text-align: right; font-weight: bold"
+                                >
+                                  {{totalQuantity}}
+                                </td>
+                                <td
+                                  style="text-align: right; font-weight: bold"
+                                >
+                                  {{totalCostAmount}}
+                                </td>
+                                <td
+                                  style="text-align: right; font-weight: bold"
+                                >
+                                  {{totalEarnAmount}}
+                                </td>
+                                <td
+                                  style="text-align: right; font-weight: bold"
+                                >
+                                  {{totalGp}}
+                                </td>
+                              </tr>
+                              <!-- for gap start -->
+                              <tr>
+                                <td colspan="5" style="line-height: 10px">
+                                  &nbsp;
+                                </td>
+                              </tr>
+                              <!-- for gap end -->
+                            </table>
+                          </td>
+                        </tr>
+                        <!-- payment information end -->
+                      </table>
+                    </td>
+                  </tr>
+                  <!-- user info and payment info end -->
+                  <tr>
+                    <td style="line-height: 10px">&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <table cellspacing="0" cellpadding="10" width="100%">
+                        <tr>
+                          <td class="text-left"><span>Printed on</span> - <span>{{today}}  {{createTime}}</span> </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold; text-align: center;"><span>' This is a Computer Generated Report Hence No Signature Will Not Be Required. '</span> </td>
+                          </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- Payment method info part end -->
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

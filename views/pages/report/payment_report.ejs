@@ -1,0 +1,432 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+
+    .dtp .p10 > a {
+    color: white;
+    text-decoration: none;
+}
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #7e6990;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #7e6990;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #7e6990;
+    color: #fff;
+}
+
+</style>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Create</strong> Payment Received Report</h2>
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-center text-primary">Your current branch is :
+                                    <strong>{{branch.name}}</strong></p>
+                                <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="downloadPaymentReport">
+                            <h4 class="text-center">Payment Report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="fromDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="toDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <form @submit.prevent="downloadPaymentDetailsReport">
+                            <h4 class="text-center">Payment Report Details</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="fromDetailsDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="toDetailsDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Payment Method</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="payment_method" @change="changePaymetType()">
+                                            <option value="" class="text-capitalize">All</option>
+                                            <option value="cash" class="text-capitalize">Cash</option>
+                                            <option value="mobile banking" class="text-capitalize">Mobile Banking</option>
+                                            <option value="card" class="text-capitalize">Card</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" v-show="payment_type_list.length>0">
+                                    <h6 class="mt-2 mb-2">Payment Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="payment_type">
+                                            <option :value="payment_type_name" v-for="(payment_type_name, index) in payment_type_list" @key="index" class="text-capitalize">{{payment_type_name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <form @submit.prevent="downloadExchangeRefundReport">
+                            <h4 class="text-center">Refund or Exchange Report</h4>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">From Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="fromUpdateDate" class="form-control datetimepicker"
+                                            placeholder="From Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">To Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="toUpdateDate" class="form-control datetimepicker"
+                                            placeholder="To Date" required>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Payment Method</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="update_type">
+                                            <option value="exchange" class="text-capitalize">Exchange</option>
+                                            <option value="refund" class="text-capitalize">Refund</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="reportType">
+                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                            <option value="excel" class="text-capitalize">Excel</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round"><span v-if="isDisable">Downloading...</span><span v-else>Download</span></button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+    integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+    crossorigin="anonymous"></script>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            branch: '',
+            payment_type_list: [],
+            payment_method: '',
+            payment_type: '',
+            update_type: 'exchange',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            reportType: 'pdf',
+            adminAccess: [],
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.checkBranchInfo()
+            this.getBranchInfo()
+        },
+        methods: {
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name
+                            }
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            clear_fields() {
+                $("#fromDate").val("")   
+                $("#toDate").val("")   
+            },
+            downloadPaymentReport() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/report/payment-report?branch='+localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    from: $("#fromDate").val(),
+                    to: $("#toDate").val()
+                }
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+                    link.href = "/api/report/payment-report/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "?branch=" + localStorage.getItem('branch');
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = 'payment_report.pdf';
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            //this.clear_fields()
+                        }
+                        //this.isDisable = false
+                    })
+                }
+
+                
+            },
+            changePaymetType(){
+                let methodName = ''
+
+                if(this.payment_method == 'mobile banking'){
+                    methodName = 'mobile_banking'
+                }
+                if(this.payment_method == 'card'){
+                    methodName = 'card_name'
+                }
+                if(methodName!=''){
+                    let requestLink = '/api/lookup/info/data/search/'+methodName
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.payment_type_list = []
+                            result.response.data.map(methodName=>{
+                                this.payment_type_list.push(methodName.title)
+                            })
+                            this.payment_type = this.payment_type_list[0]
+                        }
+                    })
+                }else{
+                    this.payment_type_list = []
+                    this.payment_type = ''
+                }
+            },
+            downloadPaymentDetailsReport(){
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/report/payment/type/details?branch='+localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    from: $("#fromDetailsDate").val(),
+                    to: $("#toDetailsDate").val()
+                }
+
+                if(this.payment_method!=''){
+                    itemInfo.methods = [this.payment_method]
+                }
+
+
+                if(this.payment_type!=''){
+                    itemInfo.type = this.payment_type
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        var link = document.createElement('a');
+                        link.href = result.response.fileLink;
+                        link.download = 'payment_report_details.pdf';
+                        link.dispatchEvent(new MouseEvent('click'));
+                        this.isDisable = false
+                        this.isLoading = false
+                        //this.clear_fields()
+                    }
+                    //this.isDisable = false
+                })
+
+            },
+            downloadExchangeRefundReport(){
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/report/order-wise/product/check?branch='+localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    from: $("#fromUpdateDate").val(),
+                    to: $("#toUpdateDate").val(),
+                    type: this.update_type
+                }
+
+                if (this.reportType == 'excel') {
+                    var link = document.createElement('a');
+                    link.target = "_blank";
+                    link.href = "/api/report/order-wise/product/check/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.type + "?branch=" + localStorage.getItem('branch');
+
+                    //link.download = 'all_customer_summery.pdf';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    this.isDisable = false
+                    this.isLoading = false
+                    this.from = ''
+                    this.to = ''
+                } else {
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            var link = document.createElement('a');
+                            link.href = result.response.fileLink;
+                            link.download = result.response.name;
+                            link.dispatchEvent(new MouseEvent('click'));
+                            this.isDisable = false
+                            this.isLoading = false
+                            //this.clear_fields()
+                        }
+                        //this.isDisable = false
+                    })
+                }
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>
+
+<script>
+    $(function () {
+    //Datetimepicker plugin
+    $('.datetimepicker').bootstrapMaterialDatePicker({
+        format: 'YYYY-MM-DD',
+        clearButton: true,
+        weekStart: 1,
+        time: false
+    });
+  });
+  </script>

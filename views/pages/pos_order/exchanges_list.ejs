@@ -1,0 +1,529 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <div id="property_type_section">
+                <div class="modal fade" :id="'paymentTypeChange_'+index" tabindex="-1" role="dialog"
+                    v-for="(item, index) in allListItem" :key="item._id">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="title">Modify Order Payment</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p class="text-center">Order Date:
+                                            <strong>{{dateFormating(item.create)}}</strong>
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <h6 class="mt-2 mb-2">Payment Type Change</h6>
+                                        <div class="col-sm-12" v-for="(payment, index) in item.payment" :key="index">
+                                            <div class="row mb-3">
+                                                <div class="col-sm-6">
+                                                    <select class="form-control">
+                                                        <option value="cash">Cash</option>
+                                                        <option value="card">Card</option>
+                                                        <option value="mobile banking">Mobile Banking</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <strong> -
+                                                        {{payment.amount.toFixed(2)}} TK</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary ml-3">Save changes</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" :id="'orderDetailsModal_'+index" tabindex="-1" role="dialog"
+                    v-for="(item, index) in allListItem" :key="item._id">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="title">Exchange Details</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p class="text-center">Exchange Date:
+                                            <strong>{{dateFormating(item.create)}}</strong>
+                                        </p>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <h6 class="mt-2 mb-2">Exchange ID: {{item.serialNo}}</h6>
+                                        <h6 class="mt-2 mb-2" v-if="item.posOrder!=null">Exchanged From: {{item.posOrder.orderID}} (Order)</h6>
+                                        <h6 class="mt-2 mb-2" v-else>Exchanged From: {{item.posExchange.serialNo}} (Exchange)</h6>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <h6 class="mt-2 mb-2">Payment</h6>
+                                        <ul>
+                                            <li v-for="(payment, index) in item.payment" :key="index">
+                                                <strong>{{payment.method}} -
+                                                    {{payment.amount.toFixed(2)}} <span
+                                                        v-if="payment.type!=null">({{payment.type}})</span></strong>
+                                            </li>
+                                            <li v-if="item.earned_point > 0"><b>Earned Point: {{item.earned_point}}</b>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <h6 class="mt-2 mb-2">Discounts:</h6>
+                                        <ul>
+                                            <li v-if="item.orderDiscount>0"><strong>order: {{(item.orderDiscount).toFixed(2)}}</strong></li>
+                                            <li v-if="item.discount.product>0"><strong>product: {{(item.discount.product).toFixed(2)}}</strong></li>
+                                            <li v-if="item.personalDiscountAmount>0"><strong>personal: {{(item.personalDiscountAmount).toFixed(2)}}</strong></li>
+                                            <li v-if="item.specialDiscountAmount>0"><strong>special: {{(item.specialDiscountAmount).toFixed(2)}}</strong></li>
+                                            <li v-if="item.paymentDiscountAmount>0"><strong>payment: {{(item.paymentDiscountAmount).toFixed(2)}}</strong></li>
+                                            <li v-if="item.fractionalDiscount>0"><strong>fractional: {{(item.fractionalDiscount).toFixed(2)}}</strong></li>
+                                            <li v-if="item.orderDiscount>0"><strong>order: {{(item.orderDiscount).toFixed(2)}}</strong></li>
+                                            <li v-if="(item.used_points*item.point_value)>0"><strong>apply point: {{(item.used_points*item.point_value).toFixed(2)}}</strong></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <h6 class="mt-2 mb-2">Product Details</h6>
+                                        <div class="table-responsive">
+                                            <table
+                                                class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                                id="infoListTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Barcode</th>
+                                                        <th>Name</th>
+                                                        <th>Price</th>
+                                                        <th>Qty</th>
+                                                        <th>Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody v-if="item.exchangedBy.length > 0 ">
+                                                    <tr>
+                                                        <td colspan="5"><strong>- Exchanged By</strong></td>
+                                                    </tr>
+                                                    <tr v-for="(product, index) in item.exchangedBy" key="index">
+                                                        <td>{{product.code}}</td>
+                                                        <td>{{product.name}}</td>
+                                                        <td>
+                                                            {{product.price}}</td>
+                                                        <td>
+                                                            {{product.quantity}}
+                                                        </td>
+                                                        <td :id="'total_price_'+product._id">
+                                                            {{(product.price*product.quantity).toFixed(2)}}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="5"><strong>+ Exchanged To</strong></td>
+                                                    </tr>
+                                                    <tr v-for="(product, index) in item.products" key="index">
+                                                        <td>{{product.code}}</td>
+                                                        <td>{{product.name}}</td>
+                                                        <td>
+                                                            {{product.price}}</td>
+                                                        <td>
+                                                            {{product.quantity}}
+                                                        </td>
+                                                        <td :id="'total_price_'+product._id">
+                                                            {{(product.price*product.quantity).toFixed(2)}}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                                <tbody v-else>
+                                                    <tr>
+                                                        <td class="text-center" colspan="6">No data found here</td>
+                                                    </tr>
+                                                </tbody>
+                                                <tfoot v-if="item.products.length > 0">
+                                                    <tr>
+                                                        <th class="text-right" colspan="4">Sub Total :
+                                                        </th>
+                                                        <th class="text-right">{{item.sub_total_bill}} TK.</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-right" colspan="4">VAT : </th>
+                                                        <th class="text-right">{{item.vat}} TK.</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-right" colspan="4">- Exchanged Amount :
+                                                        </th>
+                                                        <th class="text-right">{{item.exchange_amount}} TK.</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-right" colspan="4">-Discount : </th>
+                                                        <th class="text-right">
+                                                            {{(item.discount.product +
+                                                            item.discount.others).toFixed(2)}} TK.
+                                                        </th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="text-right" colspan="4">Due Amount (Paid) : </th>
+                                                        <th class="text-right">
+                                                            {{(item.total_bill - item.exchange_amount).toFixed(2)}}
+                                                            TK.</th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                        <div class="text-center" v-if="item.nbrDeviceInfo.isWritten">
+                                            SDC Sell Invoice No: <b>{{item.nbrDeviceInfo.invoiceNo}}</b><br/>
+                                            SDC Return Invoice No: <b>{{item.nbrDeviceInfo.returnInvoiceNo}}</b><br/>
+                                            <a :href="JSON.parse(JSON.parse(item.nbrDeviceInfo.invoiceResponse).data).qrCode" target="_blank"><button class="btn btn-info btn-sm">vat details info</button></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Content -->
+                <section class="content">
+
+                    <% include ../../partials/content/header %>
+
+                        <div class="container-fluid">
+                            <div class="row clearfix">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="body" v-on:scroll="handleScroll">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <p class="text-center text-primary">Your current branch is :
+                                                        <strong>{{branch.name}}</strong>
+                                                    </p>
+                                                    <button @click="changeBranch"
+                                                        class="btn btn-primary float-right">Change
+                                                        Branch</button>
+                                                </div>
+                                            </div>
+                                            <div class="row justify-content-center clearfix">
+                                                <div class="col-lg-5">
+                                                    <div v-if="type_section === 'delete'">
+                                                        <div v-if="errorResponse!==null">
+                                                            <div class="alert alert-danger"
+                                                                v-for="error in errorResponse">
+                                                                {{error.msg}}
+                                                                <button type="button" class="close" data-dismiss="alert"
+                                                                    aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div v-if="successResponse!==null">
+                                                            <div class="alert alert-success">
+                                                                {{successResponse.msg}}
+                                                                <button type="button" class="close" data-dismiss="alert"
+                                                                    aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div
+                                                    class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="searchType">
+                                                            <option value="serialNo">Exchange No</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                                    <div class="form-group">
+                                                        <input type="text" @keyup="searchData($event)"
+                                                            class="form-control" v-model="searchText"
+                                                            placeholder="Search Keyword">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" v-if="isLoading">
+                                                <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                    role="status">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
+                                            </div>
+                                            <div class="table-responsive" v-else>
+                                                <table
+                                                    class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                                    id="infoListTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Serial No</th>
+                                                            <th>Date</th>
+                                                            <th>Exchange Amount</th>
+                                                            <th>Payment</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody v-if="allListItem.length > 0">
+                                                        <tr v-for="(item, index) in allListItem" :key="item._id">
+                                                            <td>{{ index + 1 }}</td>
+                                                            <td style="text-transform: capitalize;">
+                                                                {{item.serialNo}}
+                                                            </td>
+                                                            <td style="text-transform: capitalize;">
+                                                                {{getActualDateTime(item.create)}}
+                                                            </td>
+                                                            <td style="text-transform: capitalize;">
+                                                                {{item.exchange_amount}}
+                                                                TK</td>
+                                                            <td style="text-transform: capitalize;"><span
+                                                                    class="badge badge-primary"
+                                                                    style="font-size: 12px; cursor: pointer; margin-right: 5px;"
+                                                                    v-for="(payment, index) in item.payment"
+                                                                    :key="index">{{payment.method}}
+                                                                    - {{payment.amount.toFixed(2)}}</span>
+                                                            </td>
+                                                            <td>
+                                                                <button :disabled="isDisable" class="btn btn-primary"
+                                                                    data-toggle="modal"
+                                                                    :data-target="'#orderDetailsModal_'+index"
+                                                                    data-backdrop="static" data-keyboard="false"
+                                                                    title="Order view"
+                                                                    style="padding: 3px 5px;" v-show="adminAccess.length>0?adminAccess.includes('pos exchange list view'):false">view</button>
+
+                                                                    <a :href="'<%= host %>/dashboard/pos/order/exchanges/edit/'+item._id" v-show="adminAccess.length>0?adminAccess.includes('pos exchange list edit'):false">
+                                                                        <button :disabled="isDisable" class="btn btn-warning" title="Order edit" style="padding: 3px 5px;">edit</button>
+                                                                    </a>
+                                                                    <a
+                                                                        :href="'<%= host %>/dashboard/pos/order/exchange-of-exchange/'+item._id" v-show="adminAccess.length>0?adminAccess.includes('pos exchange list exchange'):false">
+                                                                        <button :disabled="isDisable"
+                                                                            class="btn btn-info mr-1"
+                                                                            title="Order exchange"
+                                                                            style="padding: 3px 5px;">exchange</button></a>
+                                                                        <a
+                                                                            :href="'<%= host %>/dashboard/pos/order/refund-of-exchange/'+item._id" v-show="adminAccess.length>0?adminAccess.includes('pos exchange list refund'):false">
+                                                                            <button :disabled="isDisable"
+                                                                                class="btn btn-danger"
+                                                                                style="padding: 3px 5px;"
+                                                                                title="Order refund">refund</button>
+
+                                                                        </a> 
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tbody v-else>
+                                                        <tr>
+                                                            <td class="text-center" colspan="9">No data found here</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                </section>
+            </div>
+
+
+            <script>
+                var pageNo = 1
+                var searchTypeParam = "<%= data.orderProcess!=null? 'order_status':'serialNo' %>"
+
+                var searchData = "<%= data.orderProcess!=null? data.orderProcess:'' %>"
+
+                window.history.pushState("", "", '/dashboard/pos/order/exchanges/list');
+
+                new Vue({
+                    el: '#property_type_section',
+                    data: {
+                        allListItem: [],
+                        searchType: searchTypeParam,
+                        searchText: searchData,
+                        type_section: null,
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: true,
+                        isNextDataLastEmpty: false,
+                        searchQueryString: '',
+                        branch: '',
+                        adminAccess: []
+                    },
+                    mounted() {
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                        this.checkBranchInfo()
+
+                        if (this.searchText == 'pending') {
+                            pageNo = 1
+                            this.allListItem = []
+                            if (this.searchText == '') {
+                                this.searchQueryString = ''
+                            } else {
+                                this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                            }
+                        }
+
+                        this.getAllItemData()
+                    },
+                    created() {
+                        window.addEventListener('scroll', this.handleScroll);
+                    },
+                    destroyed() {
+                        window.removeEventListener('scroll', this.handleScroll);
+                    },
+                    methods: {
+                        dateFormating(dateTime) {
+                            var today = new Date(dateTime);
+                            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+                            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                            var dateTime = date + ' ' + time;
+                            return dateTime
+                        },
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            name: result.response.data.name
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        searchData(e) {
+                            if (e.keyCode === 13) {
+                                pageNo = 1
+                                this.allListItem = []
+                                if (this.searchText == '') {
+                                    this.searchQueryString = ''
+                                } else {
+                                    this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                                }
+                                this.getAllItemData()
+                            }
+                        },
+                        getPositionHeight(element) {
+                            var rect = element.getBoundingClientRect();
+                            return (rect.y + 100) < $(window).height()
+                        },
+                        handleScroll(event) {
+                            // Any code to be executed when the window is scrolled
+                            if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                                .isNextDataLastEmpty === false) {
+                                if (!this.isNextDataLastEmpty) {
+                                    pageNo++
+                                    this.isNextDataLastEmpty = true
+                                    this.getAllItemData()
+                                }
+                            }
+                        },
+                        getAllItemData() {
+                            let token = localStorage.getItem('token')
+                            let requestLink = '/api/pos/order/exchanges/list/' + pageNo + '?' + this.searchQueryString + '&branch=' +
+                                localStorage.getItem('branch')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    if (result.response.data.length === 0) {
+                                        this.isNextDataLastEmpty = true
+                                    } else {
+                                        result.response.data.map((data) => {
+                                            this.allListItem.push(data)
+                                        })
+                                        this.isNextDataLastEmpty = false
+                                    }
+                                    this.isLoading = false
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        add_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'add'
+                        },
+                        remove_type_section() {
+                            this.clear_notifications()
+                            this.type_section = null
+                            this.clear_fields()
+                        },
+                        clear_fields() {
+                            this.selectedBranches = []
+                            this.selectedCategories = []
+                            this.selectedSubcategories = []
+                            this.selectedBrands = []
+                            this.name = ''
+                            this.phone = []
+                            this.phoneNumber = ''
+                            this.address = ''
+                            this.branch = ''
+                            this.category = ''
+                            this.subcategory = ''
+                            this.brand = ''
+                            this.instantPayment = false
+                        },
+                        deleteItem(ItemID) {
+                            showDeleteConfirmationMessage().then((value) => {
+                                if (value === true) {
+                                    this.remove_type_section()
+                                    this.isDisable = true
+                                    this.isLoading = true
+                                    let requestLink = '/api/order/'
+                                    let token = localStorage.getItem('token')
+                                    deleteType(requestLink, ItemID, token).then((result) => {
+                                        this.type_section = 'delete'
+                                        if (result.auth === false) {
+                                            this.errorResponse = result.response
+                                        } else {
+                                            this.allListItem = []
+                                            pageNo = 1
+                                            this.getAllItemData()
+                                            this.successResponse = result.response
+                                            $('html, body').animate({
+                                                scrollTop: 0
+                                            }, 'slow', function () { });
+                                        }
+                                        this.isDisable = false
+                                    })
+                                }
+                            })
+                        },
+                        getActualDateTime(receiveDate) {
+                            let receivedDate = new Date(receiveDate)
+                            return receivedDate.getFullYear() + '-' + (receivedDate.getMonth() + 1) + '-' + receivedDate.getDate() + ' ' + receivedDate.getHours() + ":" + receivedDate.getMinutes() + ":" + receivedDate.getSeconds()
+                        }
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>

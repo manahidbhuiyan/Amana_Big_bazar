@@ -1,0 +1,82 @@
+{
+  "mongoURI": "mongodb://localhost:27017/amanabigbazar",
+  "jwtSecrect": "Test123456!@#$%^&",
+  "authTokenExpire": 57600,
+  "sessionSecrect": "Amana100!",
+  "adminRedirect": "http://localhost:3000",
+  "hostname": "",
+  "redirectBack": "http://localhost:8080",
+  "mailConfig": {
+    "api_key": "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"
+  },
+  "basicEmailInfo": {
+    "companyName": "Amanabigbazar",
+    "supportEmail": "support@amanabigbazar.com",
+    "fromEmail": "no-reply@amanabigbazar.com"
+  },
+  "generatedIDFrom": 100000,
+  "userImageLocation": "./public/images",
+  "importFileLocation": "./public/import/files",
+  "imageLocation": "./public/images",
+  "stockLocation": "./public/stockout/",
+  "weightMachine": {
+    "categoryID": 99,
+    "categoryNumber": 2,
+    "barcodeNumber": 5,
+    "weightNumber": 5,
+    "othersNumber": 1
+  },
+  "smsinbd": {
+    "requestURL": "https://portal.smsinbd.com/smsapi",
+    "api_key": "b3c6b0eda3b46d9878df961d4c1c6b07d6cf886d",
+    "senderid": "8801552146120"
+  },
+  "gp_sms_api": {
+    "requestURL": "https://gpcmp.grameenphone.com/ecmapigw/webresources/ecmapigw.v2",
+    "username": "AGLAdmin_4548",
+    "password": "Amana@2010",
+    "countrycode": "880",
+    "cli": "big bazar.",
+    "messageid": "0"
+  },
+  "sslCommerce": {
+    "sandbox_mode": true,
+    "store_id": "amana5e9a9fe92a308",
+    "store_secrect": "amana5e9a9fe92a308@ssl"
+  },
+  "shopTimeZone": {
+    "difference": {
+      "hours": 6,
+      "munites": 0,
+      "second": 0
+    },
+    "type": "+"
+  },
+  "company": {
+    "manegerial_logo": "http://localhost:3000/assets/config/bg-head.png",
+    "whiteLogo": "http://localhost:3000/assets/config/email-logo.png",
+    "company_logo": "http://localhost:3000/assets/config/company-logo-min.png",
+    "name": "Amana Big Bazar",
+    "full_name": "Amana Big Bazar Ltd.",
+    "facebook":"#",
+    "twitter":"#",
+    "instagram":"#",
+    "logo_link": "#",
+    "developer": "Amana Innovations Ltd.",
+    "developer_logo": "",
+    "development_company_website": "#"
+  },
+  "warehouse": {
+    "name": "Amanabigbazar Warehouse",
+    "address": "House-11 Road-9 Sector-17 Uttara Dhaka-1230",
+    "code": "001",
+    "phone": "01313716730"
+  },
+  "nbr_sdc_device":{
+    "tcp": 6660,
+    "udp": 6666,
+    "type_sell": "SDCA0000",
+    "type_return": "SDCA0014",
+    "currency_code": "BDT"
+  }
+}

@@ -1,0 +1,1065 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <style>
+                body {
+                    padding-right: 0px !important;
+                }
+
+                .dtp .p10>a {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .dtp>.dtp-content>.dtp-date-view>header.dtp-header {
+                    background: #7e6990;
+                    color: #fff;
+                    text-align: center;
+                    padding: 0.3em;
+                }
+
+                .dtp div.dtp-date,
+                .dtp div.dtp-time {
+                    background: #7e6990;
+                    text-align: center;
+                    color: #fff;
+                    padding: 10px;
+                }
+
+                .dtp table.dtp-picker-days tr>td>a.selected {
+                    background: #7e6990;
+                    color: #fff;
+                }
+
+                .dropdown-menu {
+                    min-width: 100% !important;
+                }
+
+                .dropdown-custom {
+                    width: 100%;
+                }
+
+                .dropdown-content-custom {
+                    background-color: #fff;
+                    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                    border: 1px solid #f1f1f1;
+                    z-index: 1;
+                    max-height: 250px;
+                    overflow-y: scroll;
+                    top: 38px !important;
+                }
+            </style>
+
+            <!-- Main Content -->
+            <section class="content">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid" id="add_data_section">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="header">
+                                        <h2><strong>Reconcil</strong> General Book</h2>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 text-center">
+                                            <p class="text-center text-primary">Your current branch is :
+                                                <strong>{{branch.name}}</strong>
+                                            </p>
+                                            <button @click="changeBranch" class="btn btn-primary">Change
+                                                Branch</button>
+                                        </div>
+                                    </div>
+                                    <div class="body">
+                                        <div class="row">
+                                            <div class="col-lg-6 offset-lg-3">
+                                                <% include ../notification/message %>
+                                            </div>
+                                        </div>
+
+                                        <form @submit.prevent="updateProjectType">
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">General Journal Type</h6>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <div class="radio inlineblock m-r-20">
+                                                            <input type="radio" name="general_journal_type" id="debit"
+                                                                v-model="general_journal_type" class="with-gap" :value="false">
+                                                            <label for="debit">Debit</label>
+                                                        </div>
+                                                        <div class="radio inlineblock">
+                                                            <input type="radio" name="general_journal_type" id="credit"
+                                                                v-model="general_journal_type" class="with-gap" :value="true">
+                                                            <label for="credit">Credit</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Group</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="groupName"
+                                                            @keyup="filterGroupList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown" placeholder="select a Group">
+                
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="groupSearchData({id: group._id, name: group.name})"
+                                                                v-for="(group, index) in groupFilter"
+                                                                :key="index"
+                                                                class="dropdown-item text-capitalize"
+                                                                href="">{{group.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">SubGroup</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="subgroupName"
+                                                            @keyup="filterSubGroupList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            placeholder="select a SubGroup">
+                
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="subgroupSearchData({id: subgroup._id, name: subgroup.name})"
+                                                                v-for="(subgroup, index) in subgroupFilter"
+                                                                :key="index"
+                                                                class="dropdown-item text-capitalize"
+                                                                href="">{{subgroup.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Category</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="categoryName"
+                                                            @keyup="filterCategoryList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            placeholder="select a Category">
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="categorySearchData({id: category._id, name: category.name, pay_to_supplier: category.pay_to_supplier})"
+                                                                v-for="(category, index) in categoryFilter"
+                                                                :key="index"
+                                                                class="dropdown-item text-capitalize"
+                                                                href="">{{category.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6" v-if="supplierShow==false">
+                                                    <h6 class="mt-2 mb-2">Subcategory</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="subcategoryName"
+                                                            @keyup="filterSubCategoryList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            placeholder="select a Subcategory">
+                
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="subcategorySearchData({id: subcategory._id, name: subcategory.name})"
+                                                                v-for="(subcategory, index) in subcategoryFilter"
+                                                                :key="index"
+                                                                class="dropdown-item text-capitalize"
+                                                                href="">{{subcategory.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6" v-if="supplierShow==true">
+                                                    <h6 class="mt-2 mb-2">Supplier</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="supplierName"
+                                                            @keyup="filterSupplierList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown" placeholder="Supplier Name"
+                                                            disabled>
+                
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="supplierSearchData({id: supplier._id, name: supplier.name})"
+                                                                v-for="(supplier, index) in supplierFilter"
+                                                                :key="index"
+                                                                class="dropdown-item text-capitalize"
+                                                                href="">{{supplier.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Slip no</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="slip"
+                                                            class="form-control" placeholder="slip no">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-4 mb-4 text-center" style="font-size: 12px;">Common
+                                                        Information<span style="color: red;">*</span> </h6>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="record_date"
+                                                            class="form-control datetimepicker"
+                                                            placeholder="Select Date" v-model="record_date" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Voucher</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="voucherName"
+                                                            @keyup="filterVoucherList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown" placeholder="select a voucher">
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="voucherSearchData({id: voucher._id, name: voucher.name})"
+                                                                v-for="(voucher, index) in voucherFilter" :key="index"
+                                                                class="dropdown-item text-capitalize"
+                                                                href="">{{voucher.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6"
+                                                    v-if="supplierShow == true">
+                                                    <h6 class="mt-2 mb-2">Receiving No</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="receiving_no" class="form-control"
+                                                            placeholder="Receiving No" @keyup="disableRequisition"
+                                                            @change="getReceivingInfo"
+                                                            :disabled="receivingDisable==true">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6"
+                                                    v-if="supplierShow == true">
+                                                    <h6 class="mt-2 mb-2">Requisition No</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="requisition_no" class="form-control"
+                                                            placeholder="Requisition No" @keyup="disableReceiving"
+                                                            @change="getRequisitionInfo"
+                                                            :disabled=" requisitionDisable==true">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Currency</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="currencyName"
+                                                            @keyup="filterCurrencyList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown" placeholder="select a currency">
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="currencySearchData({id: currency._id, name: currency.name})"
+                                                                v-for="(currency, index) in currencyFilter" :key="index"
+                                                                class="dropdown-item text-capitalize"
+                                                                href="">{{currency.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Cost Center</h6>
+                                                    <div class="form-group  dropdown dropdown-custom">
+                                                        <input type="text" v-model="costcenterName"
+                                                            @keyup="filterCostCenterList()"
+                                                            class="form-control searchField dropdown-toggle"
+                                                            data-toggle="dropdown" placeholder="select a Cost Center">
+                                                        <div class="dropdown-menu dropdown-content-custom">
+                                                            <a @click.prevent="costcenterSearchData({id: costcenter._id, name: costcenter.name})"
+                                                                v-for="(costcenter, index) in costCenterFilter"
+                                                                :key="index" class="dropdown-item text-capitalize"
+                                                                href="">{{costcenter.name}}</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Amount</h6>
+                                                    <div class="form-group">
+                                                        <input type="number" v-model="amount" class="form-control"
+                                                            placeholder="Amount" @change="checkAmount"
+                                                            :disabled="amountDisable">
+                                                    </div>
+                                                    <p style="color: rgb(163, 22, 22);" v-show="amountWaring"> <b>You can place
+                                                            maximum {{this.totalAmount}} TK.</b></p>
+                                                    <p style="color: #7e6990;" v-show="paidWaring"> <b>Already Paid {{this.paidAmount}} TK.
+                                                            You Need To Pay {{this.need_to_pay}} TK.</b></p>
+                                                    <p style="color: #7e6990;" v-show="paidWaring==false && needToPayWarning"><b>You Need To Pay
+                                                            {{this.totalAmount}} TK.</b> </p>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6 class="mt-2 mb-2">Naration</h6>
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" v-model="narration"
+                                                            placeholder="Write a naration" rows="7"></textarea>
+                                                    </div>
+                                                </div>
+                                            
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round">Submit</button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+                integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+                crossorigin="anonymous"></script>
+
+            <script>
+                new Vue({
+                    el: '#add_data_section',
+                    data: {
+                        productID: null,
+                        allSubcategory: [],
+                        allCategory: [],
+                        allGroup: [],
+                        allSubgroup: [],
+                        allVoucher: [],
+                        allCurrency: [],
+                        allBranch: [],
+                        name: '',
+                        description: '',
+                        active: true,
+                        branch: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: false,
+                        formDisplay: true,
+                        isNextDataLastEmpty: false,
+                        searchQueryString: '',
+                        adminAccess: [],
+                        amount: 0,
+                        narration: '',
+                        groupName: "",
+                        groupFilter: [],
+                        subgroupName: "",
+                        subgroupFilter: [],
+                        categoryFilter: [],
+                        categoryName: "",
+                        subcategoryName: "",
+                        subcategoryFilter: [],
+                        voucherName: "",
+                        voucher: "",
+                        voucherFilter: [],
+                        currencyName: "",
+                        currency: "",
+                        currencyFilter: [],
+                        group: '',
+                        subgroup: '',
+                        category: '',
+                        subcategory: '',
+                        slip: '',
+                        record_date: null,
+                        branch: '',
+                        costcenterName: "",
+                        cost_center:"",
+                        costCenterFilter: [],
+                        supplierShow: false,
+                        supplierFilter: [],
+                        supplierName: '',
+                        supplier: '',
+                        receiving_no: '',
+                        requisition_no: '',
+                        requisitionDisable: false,
+                        receivingDisable: false,
+                        totalAmount: 0,
+                        amountDisable: false,
+                        de_pay_to_supplier: false,
+                        cr_pay_to_supplier: false,
+                        amountWaring: false,
+                        amountWaring: false,
+                        paidWaring: false,
+                        needToPayWarning: false,
+                        paidAmount: 0,
+                        need_to_pay: 0,
+                        receiving_no_temp: '',
+                        previous_amount: 0,
+                        paymentDone: false,
+                        general_journal_type : true,
+                        validUpdate: true
+                    },
+                    mounted() {
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                        this.checkBranchInfo()
+                        this.getBranchInfo()
+                        this.getGroupInfo()
+                        this.getVoucherInfo()
+                        this.getCurrencyInfo()
+                        this.edit_item_section()
+                    },
+                    methods: {
+
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            name: result.response.data.name
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        filterGroupList() {
+                            if (this.group != "") {
+                                let search = new RegExp(this.group, 'i');
+                                this.groupFilter = this.allGroup.filter(groupInfo => search.test(groupInfo.name))
+                            } else {
+                                this.groupFilter = this.allGroup
+                            }
+                        },
+                        filterSubGroupList() {
+                            if (this.subgroup != "") {
+                                let search = new RegExp(this.subgroup, 'i');
+                                this.subgroupFilter = this.allSubgroup.filter(subgroupInfo => search.test(subgroupInfo.name))
+                            } else {
+                                this.subgroupFilter = this.allSubgroup
+                            }
+                        },
+                        filterCategoryList() {
+                            if (this.category != "") {
+                                let search = new RegExp(this.category, 'i');
+                                this.categoryFilter = this.allCategory.filter(categoryInfo => search.test(categoryInfo.name))
+                            } else {
+                                this.categoryFilter = this.allCategory
+                            }
+                        },
+                        filterSubCategoryList() {
+                            if (this.subcategory != "") {
+                                let search = new RegExp(this.subcategory, 'i');
+                                this.subcategoryFilter = this.allSubcategory.filter(subcategoryInfo => search.test(subcategoryInfo.name))
+                            } else {
+                                this.subcategoryFilter = this.allSubcategory
+                            }
+                        },
+                        filterSupplierList() {
+                            if (this.supplier != "") {
+                                let search = new RegExp(this.supplier, 'i');
+                                this.supplierFilter = this.allSupplier.filter(supplierInfo => search.test(supplierInfo.name))
+                            } else {
+                                this.supplierFilter = this.allSupplier
+                            }
+                        },
+                        filterCurrencyList() {
+                            if (this.currencyName != "") {
+                                let search = new RegExp(this.currencyName, 'i');
+                                this.currencyFilter = this.allCurrency.filter(currencyInfo => search.test(currencyInfo.name))
+                            } else {
+                                this.currencyFilter = this.allCurrency
+                            }
+                        },
+                        filterVoucherList() {
+                            if (this.voucherName != "") {
+                                let search = new RegExp(this.voucherName, 'i');
+                                this.voucherFilter = this.allVoucher.filter(voucherInfo => search.test(voucherInfo.name))
+                            } else {
+                                this.voucherFilter = this.allVoucher
+                            }
+                        },
+                        filterCostCenterList() {
+                            if (this.costcenterName != "") {
+                                let search = new RegExp(this.costcenterName, 'i');
+                                this.costCenterFilter = this.allBranch.filter(branchInfo => search.test(branchInfo.name))
+                            } else {
+                                this.costCenterFilter = this.allBranch
+                            }
+                        },
+                        groupSearchData(data) {
+                            this.groupName = data.name
+                            this.group = data.id
+                            this.getSubgroupInfo(data.id)
+                        },
+                        subgroupSearchData(data) {
+                            this.subgroupName = data.name
+                            this.subgroup = data.id
+                            this.getCategoryInfo(data.id)
+                        },
+                        categorySearchData(data) {
+                            this.categoryName = data.name
+                            this.category = data.id
+                            this.pay_to_supplier = data.pay_to_supplier
+                            if (data.pay_to_supplier == true) {
+                                this.supplierShow = true
+                                this.amountDisable = true
+                                this.supplier_selected = true
+                                this.getSupplierInfo(data.id)
+                            } else {
+                                this.supplierShow = false
+                                this.amountDisable = false
+                                this.upplier_selected = false
+                                this.getSubCategoryInfo(data.id)
+                            }
+
+                        },
+                        subcategorySearchData(data) {
+                            this.subcategoryName = data.name
+                            this.subcategory = data.id
+                        },
+                        supplierSearchData(data) {
+                            this.supplierName = data.name
+                            this.supplier = data.id
+                        },
+            
+                        currencySearchData(data) {
+                            this.currencyName = data.name
+                            this.currency = data.id
+                        },
+                        voucherSearchData(data) {
+                            this.voucherName = data.name
+                            this.voucher = data.id
+                        },
+                        costcenterSearchData(data) {
+                            this.costcenterName = data.name
+                            this.cost_center = data.id
+                        },
+                        getGroupInfo() {
+                            let requestLink = '/api/accounts/chart/group'
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allGroup = result.response.data
+                                    this.groupFilter = result.response.data
+                                }
+                            })
+                        },
+                        getSubgroupInfo(value) {
+                            let requestLink = '/api/accounts/chart/subgroup/group-wise/' + value
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSubgroup = result.response.data
+                                    this.subgroupFilter = result.response.data
+                                }
+                            })
+                        },
+                        getCategoryInfo(value) {
+                            let requestLink = '/api/accounts/chart/category/subgroup-wise/' + value
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCategory = result.response.data
+                                    this.categoryFilter = result.response.data
+                                }
+                            })
+                        },
+                        getSubCategoryInfo(value) {
+                            let requestLink = '/api/accounts/chart/subcategory/category-wise/' + value
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSubcategory = result.response.data
+                                    this.subcategoryFilter = result.response.data
+                                }
+                            })
+                        },
+                        getSupplierInfo() {
+                            let requestLink = '/api/supplier?branch=' + localStorage.getItem('branch') + '&activeSupplier=true'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSupplier = result.response.data
+                                    this.supplierFilter = result.response.data
+                                }
+                            })
+                        },
+                        getCurrencyInfo() {
+                            let requestLink = '/api/accounts/settings/currency'
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCurrency = result.response.data
+                                    this.currencyFilter = result.response.data
+
+                                    this.currencyFilter.map((currencyInfo) => {
+                                        if(currencyInfo.name == 'bdt'){
+                                            this.currencyName = currencyInfo.name
+                                            this.currency = currencyInfo._id
+                                        }
+                                    })
+                                }
+                            })
+                        },
+                        getVoucherInfo() {
+                            let requestLink = '/api/accounts/settings/voucher'
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.allVoucher = result.response.data
+                                    this.voucherFilter = result.response.data
+                                }
+                            })
+                        },
+                        disableRequisition() {
+                            this.requisitionDisable = true
+                            this.receivingDisable = false
+                            if (this.receiving_no == '') {
+                                this.requisitionDisable = false
+                            }
+                        },
+                        disableReceiving() {
+                            this.receivingDisable = true
+                            this.requisitionDisable = false
+                            if (this.requisition_no == '') {
+                                this.receivingDisable = false
+                            }
+                        },
+                        getReceivingInfo() {
+                            this.clear_warning_amont()
+                            let token = localStorage.getItem('token')
+                            if (this.receiving_no != '') {
+                                let requestLink = '/api/accounts/generaljournal/search/supplier/receiving/' + this.receiving_no + '?branch=' + localStorage.getItem('branch')
+                                getSecureData(requestLink, token).then((result) => {
+                                    
+                                    let requisition_no = ''
+                                    if (result.auth === true) {
+                                        
+                                        this.totalAmount = (result.response.data != null) ? result.response.data.totalAmount : 0
+                                        requisition_no = result.response.data.requisitionID ? result.response.data.requisitionID.serialNo : ''
+                                        this.needToPayWarning = true
+                                        this.supplierName = result.response.data.supplier.name
+                                        this.supplier = result.response.data.supplier._id
+                                    }
+                                    this.getGeneralJournalInfo(requisition_no)
+                                })
+                                
+                            }
+                        },
+                        getRequisitionInfo() {
+                            this.clear_warning_amont()
+                            let token = localStorage.getItem('token')
+                            if (this.requisition_no != '') {
+                                let requestLink = '/api/accounts/generaljournal/search/supplier/requisition/' + this.requisition_no + '?branch=' + localStorage.getItem('branch')
+                                getSecureData(requestLink, token).then((result) => {
+
+                                    if (result.auth === true) {
+                                        this.totalAmount = (result.response.data != null) ? result.response.data.totalAmount : 0
+                                        this.needToPayWarning = true
+                                        this.supplierName = result.response.data.supplier.name
+                                        this.supplier = result.response.data.supplier._id
+                                    }
+                                    this.getGeneralJournalInfo(this.requisition_no)
+                                })  
+                            }
+                        },
+                        checkAmount() {
+                            let errors = []
+
+                            if (this.supplierShow == true) {
+                                if (this.need_to_pay == 0) {
+                                    if (this.amount > this.totalAmount) {
+                                        if (this.receiving_no != '') {
+                                            errors.push({
+                                                msg: 'Amount is higher than Receiving Amount..'
+                                            })
+                                            this.errorResponse = errors
+
+                                        }
+                                        if (this.requisition_no != '') {
+                                            errors.push({
+                                                msg: 'Amount is higher than Requisition Amount..'
+                                            })
+                                            this.errorResponse = errors
+
+                                        }
+                                        this.isDisable = true
+                                        this.amountWaring = true
+                                        this.needToPayWarning = false
+                                        $('html, body').animate({
+                                            scrollTop: 0
+                                        }, 'slow', function () { });
+                                    } else {
+                                        this.isDisable = false
+                                        this.amountWaring = false
+                                        this.validUpdate = true
+                                    }
+                                } else {
+                                    if (this.amount > this.need_to_pay) {
+                                        if (this.receiving_no != '') {
+                                            errors.push({
+                                                msg: 'Amount is higher than Need To Pay Amount..'
+                                            })
+                                            this.errorResponse = errors
+                                        }
+                                        if (this.requisition_no != '') {
+                                            errors.push({
+                                                msg: 'Amount is higher than Need To Pay Amount..'
+                                            })
+                                            this.errorResponse = errors
+
+                                        }
+                                        this.isDisable = true
+                                        this.paidWaring = true
+                                        $('html, body').animate({
+                                            scrollTop: 0
+                                        }, 'slow', function () { });
+                                    } else {
+                                        this.isDisable = false
+                                        this.amountWaring = false
+                                        this.paidWaring = false
+                                        this.needToPayWarning = false
+                                    }
+                                }
+
+                            }
+                        },
+                        getGeneralJournalInfo(value) {
+                            let requestLink = '/api/accounts/generaljournal?'
+                            let token = localStorage.getItem('token')
+                            let errors = []
+                            
+                            if (this.receiving_no == '') {
+                                this.requisition_no = value
+                                value = ''
+                            }
+                            if (this.requisition_no == '') {
+                                this.receiving_no_temp = this.receiving_no
+                            }
+                            if (this.general_journal_type) {
+                                requestLink += 'type=1'
+                            }else{
+                                requestLink += 'type=0'
+                            }
+                            if (this.supplier != '') {
+                                requestLink += '&&supplier=' + this.supplier
+                            }
+                            if (this.requisition_no != '') {
+                                if (this.supplier == '') {
+                                    requestLink += 'pay_with_requisition_no=' + this.requisition_no
+                                } else {
+                                    requestLink += '&pay_with_requisition_no=' + this.requisition_no
+                                }
+                            }
+                            if (this.receiving_no != '') {
+                                if (this.supplier == '' && this.requisition_no == '') {
+                                    requestLink += 'pay_with_receiving_no=' + this.receiving_no
+                                } else {
+                                    requestLink += '&pay_with_receiving_no=' + this.receiving_no
+                                }
+                            }
+                            
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    
+                                    if (result.response.data.length != 0) {
+                                        result.response.data.map((data) => {
+                                            if (data.pay_with_requisition_no != null) {
+                                                if (Number(this.requisition_no) == data.pay_with_requisition_no) {
+                                                    this.paidAmount += data.amount
+                                                }
+                                            } else {
+                                                if (Number(this.receiving_no) == data.pay_with_receiving_no) {
+                                                    this.paidAmount += data.amount
+                                                }
+                                            }
+                                        })
+                                    }
+                                    if (value == '') {
+                                        this.receiving_no = this.receiving_no_temp
+                                        if (this.receiving_no != '') {
+                                            this.requisition_no = ''
+                                        }
+                                        if (this.paidAmount != 0) {
+                                            if (Number(this.totalAmount) == Number(this.paidAmount)) {
+                                                errors.push({
+                                                    msg: 'This Supplier is Already Paid'
+                                                })
+                                                this.errorResponse = errors
+                                                this.amountDisable = true
+                                                this.amountWaring = false
+                                                this.needToPayWarning = false
+                                                // this.isDisable = true
+                                                this.paymentDone = true
+                                                $('html, body').animate({
+                                                    scrollTop: 0
+                                                }, 'slow', function () { });
+                                            }
+                                            if (Number(this.totalAmount) != Number(this.paidAmount)) {
+                                                this.need_to_pay = Number(this.totalAmount) - Number(this.paidAmount)
+                                                this.paidWaring = true
+                                                this.needToPayWarning = false
+                                            }
+                                        }
+                                    } else {
+                                        this.receiving_no = ''
+                                        this.getGeneralJournalInfo(value)
+                                    }
+                                }
+                            })
+                        },
+                        clear_warning_amont() {
+                            this.totalAmount = 0
+                            this.amountDisable = false
+                            this.amountWaring = false
+                            this.paidWaring = false
+                            this.need_to_pay = 0
+                            this.paidAmount = 0
+                            this.needToPayWarning = false
+                            this.isDisable = false
+                        },
+                        getPositionHeight(element) {
+                            var rect = element.getBoundingClientRect();
+                            return (rect.y + 100) < $(window).height()
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                    this.costCenterFilter = result.response.data
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        remove_type_section() {
+                            this.clear_notifications()
+                            this.type_section = null
+                            this.clear_fields()
+                        },
+                        clear_fields() {
+                            this.cr_groupName = ''
+                            this.cr_subgroupName = ''
+                            this.cr_categoryName = ''
+                            this.cr_subcategoryName = ''
+                            this.cr_slip = ''
+                            this.de_slip = ''
+                            $("#record_date").val("")
+                            this.de_groupName = ''
+                            this.de_subgroupName = ''
+                            this.de_categoryName = ''
+                            this.de_subcategoryName = ''
+                            this.voucherName = ''
+                            this.currencyName = ''
+                            this.amount = ''
+                            this.narration = ''
+                        },
+                        edit_item_section() {
+                            let itemId = localStorage.getItem('itemId')
+                            this.remove_type_section()
+                            this.isDisable = true
+                            this.type_section = 'edit'
+                            let requestLink = '/api/accounts/generaljournal/data/details/' + itemId
+                            let token = localStorage.getItem('token')
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.group = result.response.data.group._id
+                                    this.groupName = result.response.data.group.name
+                                    this.subgroup = result.response.data.subgroup._id
+                                    this.subgroupName = result.response.data.subgroup.name
+                                    this.category = result.response.data.category._id
+                                    this.categoryName = result.response.data.category.name
+                                    this.general_journal_type = result.response.data.isCredit
+                                    this.slip = result.response.data.slip
+
+                                    this.voucherName = result.response.data.voucher.name
+                                    this.voucher = result.response.data.voucher._id
+                                    this.currencyName = result.response.data.currency.name
+                                    this.currency = result.response.data.currency._id
+                                    this.amount = result.response.data.amount
+                                    this.previous_amount = result.response.data.amount
+                                    this.narration = result.response.data.narration
+                                    this.cost_center = result.response.data.cost_center._id
+                                    this.costcenterName = result.response.data.cost_center.name
+                                    let tempDate = result.response.data.record_date
+
+                                    let index = tempDate.indexOf("T")
+                                    this.record_date = tempDate.substring(0, index)
+
+                        
+                                    if (result.response.data.pay_to_supplier == true) {
+                                        this.supplierShow = true
+                                        this.amountDisable = true
+                                        this.pay_to_supplier = true
+                                        this.supplierName = result.response.data.supplier.name
+                                        this.supplier = result.response.data.supplier._id
+                                        this.getSupplierInfo()
+                                    } else {
+                                        this.supplierShow = false
+                                        this.amountDisable = false
+                                        this.subcategory = result.response.data.subcategory._id
+                                        this.subcategoryName = result.response.data.subcategory.name
+                                        this.getSubCategoryInfo(this.category)
+                                    }
+
+                                    if (result.response.data.pay_with_requisition_no != null) {
+                                        this.requisition_no = result.response.data.pay_with_requisition_no
+                                        this.getRequisitionInfo()
+                                        this.disableReceiving()
+                                    } 
+                                    if (result.response.data.pay_with_receiving_no != null) {
+                                        this.receiving_no = result.response.data.pay_with_receiving_no
+                                        this.getReceivingInfo()
+                                        this.disableRequisition()
+                                    }
+
+
+                                    this.getSubgroupInfo(this.group)
+                                    this.getCategoryInfo(this.subgroup)
+                                
+                                    $('html, body').animate({
+                                        scrollTop: 0
+                                    }, 'slow', function () { });
+                                }
+                                this.isDisable = false
+                            })
+                        },
+                        updateProjectType() {
+                            let errors = []
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/accounts/generaljournal'
+                            let token = localStorage.getItem('token')
+                            let date = $("#record_date").val()
+                        
+                            let itemInfo = {
+                                type: this.general_journal_type,
+                                generaljournal: localStorage.getItem('itemId'),
+                                group: this.group,
+                                subgroup: this.subgroup,
+                                category: this.category,
+                                slip: this.slip,
+                                record_date: date ? date : this.record_date,
+                                voucher: this.voucher,
+                                cost_center: this.cost_center,
+                                currency: this.currency,
+                                narration: this.narration
+                            }
+                            if(this.supplierShow){
+                                if(this.paymentDone){
+                                    itemInfo.amount = this.amount
+                                }else{
+                                    itemInfo.amount = Number(this.amount) + Number(this.previous_amount)
+                                }
+                            }else{
+                                itemInfo.amount = this.amount
+                            }
+
+                            if(this.amount > this.need_to_pay && this.supplierShow && !this.paymentDone) {
+                                if (this.receiving_no != '') {
+                                    errors.push({
+                                        msg: 'Amount is higher than Need To Pay Amount'
+                                    })
+                                    this.errorResponse = errors
+
+                                }
+                                if (this.requisition_no != '') {
+                                    errors.push({
+                                        msg: 'Amount is higher than Need To Pay Amount..'
+                                    })
+                                    this.errorResponse = errors
+
+                                }
+                                this.isDisable = true
+                                this.needToPayWarning = false
+                                this.validUpdate = false
+                                $('html, body').animate({
+                                    scrollTop: 0
+                                }, 'slow', function () { });
+                            }else{
+                                this.isDisable = false
+                                this.amountWaring = false
+                            }
+
+                            if (this.pay_to_supplier) {
+                                itemInfo.pay_to_supplier = this.pay_to_supplier
+                                itemInfo.supplier = this.supplier
+                                if (this.receiving_no != '') {
+                                    itemInfo.pay_with_receiving_no = this.receiving_no
+                                }
+                                if (this.requisition_no != '') {
+                                    itemInfo.pay_with_requisition_no = this.requisition_no
+                                }
+                            } else {
+                                itemInfo.subcategory = this.subcategory
+                            }
+                  
+                            // checking subgroup, category, subcategory
+                            let checkSubgroup = this.subgroupFilter.filter((subgroupInfo) => subgroupInfo._id == this.subgroup)
+                            let checkCategory = this.categoryFilter.filter((categoryInfo) => categoryInfo._id == this.category)
+
+
+                            if (checkSubgroup.length == 0) {
+                                this.isLoading = false
+                                this.isDisable = false
+                                return alert('This subgroup does not belong to this group.. ,in debit info')
+                            }
+
+                            if (checkCategory.length == 0) {
+                                this.isLoading = false
+                                this.isDisable = false
+                                return alert('This category does not belong to this subgroup.. ,in debit info')
+                            }
+                            if (this.pay_to_supplier == false) {
+                                let checkSubCategory = this.subcategoryFilter.filter((subcategoryInfo) => subcategoryInfo._id == this.subcategory)
+                                if (checkSubCategory.length == 0) {
+                                    this.isLoading = false
+                                    this.isDisable = false
+                                    return alert('This subcategory does not belong to this category.. ,in debit info')
+                                }
+                            }
+
+                            if(this.validUpdate){
+                                updateTypeInfo(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        this.allListItem = []
+                                        pageNo = 1
+                                        this.successResponse = result.response
+                                    }
+                                    this.isDisable = false
+                                    this.isLoading = false
+                                    location.href = '<%= host %>/dashboard/accounts/branch/general_journal/manage'
+                                })
+                            }
+                            
+                        }
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>
+
+                <script>
+                    $(function () {
+                        //Datetimepicker plugin
+                        $('.datetimepicker').bootstrapMaterialDatePicker({
+                            format: 'YYYY-MM-DD',
+                            clearButton: true,
+                            weekStart: 1,
+                            time: false
+                        });
+                    });
+                </script>

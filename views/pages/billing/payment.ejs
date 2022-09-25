@@ -1,0 +1,646 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content" id="phone_notification_section">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body" v-on:scroll="handleScroll">
+                        <div class="container" v-if="type_section === 'add'">
+                            <div class="row clearfix">
+                                <div class="col-lg-8 offset-lg-2">
+                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                        <div class="header">
+                                            <h2><strong>Add</strong> Billing Payment</h2>
+                                            <ul class="header-dropdown m-r--5">
+                                                <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                        role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                            class="material-icons">close</i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="body">
+                                            <div v-if="errorResponse!==null">
+                                                <div class="alert alert-danger" v-for="error in errorResponse">
+                                                    {{error.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div v-if="successResponse!==null">
+                                                <div class="alert alert-success">
+                                                    {{successResponse.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control" @change="getBranchLastPaymentDate()" v-model="branch">
+                                                            <option value="">-- Select Branch --</option>
+                                                            <option :value="{id: branch._id, name: branch.name}"
+                                                                v-for="(branch, index) in allBranch" :key="index"
+                                                                class="text-capitalize">{{branch.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="service" @change="changeServiceInfo()" :disabled="serviceDisabled">
+                                                            <option value="">-- Select Service --</option>
+                                                            <option :value="{id: service._id, name: service.name, duration: service.serviceDuration, cost: service.cost}"
+                                                                v-for="(service, index) in allService" :key="index"
+                                                                class="text-capitalize">{{service.name}} - {{service.serviceDuration}} days</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="validate_from" class="form-control"
+                                                            placeholder="Validate From" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="validate_till" class="form-control"
+                                                            placeholder="Validated To" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="expire_date" class="form-control"
+                                                            placeholder="Service Stop From" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="notificationBeforeToUpgrade" class="form-control"
+                                                            placeholder="Notification Before Days" disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6>Lifetime Free Access</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            v-model="isLifetimeFreeAccess">
+                                                            <option value="false">No</option>
+                                                            <option value="true">Yes</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <textarea v-model="notes" rows="2" class="form-control" placeholder="Notes..."></textarea> 
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <div class="alert alert-info text-center">
+                                                            Amount Need To Be Received <strong>{{paid_amount}}</strong>
+                                                        </div> 
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable" @click="addItem"
+                                                        class="btn btn-primary btn-round">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container" v-if="type_section == 'edit'">
+                            <div class="row clearfix">
+                                <div class="col-lg-8 offset-lg-2">
+                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                        <div class="header">
+                                            <h2><strong>Edit</strong> Billing Payment</h2>
+                                            <ul class="header-dropdown m-r--5">
+                                                <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                        role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                            class="material-icons">close</i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="body">
+                                            <div v-if="errorResponse!==null">
+                                                <div class="alert alert-danger" v-for="error in errorResponse">
+                                                    {{error.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div v-if="successResponse!==null">
+                                                <div class="alert alert-success">
+                                                    {{successResponse.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control" @change="getBranchLastPaymentDate()" v-model="branch">
+                                                            <option value="">-- Select Branch --</option>
+                                                            <option :value="{id: branch._id, name: branch.name}"
+                                                                v-for="(branch, index) in allBranch" :key="index"
+                                                                class="text-capitalize">{{branch.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="service" @change="changeServiceInfo()" :disabled="serviceDisabled">
+                                                            <option value="">-- Select Service --</option>
+                                                            <option :value="{id: service._id, name: service.name, duration: service.serviceDuration, cost: service.cost}"
+                                                                v-for="(service, index) in allService" :key="index"
+                                                                class="text-capitalize">{{service.name}} - {{service.serviceDuration}} days</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="validate_from" class="form-control"
+                                                            placeholder="Validate From">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="validate_till" class="form-control"
+                                                            placeholder="Validated To">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="expire_date" class="form-control"
+                                                            placeholder="Service Stop From">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="notificationBeforeToUpgrade" class="form-control"
+                                                            placeholder="Notification Before Days">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6>Lifetime Free Access</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            v-model="isLifetimeFreeAccess">
+                                                            <option value="false">No</option>
+                                                            <option value="true">Yes</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <textarea v-model="notes" rows="2" class="form-control" placeholder="Notes..."></textarea> 
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <div class="alert alert-info text-center">
+                                                            Amount Need To Be Received <strong>{{paid_amount}}</strong>
+                                                        </div> 
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        @click="updateProjectType"
+                                                        class="btn btn-primary btn-round">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center clearfix">
+                            <div class="col-lg-5">
+                                <div v-if="type_section === 'delete'">
+                                    <div v-if="errorResponse!==null">
+                                        <div class="alert alert-danger" v-for="error in errorResponse">
+                                            {{error.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-if="successResponse!==null">
+                                        <div class="alert alert-success">
+                                            {{successResponse.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button class="btn btn-primary float-right btn-xs" type="button" @click="add_type_section" v-show="adminAccess.length>0?adminAccess.includes('billing payment create'):false">Add New</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                <div class="form-group">
+                                    <select class="form-control" v-model="searchType">
+                                        <option value="branch">Branch Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                <div class="form-group">
+                                    <input type="text" @keyup="searchData($event)" class="form-control"
+                                        v-model="searchText" placeholder="Search Keyword">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-if="isLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive" v-else>
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                id="infoListTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Branch</th>
+                                        <th>Validate To</th>
+                                        <th>Expired Date</th>
+                                        <th>Life Time Access</th>
+                                        <th>Paid Amount</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-if="allListItem.length > 0">
+                                    <tr v-for="(item, index) in allListItem" :key="item._id">
+                                        <td>{{ index + 1 }}</td>
+                                        <td style="text-transform: capitalize;">{{item.branch.name}}</td>
+                                        <td style="text-transform: capitalize;">{{item.validate_till.split("T")[0]}}</td>
+                                        <td style="text-transform: capitalize;">{{item.expire_date.split("T")[0]}}</td>
+                                        <td style="text-transform: capitalize;">{{item.isLifetimeFreeAccess==true? 'Yes': 'No'}}</td>
+                                        <td style="text-transform: capitalize;">{{item.paid_amount}}</td>
+                                        <td>
+                                            <button :disabled="isDisable" @click="edit_item_section(item._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini" v-show="adminAccess.length>0?adminAccess.includes('billing payment update'):false"><i
+                                                    class="zmdi zmdi-edit"></i></button>
+                                            <button :disabled="isDisable" @click="deleteItem(item._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini" v-show="adminAccess.length>0?adminAccess.includes('billing payment delete'):false"><i
+                                                    class="zmdi zmdi-delete"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody v-else>
+                                    <tr>
+                                        <td class="text-center" colspan="7">No data found here</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+<script>
+    var pageNo = 1
+
+    new Vue({
+        el: '#phone_notification_section',
+        data: {
+            allListItem: [],
+            searchType: 'branch',
+            searchText: '',
+            allBranch: [],
+            allService: [],
+            phone: '',
+            branch: '',
+            service: '',
+            validate_from: '',
+            validate_till: '',
+            expire_date: '',
+            isLifetimeFreeAccess: false,
+            notificationBeforeToUpgrade: 7,
+            paid_amount: 0,
+            notes: '',
+            type_section: null,
+            editItemID: '',
+            editItemValue: '',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: true,
+            isNextDataLastEmpty: false,
+            searchQueryString: '',
+            adminAccess: [],
+            serviceDisabled: true
+        },
+        mounted() {
+            this.getAllItemData()
+            this.getBranchInfo()
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        created() {
+            window.addEventListener('scroll', this.handleScroll);
+        },
+        destroyed() {
+            window.removeEventListener('scroll', this.handleScroll);
+        },
+        methods: {
+            searchData(e) {
+                if (e.keyCode === 13) {
+                    pageNo = 1
+                    this.allListItem = []
+                    if (this.searchText == '') {
+                        this.searchQueryString = ''
+                    } else {
+                        this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                    }
+                    this.getAllItemData()
+                }
+            },
+            getPositionHeight(element) {
+                var rect = element.getBoundingClientRect();
+                return (rect.y + 100) < $(window).height()
+            },
+            handleScroll(event) {
+                // Any code to be executed when the window is scrolled
+                if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                    .isNextDataLastEmpty === false) {
+                    if (!this.isNextDataLastEmpty) {
+                        pageNo++
+                        this.isNextDataLastEmpty = true
+                        this.getAllItemData()
+                    }
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            getBranchLastPaymentDate(){
+                if(this.branch!=''){
+                    this.allService = []
+                    this.serviceDisabled = true
+                    let token = localStorage.getItem('token')
+                    let requestLink = '/api/billing/payment/branch-last-payment/'+this.branch.id
+                    getSecureData(requestLink, token).then((result) => {
+                        if (result.auth === true) {
+                            if(result.response.data){
+                                var today = new Date(result.response.data.validate_till);
+                                var dd = String(today.getDate()).padStart(2, '0');
+                                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                                var yyyy = today.getFullYear();
+                                
+                                today = yyyy + '-' + mm + '-' + dd;
+                                this.validate_from = today
+                            }else{
+                                var today = new Date();
+                                var dd = String(today.getDate()).padStart(2, '0');
+                                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                                var yyyy = today.getFullYear();
+                                
+                                today = yyyy + '-' + mm + '-' + dd;
+                                this.validate_from = today
+                            }
+                            this.serviceDisabled = false
+                            this.getServiceInfo()
+                        }
+                    })
+                }
+            },
+            getServiceInfo() {
+                let token = localStorage.getItem('token')
+                let requestLink = '/api/billing/service'
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.allService = result.response.data
+                    }
+                })
+            },
+            changeServiceInfo(){
+                if(this.service!=''){
+                    this.paid_amount = this.service.cost
+                    let validate_till_date = new Date(this.validate_from)
+                    validate_till_date.setDate(validate_till_date.getDate() + this.service.duration)
+                    let dd = String(validate_till_date.getDate()).padStart(2, '0');
+                    let mm = String(validate_till_date.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    let yyyy = validate_till_date.getFullYear();
+                                
+                    let today = yyyy + '-' + mm + '-' + dd;
+                    this.validate_till = today
+
+                    validate_till_date.setDate(validate_till_date.getDate() + 7)
+
+                    dd = String(validate_till_date.getDate()).padStart(2, '0');
+                    mm = String(validate_till_date.getMonth() + 1).padStart(2, '0'); //January is 0!
+                    yyyy = validate_till_date.getFullYear();
+                                
+                    today = yyyy + '-' + mm + '-' + dd;
+
+                    this.expire_date = today
+                }
+            },
+            getAllItemData() {
+                let token = localStorage.getItem('token')
+                let requestLink = '/api/billing/payment/' + pageNo + '?' + this.searchQueryString
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if (result.response.data.length === 0) {
+                            this.isNextDataLastEmpty = true
+                        } else {
+                            result.response.data.map((data) => {
+                                this.allListItem.push(data)
+                            })
+                            this.isNextDataLastEmpty = false
+                        }
+                        this.isLoading = false
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            add_type_section() {
+                this.remove_type_section()
+                this.type_section = 'add'
+            },
+            edit_item_section(ItemID) {
+                this.editItemID = ItemID
+                this.remove_type_section()
+                this.isDisable = true
+                this.type_section = 'edit'
+                let requestLink = '/api/billing/payment/single/' + ItemID
+                let token = localStorage.getItem('token')
+
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.branch = {
+                            id: result.response.data.branch._id,
+                            name: result.response.data.branch.name
+                        }
+                        this.service = ''
+                        this.serviceDisabled = false
+                        this.validate_from = result.response.data.validate_from.split("T")[0]
+                        this.validate_till = result.response.data.validate_till.split("T")[0]
+                        this.expire_date = result.response.data.expire_date.split("T")[0]
+                        this.isLifetimeFreeAccess = result.response.data.isLifetimeFreeAccess
+                        this.notificationBeforeToUpgrade = result.response.data.notificationBeforeToUpgrade
+                        this.paid_amount = result.response.data.paid_amount
+                        this.notes = result.response.data.notes
+
+                        $('html, body').animate({
+                            scrollTop: 0
+                        }, 'slow', function () {});
+                    }
+                    this.isDisable = false
+                })
+            },
+            remove_type_section() {
+                this.clear_notifications()
+                this.type_section = null
+                this.clear_fields()
+            },
+            clear_fields() {
+                this.allService = []
+                this.branch = ''
+                this.service = ''
+                this.validate_from = ''
+                this.validate_till = ''
+                this.expire_date = ''
+                this.isLifetimeFreeAccess = false
+                this.notificationBeforeToUpgrade = 7
+                this.paid_amount = 0
+                this.notes = ''
+            },
+            addItem() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/billing/payment'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    branch: this.branch.id,
+                    validate_from: this.validate_from,
+                    validate_till: this.validate_till,
+                    expire_date: this.expire_date,
+                    isLifetimeFreeAccess: this.isLifetimeFreeAccess,
+                    notificationBeforeToUpgrade: this.notificationBeforeToUpgrade,
+                    paid_amount: this.paid_amount,
+                    notes: this.notes,
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.clear_fields()
+                        this.allListItem = []
+                        this.successResponse = result.response
+                        this.getAllItemData()
+                    }
+                    this.isDisable = false
+                    this.isLoading = false
+                })
+            },
+            updateProjectType() {
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/billing/payment'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    paymentID: this.editItemID,
+                    branch: this.branch.id,
+                    validate_from: this.validate_from,
+                    validate_till: this.validate_till,
+                    expire_date: this.expire_date,
+                    isLifetimeFreeAccess: this.isLifetimeFreeAccess,
+                    notificationBeforeToUpgrade: this.notificationBeforeToUpgrade,
+                    paid_amount: this.paid_amount,
+                    notes: this.notes,
+                }
+
+                updateTypeInfo(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.allListItem = []
+                        pageNo = 1
+                        this.successResponse = result.response
+                        this.getAllItemData()
+                    }
+                    this.isDisable = false
+                })
+            },
+            deleteItem(ItemID) {
+                showDeleteConfirmationMessage().then((value) => {
+                    if (value === true) {
+                        this.remove_type_section()
+                        this.isDisable = true
+                        this.isLoading = true
+                        let requestLink = '/api/billing/payment/'
+                        let token = localStorage.getItem('token')
+                        deleteType(requestLink, ItemID, token).then((result) => {
+                            this.type_section = 'delete'
+                            if (result.auth === false) {
+                                this.errorResponse = result.response
+                            } else {
+                                this.allListItem = []
+                                pageNo = 1
+                                this.getAllItemData()
+                                this.successResponse = result.response
+                                $('html, body').animate({
+                                    scrollTop: 0
+                                }, 'slow', function () {});
+                            }
+                            this.isLoading = false
+                            this.isDisable = false
+                        })
+                    }
+                })
+
+
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

@@ -1,0 +1,9 @@
+    <!-- Jquery Core Js -->
+    <% if(typeof(scripts) != "undefined" && scripts !== null){  %>
+        <% scripts.forEach(function(scriptLink) { %>
+           <script src="<%= host+scriptLink %>"></script>
+        <% }); %>
+    <% } %>
+</body>
+
+</html>

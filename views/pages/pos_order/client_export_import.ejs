@@ -1,0 +1,124 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="export_import_data">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3" v-show="adminAccess.length>0?adminAccess.includes('export import pos client import'):false">
+                                <h6 class="mt-2 mb-2">Upload your pos client data</h6>
+                                <div class="upload_fields mb-3">
+                                    <div class="custom-file">
+                                        <input type="file" @change="uploadFile" :disabled="isLoading" id="uploadedFile"
+                                            class="custom-file-input" />
+                                        <label class="custom-file-label" for="customFile">Upload excel file of pos
+                                            users</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 offset-lg-4" v-show="adminAccess.length>0?adminAccess.includes('export import pos client import'):false">
+                                <div class="mb-3">
+                                    <a :href="exportLink" target="_blank" class="btn btn-primary btn-block">Export
+                                        Branch</a>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="row">
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    const uploadExcelImportFile = (requestLink, dataInfo, token) => {
+        return new Promise((resolve) => {
+            axios({
+                method: 'post',
+                url: requestLink,
+                data: dataInfo,
+                timeout: 60 * 120 * 1000, // Let's say you want to wait at least 120 mins
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'x-auth-token': token
+                },
+                json: true
+            }).then((response) => {
+                resolve({
+                    response: response.data
+                })
+            }).catch((error) => {
+                resolve({
+                    response: error.response.data.errors
+                })
+            });
+        })
+    }
+</script>
+<script>
+    new Vue({
+        el: '#export_import_data',
+        data: {
+            projectData: [],
+            errorResponse: null,
+            successResponse: null,
+            isLoading: false,
+            exportLink: "<%= host %>/api/pos/client/data/export/excel/" + localStorage.getItem('token'),
+            adminAccess: []
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        methods: {
+            clearNotification() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            uploadFile() {
+                this.isLoading = true
+                this.clearNotification();
+                let file = document.getElementById("uploadedFile").files[0]
+                let data = new FormData()
+                data.append('file', file)
+
+                let requestLink = '/api/pos/client/data/import/excel'
+                let token = localStorage.getItem('token')
+                uploadExcelImportFile(requestLink, data, token).then((result) => {
+
+                    if (result.response.auth == false) {
+                        this.errorResponse = result.response.errors
+                        this.isLoading = false
+                    } else {
+                        console.log(result)
+                        this.successResponse = result.response
+                        this.isLoading = false
+                    }
+                })
+            }
+        }
+    })
+</script>
+
+
+<% include ../../partials/footer %>

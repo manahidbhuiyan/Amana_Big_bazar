@@ -1,0 +1,1576 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+</style>
+<div id="add_data_section">
+    <div class="modal fade" id="searchModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Search Products</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <input style="width: 100%;" type="text" v-model="searchText"
+                                    @keyup="getSearchedItems($event, searchText)" class="form-control"
+                                    placeholder="Search..." id="modalSearchField">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else v-show="!isSearchLoading">
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                id="infoListTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Barcode</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-show="allSearchedData.length > 0">
+                                    <tr v-for="(product, index) in allSearchedData" :key="index">
+                                        <td>{{index+1}}</td>
+                                        <td>{{product.barcode}}</td>
+                                        <td>{{product.name}}</td>
+                                        <td>{{product.price.sell.toFixed(2)}}</td>
+                                        <td>{{product.quantity.toFixed(2)}}</td>
+                                        <td>
+                                            <button type="button" @click="addProductToCartFromSearch(product.barcode)"
+                                                v-if="!checkSearchedDataInCart(product._id)"
+                                                style="border: 0;padding: 2;color: #4b2a68;cursor:pointer;background:none"><i
+                                                    class="zmdi zmdi-shopping-cart"></i></button>
+                                            <button type="button" v-else
+                                                style="border: 0;padding: 2;color: #4b2a68;cursor:pointer;background:none"><i
+                                                    class="zmdi zmdi-check"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="searchedItemCount.loadMore==true">
+                                        <td colspan="6">
+                                            <button class="btn btn-primary" @click="getSearchData(searchText)">Load
+                                                more</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody v-show="allSearchedData.length == 0">
+                                    <tr>
+                                        <td colspan="6">No data found</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12" v-show="allSearchedData.length > 0">
+                            <p class="text-primary">Total <strong>{{this.searchedItemCount.total}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" @click="searchReset" data-dismiss="modal"
+                        class="btn btn-primary waves-effect">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="content">
+
+        <% include ../../partials/content/header %>
+
+        <div class="container-fluid">
+
+            <div class="row clearfix">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2><strong>POS</strong> Sell Information</h2>
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <p class="text-center text-primary">Your current branch is :
+                                        <strong>{{branch.name}}</strong></p>
+                                    <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="row">
+                                <div class="col-lg-6 offset-lg-3">
+                                    <% include ../notification/message %>
+                                </div>
+                            </div>
+                            <div class="row clearfix">
+                                <div class="col-lg-8">
+                                    <div class="cart_management">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Product Barcode</h6>
+                                        </div>
+                                        <div class="row form-inline">
+                                            <div class="col-sm-10">
+                                                <div class="form-group pl-3">
+                                                     <input style="width: 100%;" id="borcodeInputField" type="text" v-model="barcode"
+                                                        @keyup="getBarCode($event, barcode)" class="form-control"
+                                                        placeholder="Product Barcode">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <button type="submit" data-toggle="modal" data-target="#searchModal"
+                                                    class="btn btn-primary waves-effect m-r-20" data-backdrop="static"
+                                                    data-keyboard="false"><i class="zmdi zmdi-search"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12" v-if="isLoading">
+                                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12" v-else>
+                                            <h6 class="mt-2 mb-2">Product Details</h6>
+                                            <div class="table-responsive">
+                                                <table
+                                                    class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                                    id="infoListTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>SN</th>
+                                                            <th>Barcode</th>
+                                                            <th>Name</th>
+                                                            <th>Price</th>
+                                                            <th>Qty</th>
+                                                            <th>Total</th>
+                                                            <td></td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody v-if="cart.length > 0 ">
+                                                        <tr v-for="(product, index) in cart" key="index">
+                                                            <td>{{index+1}}</td>
+                                                            <td :id="'barcode_'+product._id">{{product.code}}</td>
+                                                            <td>{{product.name}}</td>
+                                                            <td>
+                                                                {{product.price}} tk.</td>
+                                                            <td>
+                                                                <input type="number" min="1" style="width: 70px;"
+                                                                    @change="updateQuantity($event, product._id, product.price)"
+                                                                    :id="'quantity_'+product._id" max="100"
+                                                                    class="form-control quantityInputField" :value="product.quantity">
+                                                            </td>
+                                                            <td :id="'total_price_'+product._id">
+                                                                {{(product.price*product.quantity).toFixed(2)}}
+                                                                tk.
+                                                            </td>
+                                                            <td>
+                                                                <div @click="removeFromCart($event, product._id)"
+                                                                    title="remove" v-show="!isOrderComplete"><i class="zmdi zmdi-close"></i>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tbody v-else>
+                                                        <tr>
+                                                            <td class="text-center" colspan="7">No data found here</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot v-if="cart.length > 0">
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">Sub Total :
+                                                            </th>
+                                                            <th class="text-right">{{subTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">VAT : </th>
+                                                            <th class="text-right">{{vat.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">Order Total : </th>
+                                                            <th class="text-right">{{orderTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">-Discount : </th>
+                                                            <th class="text-right">
+                                                                {{(productDiscount + otherDiscount + applyPointDiscountAmount).toFixed(2)}}
+                                                                TK.
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">Due Amount : </th>
+                                                            <th class="text-right">
+                                                                {{(orderTotal-Number((productDiscount + otherDiscount+ applyPointDiscountAmount).toFixed(2))).toFixed(2)}}
+                                                                TK.</th>
+                                                        </tr>
+                                                        <tr v-if="clientData!=null">
+                                                            <th class="text-right" colspan="5">Apply Points : </th>
+                                                            <th class="text-right"><input type="number" step="any"
+                                                                    min="0" max="100000" v-model="pointApply"
+                                                                    class="form-control"
+                                                                    @change="changePointValue(pointApply)" :disabled="isOrderComplete">
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th colspan="4"></th>
+                                                            <th colspan="3" class="text-right">
+                                                                <select v-model="paymentType" id="paymentTypeField"
+                                                                    @change="changePaymentType($event, paymentType)"
+                                                                    class="form-control" :disabled="isOrderComplete">
+                                                                    <option value="">-- Payment Type --</option>
+                                                                    <option value="cash">Cash</option>
+                                                                    <option value="card">Card</option>
+                                                                    <option value="mobile banking">Mobile Banking
+                                                                    </option>
+                                                                </select>
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-show="cash==true">
+                                                            <th class="text-right" colspan="4">Cash Payment : </th>
+                                                            <th class="text-right" colspan="3"><input type="number"
+                                                                    @keypress="cashCalculation($event, cash_amount, 'cash')"
+                                                                    step="any" min="1" max="100000" class="form-control"
+                                                                    v-model="cash_amount" :disabled="isOrderComplete">
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-show="card==true">
+                                                            <th class="text-right" colspan="3">Card Payment : </th>
+                                                            <th colspan="2">
+                                                                <select v-model="selectedCard"
+                                                                    class="form-control text-uppercase" :disabled="isOrderComplete">
+                                                                    <option value="">-- Type --</option>
+                                                                    <option :value="cardName" v-for="(cardName, index) in cards" @key="index">{{cardName}}</option>
+                                                                </select>
+                                                            </th>
+                                                            <th class="text-right" colspan="2"><input type="number"
+                                                                    @keypress="cashCalculation($event, card_amount, 'card')"
+                                                                    step="any" min="1" max="100000" class="form-control"
+                                                                    v-model="card_amount" :disabled="isOrderComplete">
+                                                            </th>
+                                                            
+                                                        </tr>
+                                                        <tr v-show="mobile_banking==true">
+                                                            <th class="text-right" colspan="3">Mobile Banking Payment :
+                                                            </th>
+                                                            <th colspan="2">
+                                                                <select v-model="selectedMobileBanking"
+                                                                    class="form-control text-uppercase" :disabled="isOrderComplete">
+                                                                    <option value="">-- Type --</option>
+                                                                    <option :value="mobileBankingName" v-for="(mobileBankingName, index) in mobileBankings" @key="index">{{mobileBankingName}}</option>
+                                                                </select>
+                                                            </th>
+                                                            <th class="text-right" colspan="2"><input type="number"
+                                                                    @keypress="cashCalculation($event, mobile_banking_amount, 'mobile banking')"
+                                                                    step="any" min="1" max="100000" class="form-control"
+                                                                    v-model="mobile_banking_amount" :disabled="isOrderComplete">
+                                                            </th>
+                                                            
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="date_wise_sell_select">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Selling Date</h6>
+                                            <div class="form-group">
+                                                <input type="text" id="sellDate" class="form-control datetimepicker"
+                                                    placeholder="Select a date">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="apply_person_information_pos">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Apply Client Points</h6>
+                                        </div>
+                                        <form @submit.prevent="clientDataDetails">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" v-model="clientPhone" class="form-control"
+                                                        placeholder="Phone no. or Client ID" id="findClientData">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <button type="submit" class="btn btn-primary">Apply</button>
+                                            </div>
+                                        </form>
+                                        <div class="col-md-12">
+                                            <ul class="list-group" v-if="clientData!=null">
+                                                <li class="list-group-item text-center"><strong>Point Earned:</strong>
+                                                    {{clientData.points.toFixed(2)}}</li>
+                                                <li class="list-group-item"><strong>Client ID:</strong>
+                                                    {{clientData.clientID}}</li>
+                                                <li class="list-group-item"><strong>Name:</strong> {{clientData.name}}
+                                                </li>
+                                                <li class="list-group-item"><strong>Phone:</strong> {{clientData.phone}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.email!=''">
+                                                    <strong>Email:</strong> {{clientData.email}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.address!=''">
+                                                    <strong>Address:</strong>
+                                                    {{clientData.address}}</li>
+                                                <li class="list-group-item" v-if="clientData.notes!=''">
+                                                    <strong>Notes:</strong> {{clientData.notes}}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="purchase_person_info">
+
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Add POS Client Information</h6>
+                                        </div>
+                                        <form @submit.prevent="addNewClient">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" v-model="clientID"
+                                                            placeholder="Client ID (required)" id="clientIDInputField">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" v-model="name"
+                                                        placeholder="Name (required)">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" v-model="phone"
+                                                        placeholder="Phone no. (required)">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="email" class="form-control" v-model="email"
+                                                        placeholder="Email">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <textarea class="form-control" v-model="address"
+                                                        placeholder="Address"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <textarea class="form-control" v-model="notes"
+                                                        placeholder="Notes"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <button type="submit" class="btn btn-primary float-right" id="addClientButton">Add</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row clearfix" v-show="cart.length>0">
+                                <div class="col-lg-6 text-center">
+                                    <h2 v-show="calculationResult > 0" style="color: darkred;">You need to pay change
+                                        {{this.calculationResult}}
+                                        TK.</h2>
+                                    <h2 v-show="calculationResult < 0" style="color: darkred;">Client need to pay more
+                                        {{this.calculationResult}}
+                                        TK.</h2>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <hr />
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="useDefaultPrinter" /> <strong>Print to Default
+                                            printer</strong>
+                                    </label>
+                                    <p>or...</p>
+                                    <div id="installedPrinters">
+                                        <label for="installedPrinterName">Select an installed Printer:</label>
+                                        <select name="installedPrinterName" id="installedPrinterName"></select>
+                                    </div>
+                                    <br /><br />
+                                    <button type="submit" @click="orderComplete" v-show="!isDone"
+                                        class="btn btn-primary btn-round" id="completeSellButton" :disabled="isDoneClicked">Done</button>
+                                    <button type="submit" v-show="isDone" @click="printAgain"
+                                        class="btn btn-primary btn-round">Reprint</button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple" id="fullResetButton">Reset</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    //WebSocket settings
+    JSPM.JSPrintManager.auto_reconnect = true;
+    JSPM.JSPrintManager.start();
+    JSPM.JSPrintManager.WS.onStatusChanged = function () {
+        if (jspmWSStatus()) {
+            //get client installed printers
+            JSPM.JSPrintManager.getPrinters().then(function (myPrinters) {
+                var options = '';
+                for (var i = 0; i < myPrinters.length; i++) {
+                    options += '<option>' + myPrinters[i] + '</option>';
+                }
+                $('#installedPrinterName').html(options);
+            });
+        }
+    };
+
+    //Check JSPM WebSocket status
+    function jspmWSStatus() {
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+            return true;
+        else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+            alert(
+                'JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm'
+            );
+            return false;
+        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+            alert('JSPM has blocked this website!');
+            return false;
+        }
+    }
+</script>
+
+<script>
+    let tabID = "<%= tabID %>";
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            searchPageNo: 1,
+            searchedItemCount: {
+                total: 0,
+                loadMore: false
+            },
+            allSearchedData: [],
+            isSearchLoading: false,
+            searchText: '',
+            orderID: null,
+            orderType: 'sell',
+            branch: '',
+            barcode: '',
+            clientID: '',
+            name: '',
+            phone: '',
+            address: '',
+            notes: '',
+            cart: [],
+            subTotal: 0,
+            vat: 0,
+            pointApply: 0,
+            orderTotal: 0,
+            productDiscount: 0,
+            otherDiscount: 0,
+            paymentType: '',
+            clientPhone: '',
+            name: '',
+            phone: '',
+            email: '',
+            address: '',
+            notes: '',
+            calculationResult: 0,
+            paidAmountField: 0,
+            showPaidAmountField: false,
+            clientData: null,
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            card: false,
+            card_amount: 0,
+            cash: false,
+            cash_amount: 0,
+            mobile_banking: false,
+            mobile_banking_amount: 0,
+            payment: [],
+            applyPointDiscountAmount: 0,
+            isDone: false,
+            adminInfo: null,
+            cards:[],
+            selectedCard: '',
+            mobileBankings:[],
+            selectedMobileBanking: '',
+            isOrderComplete: false,
+            isDoneClicked: false,
+            adminAccess: []
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.checkBranchInfo()
+            this.getBranchInfo()
+            this.getCartInfoForAdmin()
+            this.getCardsData()
+            this.getMobileBankingData()
+            authChecker(localStorage.getItem('token')).then((result) => {
+                this.adminInfo = result.response.data
+            })
+        },
+        methods: {
+            checkBranchAccessPointApply(pointApply){
+                var accessID = prompt("Please enter your pos manager access", "");
+
+                if (accessID == null || accessID == "") {
+                    alert('Your are not authorized for access')
+                    this.pointApply = 0
+                } else {
+                    let requestLink = '/api/branch/access/auth'
+                    let token = localStorage.getItem('token')
+                    let branchID = localStorage.getItem('branch')
+
+                    let itemInfo = {
+                        branch: branchID,
+                        managerID: accessID
+                    }
+
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.response.data == true) {
+                            if (pointApply > this.clientData.points || pointApply <= this.clientData.use_points_on) {
+                                alert("This client don't have enough amount points to apply")
+                            } else {
+                                this.otherDiscount = parseFloat(this.otherDiscount) - parseFloat(this
+                                    .applyPointDiscountAmount)
+                                this.applyPointDiscountAmount = (parseFloat(pointApply) *
+                                    parseFloat(this
+                                        .branch.point_expand))
+                                this.otherDiscount += this.applyPointDiscountAmount
+                                console.log(this.applyPointDiscountAmount)
+                                this.calculateTotalDetails()
+                            }
+                        } else {
+                            alert('Your password is not authorized for access')
+                            this.pointApply = 0
+                        }
+                    })
+                }
+            },
+            getCardsData(){
+                let requestLink = '/api/lookup/info/data/search/card_name'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            result.response.data.map(purposeInfo=>{
+                                this.cards.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            getMobileBankingData(){
+                let requestLink = '/api/lookup/info/data/search/mobile_banking'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            result.response.data.map(purposeInfo=>{
+                                this.mobileBankings.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            searchReset() {
+                this.searchPageNo = 1
+                this.searchedItemCount = {
+                    total: 0,
+                    loadMore: false
+                }
+                this.allSearchedData = []
+            },
+            clearResponseMessage() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            changeBranch() {
+                localStorage.removeItem('branch')
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            updateQuantity(e, cart_id, price) {
+                this.isOrderComplete = true
+                let requestLink = '/api/pos/cart/quantity-update?tabID=' + tabID
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+
+                let itemInfo = {
+                    branch: branchID,
+                    cart_id: cart_id,
+                    quantity: $("#quantity_" + cart_id).val()
+                }
+
+                let requestLinkProductDetails = '/api/product/single/barcode/'+$("#barcode_" + cart_id).text()+'?branch='+localStorage.getItem('branch')
+
+                getType(requestLinkProductDetails).then((result) => {
+                    if (result.auth === true) {
+                        if(result.response.data.quantity < itemInfo.quantity ){
+                            alert("Your stock don't have enough quantity to sell this product.")
+                            itemInfo.quantity = result.response.data.quantity
+                        }
+
+                        updateTypeInfo(requestLink, itemInfo, token).then((result) => {
+                            if (result.auth == true) {
+                                $("#total_price_" + cart_id).text((parseFloat(itemInfo.quantity) *
+                                    price).toFixed(
+                                    2));
+                                this.cart = result.response
+                                this.isOrderComplete = false
+                                this.calculateTotalDetails()
+                            }
+                        })
+                    }
+                })
+            },
+            addProductToCartFromSearch(barcode) {
+                this.addItem(barcode)
+                this.isSearchLoading = true
+                setTimeout(() => {
+                    this.getSearchData(this.searchText)
+                }, 2000)
+            },
+            getBarCode(e, barcode) {
+                if (e.keyCode == 13) {
+                    this.addItem(barcode)
+                }
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name,
+                                address: result.response.data.address,
+                                thana: result.response.data.thana.name,
+                                district: result.response.data.district.name,
+                                phone: result.response.data.phone,
+                                taxIdentificationNo: result.response.data.taxIdentificationNo,
+                                flat_order: result.response.data.flat_order,
+                                point_bench_mark: result.response.data.point_settings.bench_mark,
+                                point_purchase: result.response.data.point_settings.purchase,
+                                point_expand: result.response.data.point_settings.expand,
+                                use_points_on: result.response.data.point_settings.use_points_on
+                            }
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getCartInfoForAdmin() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+                    let token = localStorage.getItem('token')
+
+                    this.isLoading = true
+
+                    let requestLink = '/api/pos/cart?branch=' + branchID + '&tabID=' + tabID
+                    getSecureData(requestLink, token).then((result) => {
+                        if (result.auth === true) {
+                            this.cart = result.response.data
+                            this.calculateTotalDetails()
+                        }
+                        this.isLoading = false
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_fields() {
+                this.isDone = false
+                this.orderID = null
+                this.barcode = ''
+                this.name = ''
+                this.phone = ''
+                this.address = ''
+                this.notes = ''
+                this.subTotal = 0
+                this.vat = 0
+                this.pointApply = 0
+                this.orderTotal = 0
+                this.productDiscount = 0
+                this.otherDiscount = 0
+                this.paymentType = ''
+                this.clientPhone = ''
+                this.calculationResult = 0
+                this.paidAmountField = 0
+                this.showPaidAmountField = false
+                this.clientData = null
+                this.errorResponse = null
+                this.successResponse = null
+                this.isDisable = false
+                this.isLoading = true
+                this.card = false
+                this.card_amount = 0
+                this.cash = false
+                this.cash_amount = 0
+                this.mobile_banking = false
+                this.mobile_banking_amount = 0
+                this.payment = []
+                this.applyPointDiscountAmount = 0
+                this.isOrderComplete = false
+
+                this.removeAllFromCart()
+            },
+            addItem(barcode) {
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/pos/cart?tabID=' + tabID
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+
+                let itemInfo = {
+                    branch: branchID,
+                    barcode: barcode.trim()
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth == true) {
+                        this.cart = result.response.data
+                        this.calculateTotalDetails()
+                        this.barcode = ''
+                        this.errorResponse = null
+                    } else {
+                        this.errorResponse = result.response
+                        this.barcode = ''
+                    }
+                    this.isLoading = false
+                })
+            },
+            calculateTotalDetails() {
+                let vat = 0
+                let subtotal = 0
+                let discount = 0
+
+                this.cart.map(product => {
+                    vat += (((product.vat / 100) * (product.price)) * product
+                        .quantity)
+                    subtotal += (product.price * product.quantity)
+                    discount += product.discount * product.quantity
+
+                })
+
+                this.subTotal = subtotal
+                this.vat = vat
+                this.orderTotal = subtotal + vat
+                this.productDiscount = discount
+
+                if (this.branch.flat_order.activity == true) {
+                    let discountPercentage = 0;
+                    let isFlatAmount = false;
+                    this.branch.flat_order.data.map((order) => {
+                        if (order.min_amount < this.orderTotal) {
+                            discountPercentage = order.discount
+                            isFlatAmount = order.isFlatAmount
+                        }
+                    })
+
+                    if(isFlatAmount==false){
+                        this.otherDiscount = (discountPercentage / 100) * this.orderTotal
+                    }else{
+                        this.otherDiscount = discountPercentage
+                    }
+                    
+                }
+
+                let fractionOrder = Number((this.orderTotal - Math.floor(this.orderTotal)).toFixed(2))
+
+                let fractionOrderDiscount = Number(((this.productDiscount + this.otherDiscount + this
+                    .applyPointDiscountAmount) - Math.floor(this.productDiscount + this
+                    .otherDiscount +
+                    this
+                    .applyPointDiscountAmount)).toFixed(2))
+                let fractionDifference = fractionOrderDiscount - fractionOrder
+                this.otherDiscount -= fractionDifference
+            },
+            addNewClient() {
+                this.clearResponseMessage()
+                let requestLink = '/api/pos/client'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    clientID: this.clientID,
+                    name: this.name,
+                    phone: this.phone,
+                    email: this.email,
+                    address: this.address,
+                    notes: this.notes
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth == true) {
+                        this.successResponse = result.response
+                        this.pointApply = result.response.data.points
+                        this.otherDiscount += (result.response.data.points * this.branch.purchase)
+                    } else {
+                        this.errorResponse = result.response
+                    }
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+            },
+            changePointValue(pointApply) {
+                this.checkBranchAccessPointApply(pointApply)
+            },
+            removeFromCart(e, cart_id) {
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/pos/cart/' + cart_id + '/remove?branch=' + branchID + '&tabID=' + tabID
+
+                deleteType(requestLink, '', token).then((result) => {
+                    if (result.auth == true) {
+                        this.cart = result.response.data
+                        this.calculateTotalDetails()
+                    }
+                    this.isLoading = false
+                })
+            },
+            removeAllFromCart() {
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/pos/cart/delete?branch=' + branchID + '&tabID=' + tabID
+
+                deleteType(requestLink, '', token).then((result) => {
+                    if (result.auth == true) {
+                        this.cart = result.response
+                        this.calculateTotalDetails()
+                    }
+                    this.isLoading = false
+                })
+            },
+            changePaymentType(e, paymentType) {
+                if (paymentType == 'cash') {
+                    this.cash = true
+                } else if (paymentType == 'card') {
+                    this.card = true
+                } else if (paymentType == 'mobile banking') {
+                    this.mobile_banking = true
+                } else {
+                    this.cash = false
+                    this.card = false
+                    this.mobile_banking = false
+                }
+            },
+            checkSearchedDataInCart(id) {
+                let flag = 0
+
+                for (let i = 0; i < this.cart.length; i++) {
+                    if (this.cart[i].product._id == id) {
+                        flag = 1
+                    }
+                }
+
+                if (flag == 1) {
+                    return true
+                } else {
+                    return false
+                }
+            },
+            getSearchData(searchText) {
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/product/cart/search/list/' + this.searchPageNo +
+                    '?type=description&text=' + searchText +
+                    '&branch=' +
+                    branchID
+                this.isSearchLoading = true
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        result.response.data.map((product) => {
+                            this.allSearchedData.push(product)
+                        })
+                        this.searchedItemCount = {
+                            total: result.response.total,
+                            loadMore: result.response.loadMore
+                        }
+                        this.searchPageNo = this.searchPageNo + 1
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getSearchedItems(e, searchText) {
+                this.allSearchedData = []
+                this.searchPageNo = 1
+                if (e.keyCode === 13) {
+                    this.getSearchData(searchText)
+                }
+            },
+            cashCalculation(e, paidValue, type) {
+                if (e.keyCode === 13) {
+                    if (this.payment.length == 0) {
+                        if(type=='card'){
+                                if(this.selectedCard!=''){
+                                    this.payment.push({
+                                        method: type,
+                                        amount: parseFloat(paidValue),
+                                        type:this.selectedCard
+                                    })
+                                }else{
+                                    alert("Please select a card type.")
+                                    return 0
+                                } 
+                            }
+
+                            if(type=='mobile banking'){
+                                if(this.selectedMobileBanking!=''){
+                                    this.payment.push({
+                                        method: type,
+                                        amount: parseFloat(paidValue),
+                                        type: this.selectedMobileBanking
+                                    })
+                                }else{
+                                    alert("Please select a mobile banking type.")
+                                    return 0
+                                }
+                            }
+
+                            if(type=='cash'){
+                                this.payment.push({
+                                    method: type,
+                                    amount: parseFloat(paidValue)
+                                })
+                            }
+
+                    } else {
+                        let count = 0
+                        this.payment.map((payment, index) => {
+                            if (payment.method == type) {
+                                this.payment[index].amount = parseFloat(paidValue)
+                                count++
+                            }
+                        });
+
+                        if (count == 0) {
+                            if(type=='card'){
+                                if(this.selectedCard!=''){
+                                    this.payment.push({
+                                        method: type,
+                                        amount: parseFloat(paidValue),
+                                        type:this.selectedCard
+                                    })
+                                }else{
+                                    alert("Please select a card type.")
+                                    return 0
+                                } 
+                            }
+
+                            if(type=='mobile banking'){
+                                if(this.selectedMobileBanking!=''){
+                                    this.payment.push({
+                                        method: type,
+                                        amount: parseFloat(paidValue),
+                                        type: this.selectedMobileBanking
+                                    })
+                                }else{
+                                    alert("Please select a mobile banking type.")
+                                    return 0
+                                }
+                            }
+
+                            if(type=='cash'){
+                                this.payment.push({
+                                    method: type,
+                                    amount: parseFloat(paidValue)
+                                })
+                            }
+                        }
+                    }
+
+
+                    this.paidAmountField = 0
+
+                    this.payment.map((payment) => {
+                        this.paidAmountField += payment.amount
+                    });
+
+                    this.calculationResult = this.paidAmountField - (Number(this.orderTotal.toFixed(2)) -
+                        Number((this
+                            .productDiscount +
+                            this.otherDiscount + this.applyPointDiscountAmount).toFixed(2)))
+                }
+            },
+            clientDataDetails() {
+                this.clearResponseMessage()
+                let token = localStorage.getItem('token')
+
+                let requestLink = '/api/pos/client/' + this.clientPhone
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth == true) {
+                        if (result.response.data != null) {
+                            this.clientData = result.response.data
+                        } else {
+                            alert("No POS client found")
+                        }
+                    }
+                })
+            },
+            addZero(num) {
+                return (num >= 0 && num < 10) ? "0" + num : num + "";
+            },
+            printAgain(o) {
+                this.clearResponseMessage()
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2));
+
+                let earnPointByOrder = 0
+
+                if (this.branch.point_bench_mark < dueAmount) {
+                    earnPointByOrder = parseFloat((dueAmount / this.branch.point_purchase).toFixed(2))
+                }
+
+                var currentDateTime = new Date()
+
+                var selectedDate = $("#sellDate").val()+' '+currentDateTime.getHours()+':'+currentDateTime.getMinutes()+':'+currentDateTime.getSeconds();
+
+                var now = new Date(selectedDate);
+                var strDateTime = [
+                    [this.addZero(now.getDate()),
+                        this.addZero(now.getMonth() + 1),
+                        now.getFullYear()
+                    ].join("/"),
+                    [this.addZero(now.getHours()),
+                        this.addZero(now.getMinutes())
+                    ].join(":"),
+                    now.getHours() >= 12 ? "PM" : "AM"
+                ].join(" ");
+                if (jspmWSStatus()) {
+                    //Create a ClientPrintJob
+                    var cpj = new JSPM.ClientPrintJob();
+                    //Set Printer type (Refer to the help, there many of them!)
+                    if ($('#useDefaultPrinter').prop('checked')) {
+                        cpj.clientPrinter = new JSPM.DefaultPrinter();
+                    } else {
+                        cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                            .val());
+                    }
+                    //Set content to print...
+                    //Create ESP/POS commands for sample label
+                    var esc = '\x1B'; //ESC byte in hex notation
+                                var newLine = '\x0A'; //LF byte in hex notation
+
+                                var cmds = esc + "@"; //Initializes the printer (ESC @)
+                                cmds += esc + '!' +
+                                '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                                cmds += newLine;
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                                cmds += newLine;
+                                cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += this.branch.name;
+                                cmds += newLine;
+                    cmds += '------------- reprinted slip -------------';
+                    cmds += newLine;
+                    cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                        ', ' + this.branch
+                        .district + '.';
+                    cmds += newLine;
+                    cmds += 'Contact no. ' + this.branch.phone;
+                    cmds += newLine;
+                    cmds += 'VAT Identification no. ' + this.branch.taxIdentificationNo;
+                    if(this.clientData){
+                        cmds += newLine;
+                        cmds += 'Customer name ' + this.clientData.name;
+                        cmds += newLine;
+                        cmds += 'Contact no. ' + this.clientData.phone;
+                    }
+                    cmds += newLine;
+                    cmds += 'POS operator name: ' + this.adminInfo.name;
+                    cmds += newLine;
+                    cmds += 'Date: ' + strDateTime;
+                    cmds += newLine;
+                    cmds += 'Invoice no. ' + this.orderID;
+                    cmds += newLine;
+                    cmds += 'Slip type: ' + this.orderType;
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += '#Item      #Qty      #Price      #Subtotal';
+                    this.cart.map(product => {
+                        cmds += newLine;
+                        cmds += '------------------------------------------';
+                        cmds += newLine;
+                        cmds += esc + '!' +
+                            '\x00'; //Character font A selected (ESC ! 0)
+                        cmds += product.name;
+                        cmds += newLine;
+                        cmds += esc + '!' +
+                            '\x00'; //Character font A selected (ESC ! 0)
+                        cmds += '            ' + product.quantity + '    x   ' + product
+                            .price +
+                            '          ' + (product.price *
+                            product.quantity).toFixed(2);
+                    })
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+
+                    cmds += newLine;
+                    cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '++ VAT (App. Items Only) (5%):    ' + this.vat.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                    -Discount:    ' + (this
+                            .productDiscount +
+                            this.otherDiscount + this.applyPointDiscountAmount)
+                        .toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '                   Amount Due:    ' + dueAmount.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                         Paid:    ' + this.paidAmountField.toFixed(
+                        2);
+                    cmds += newLine;
+                    cmds += '                       Change:    ' + (parseFloat(this
+                            .paidAmountField) -
+                        parseFloat(dueAmount)).toFixed(2);
+                    cmds += newLine;
+                    cmds += 'Payment Mode:                             ';
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    this.payment.map((payment) => {
+                        cmds += newLine;
+                        if (payment.method == 'cash') {
+                            cmds += 'CASH:                             ' + payment
+                                .amount;
+                        }
+                        if (payment.method == 'card') {
+                            cmds += 'CARD:                             ' + payment
+                                .amount;
+                        }
+                        if (payment.method == 'mobile banking') {
+                            cmds += 'MOBILE BANKING:                   ' + payment
+                                .amount;
+                        }
+                    })
+                    cmds += newLine;
+                    if (this.clientData !== null) {
+                        cmds += '------------------------------------------';
+                        if (this.pointApply > 0) {
+                            cmds += newLine;
+                            cmds += 'Bonus Point Used : ' + this.pointApply;
+                        }
+                        cmds += newLine;
+                        cmds += 'Current Bonus Point Earned : ' + earnPointByOrder;
+                        cmds += newLine;
+                        cmds += 'Total Bonus Point Remaining : ' + (parseFloat(this.clientData
+                                .points - this.pointApply) +
+                            parseFloat(
+                                earnPointByOrder)).toFixed(2);
+                        cmds += newLine;
+                    }
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += 'Total Discount :     ' + this.productDiscount.toFixed(2);
+                    cmds += newLine;
+                    cmds += 'Other Discount :     ' + (this.otherDiscount + this
+                        .applyPointDiscountAmount).toFixed(2);
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += 'You Have Saved :     ' + (this.productDiscount + this
+                            .otherDiscount + this.applyPointDiscountAmount).toFixed(2) +
+                        ' Taka';
+                    cmds += newLine + newLine;
+                    cmds +=
+                        "Note : Sold items can't be refunded but can be exchanged only within 72 hours with relevant receipt. If you have any query feel free to contact with us. Thanks for shopping with us.";
+                    cmds += newLine + newLine;
+                    //cmds += esc + '!' +'\x18'; //Emphasized + Double-height mode selected (ESC ! (16 + 8)) 24 dec => 18 hex
+                    //cmds += '# ITEMS SOLD 2';
+                    cmds += newLine + newLine;
+                    cmds += newLine + newLine;
+                    cmds += newLine + newLine;
+                    cmds += newLine + newLine;
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += "\x1b" + "\x69";
+                    cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+                    //cmds += '11/03/13';
+
+                    cpj.printerCommands = cmds;
+                    //Send print job to printer!
+                    cpj.sendToClient();
+                }
+            },
+            orderComplete(o) {
+                this.clearResponseMessage()
+                this.isDoneClicked = true
+
+                if($("#sellDate").val()==''){
+                    alert('Sell date is required.')
+                    return 0;
+                }
+
+                var currentDateTime = new Date()
+
+                var selectedDate = $("#sellDate").val()+' '+currentDateTime.getHours()+':'+currentDateTime.getMinutes()+':'+currentDateTime.getSeconds();
+
+
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount + this.applyPointDiscountAmount).toFixed(2));
+
+                let earnPointByOrder = 0
+
+                if (this.branch.point_bench_mark < dueAmount && this.clientData!=null) {
+                    earnPointByOrder = parseFloat((dueAmount / this.branch.point_purchase).toFixed(2))
+                }
+
+
+                let requestLink = '/api/pos/order?tabID=' + tabID
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+
+                let itemInfo = {
+                    branch: branchID,
+                    payment: this.payment,
+                    vat: Number(this.vat.toFixed(2)),
+                    order_discount: {
+                        product: Number(this.productDiscount.toFixed(2)),
+                        others: Number((this.otherDiscount + this.applyPointDiscountAmount).toFixed(2))
+                    },
+                    point_value: this.branch.point_expand,
+                    used_points: Number(this.pointApply),
+                    earned_point: earnPointByOrder,
+                    create: selectedDate
+                }
+
+                if(this.clientData){
+                    itemInfo.customer = {
+                        name: this.clientData.name, 
+                        address: this.clientData.address, 
+                        phone: this.clientData.phone 
+                    }
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    this.isDoneClicked = false
+                    
+                    if (result.auth == true) {
+                        /*setTimeout(() => {
+                            this.clear_fields()
+                        }, 4000)*/
+                        this.isDone = true
+                        this.orderID = result.response.order_id
+                        this.successResponse = result.response
+                        if (this.clientData != null) {
+                            let pointUpdateRequestLink = '/api/pos/client/point-update'
+                            let adminToken = localStorage.getItem('token')
+
+                            let pointItemInfo = {
+                                id: this.clientData._id,
+                                points: this.clientData.points + earnPointByOrder - this.pointApply
+                            }
+                            updateTypeInfo(pointUpdateRequestLink, pointItemInfo, adminToken).then((
+                                result) => {
+                                if (result.auth == true) {}
+                            })
+                        }
+
+                        var now = new Date(selectedDate);
+                        var strDateTime = [
+                            [this.addZero(now.getDate()),
+                                this.addZero(now.getMonth() + 1),
+                                now.getFullYear()
+                            ].join("/"),
+                            [this.addZero(now.getHours()),
+                                this.addZero(now.getMinutes())
+                            ].join(":"),
+                            now.getHours() >= 12 ? "PM" : "AM"
+                        ].join(" ");
+                        if (jspmWSStatus()) {
+                            //Create a ClientPrintJob
+                            var cpj = new JSPM.ClientPrintJob();
+                            //Set Printer type (Refer to the help, there many of them!)
+                            if ($('#useDefaultPrinter').prop('checked')) {
+                                cpj.clientPrinter = new JSPM.DefaultPrinter();
+                            } else {
+                                cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                                    .val());
+                            }
+                            //Set content to print...
+                            //Create ESP/POS commands for sample label
+                            var esc = '\x1B'; //ESC byte in hex notation
+                                var newLine = '\x0A'; //LF byte in hex notation
+
+                                var cmds = esc + "@"; //Initializes the printer (ESC @)
+                                cmds += esc + '!' +
+                                '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                                cmds += newLine;
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                                cmds += newLine;
+                                cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';
+                                cmds += this.branch.name;
+                                cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                                ', ' + this.branch
+                                .district + '.';
+                            cmds += newLine;
+                            cmds += 'Contact no. ' + this.branch.phone;
+                            cmds += newLine;
+                            cmds += 'VAT Identification no. ' + this.branch.taxIdentificationNo;
+                            if(this.clientData){
+                                cmds += newLine;
+                                cmds += 'Customer name: ' + this.clientData.name;
+                                cmds += newLine;
+                                cmds += 'Contact no. ' + this.clientData.phone;
+                            }
+                            cmds += newLine;
+                            cmds += 'POS operator name: ' + this.adminInfo.name;
+                            cmds += newLine;   
+                            cmds += 'Date: ' + strDateTime;
+                            cmds += newLine;
+                            cmds += 'Invoice no. ' + this.orderID;
+                            cmds += newLine;
+                            cmds += 'Slip type: ' + this.orderType;
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += '#Item      #Qty      #Price      #Subtotal';
+                            this.cart.map(product => {
+                                cmds += newLine;
+                                cmds += '------------------------------------------';
+                                cmds += newLine;
+                                cmds += esc + '!' +
+                                    '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += product.name;
+                                cmds += newLine;
+                                cmds += esc + '!' +
+                                    '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '            ' + product.quantity + '    x   ' + product
+                                    .price +
+                                    '          ' + (product.price *
+                                    product.quantity).toFixed(2);
+                            })
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+
+                            cmds += newLine;
+                            cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '++ VAT (App. Items Only) (5%):    ' + this.vat.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                    -Discount:    ' + (this
+                                    .productDiscount + this.otherDiscount + this
+                                    .applyPointDiscountAmount)
+                                .toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '                   Amount Due:    ' + dueAmount.toFixed(2)
+                            cmds += newLine;
+                            cmds += '                         Paid:    ' + this.paidAmountField.toFixed(
+                                2);
+                            cmds += newLine;
+                            cmds += '                       Change:    ' + (parseFloat(this
+                                    .paidAmountField) -
+                                parseFloat(dueAmount)).toFixed(2);
+                            cmds += newLine;
+                            cmds += 'Payment Mode:                             ';
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            this.payment.map((payment) => {
+                                cmds += newLine;
+                                if (payment.method == 'cash') {
+                                    cmds += 'CASH:                             ' + payment
+                                        .amount;
+                                }
+                                if (payment.method == 'card') {
+                                    cmds += 'CARD:                             ' + payment
+                                        .amount;
+                                }
+                                if (payment.method == 'mobile banking') {
+                                    cmds += 'MOBILE BANKING:                   ' + payment
+                                        .amount;
+                                }
+                            })
+                            cmds += newLine;
+                            if (this.clientData !== null) {
+                                cmds += '------------------------------------------';
+                                if (this.pointApply > 0) {
+                                    cmds += newLine;
+                                    cmds += 'Bonus Point Used : ' + this.pointApply;
+                                }
+                                cmds += newLine;
+                                cmds += 'Current Bonus Point Earned : ' + earnPointByOrder;
+                                cmds += newLine;
+                                cmds += 'Total Bonus Point Remaining : ' + (parseFloat(this.clientData
+                                        .points - this.pointApply) +
+                                    parseFloat(
+                                        earnPointByOrder)).toFixed(2);
+                                cmds += newLine;
+                            }
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += 'Total Discount :     ' + this.productDiscount.toFixed(2);
+                            cmds += newLine;
+                            cmds += 'Other Discount :     ' + (this.otherDiscount + this
+                                .applyPointDiscountAmount).toFixed(2);
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += 'You Have Saved :     ' + (this.productDiscount + this
+                                    .otherDiscount + this.applyPointDiscountAmount).toFixed(2) +
+                                ' Taka';
+                            cmds += newLine + newLine;
+                            cmds +=
+                                "Note : Sold items can't be refunded but can be exchanged only within 72 hours with relevant receipt. If you have any query feel free to contact with us. Thanks for shopping with us.";
+                            cmds += newLine + newLine;
+                            //cmds += esc + '!' +'\x18'; //Emphasized + Double-height mode selected (ESC ! (16 + 8)) 24 dec => 18 hex
+                            //cmds += '# ITEMS SOLD 2';
+                            cmds += newLine + newLine;
+                            cmds += newLine + newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += "\x1b" + "\x69";
+                            cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+
+                            cpj.printerCommands = cmds;
+                            //Send print job to printer!
+                            cpj.sendToClient();
+                        }
+
+                        this.isOrderComplete = true
+
+                    } else {
+                        this.errorResponse = result.response
+                    }
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+            }
+        }
+    })
+</script>
+
+<script>
+    document.body.addEventListener('keyup', function (e) {
+        e.preventDefault();
+        if (e.ctrlKey && e.keyCode == 66) {
+          // Simulate clicking on the submit button.
+          $("#borcodeInputField").focus()
+        }
+
+        if (e.ctrlKey && e.keyCode == 67) {
+            // Simulate clicking on the submit button.
+            $("#clientIDInputField").focus()
+        }
+
+        if (e.ctrlKey && e.keyCode == 81) {
+            // Simulate clicking on the submit button.
+            $(".quantityInputField").last().focus()
+        }
+
+        if ((e.altKey && e.keyCode== 80) || e.keyCode == 255) {
+            // Simulate clicking on the submit button.
+            $("#paymentTypeField").focus()
+        }
+
+        if ((e.altKey && e.keyCode== 65)) {
+            // Simulate clicking on the submit button.
+            $("#addClientButton").click()
+        }
+
+        if ((e.altKey && e.keyCode== 83)) {
+            // Simulate clicking on the submit button.
+            $("#findClientData").focus()
+        }
+
+        if (e.keyCode == 119) {
+            // Simulate clicking on the submit button.
+            $("#fullResetButton").click()
+        }
+
+        if (e.altKey && e.keyCode== 67) {
+            // Simulate clicking on the submit button.
+            $("#completeSellButton").click()
+        }
+
+        if (e.shiftKey && e.keyCode== 70) {
+            // shift + f
+            $("#modalSearchField").focus()
+        }
+
+        if (e.shiftKey && e.keyCode== 68) {
+            // shift + d
+            $("#searchModal").modal('hide')
+        }
+
+        if (e.keyCode == 113) {
+            // Simulate clicking on the submit button.
+            $("#searchModal").modal('show')
+        }
+      });
+</script>
+
+
+
+<% include ../../partials/footer %>
+
+<script>
+$(function () {
+    //Datetimepicker plugin
+    $('.datetimepicker').bootstrapMaterialDatePicker({
+        format: 'YYYY-MM-DD',
+        clearButton: true,
+        weekStart: 1,
+        time: false
+    });
+  });
+</script>
+
+<script>
+    $("#add_data_section" ).on( 'wheel', function() {
+        $('input[type=number]').on('mousewheel',function(e){ $(this).blur(); });
+     });
+</script>

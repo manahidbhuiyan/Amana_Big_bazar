@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pos Access</title>
+    <style>
+        *{
+            box-sizing: border-box; 
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            font-size: 11px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+        p{
+            line-height: 1.4;
+        }
+        /* global classes start */
+        .wrapper {
+            width: 204px;
+            min-width: 204px;
+            max-width: 204px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+        .inner-wrapper {
+            width: 200px;
+            margin: 0 auto;
+        }
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+        .text-center{
+            text-align: center;
+        }
+        .manager-name{
+            font-size: 16px;
+            color: #6a3190;
+        }
+        .manager-info h5,
+        .branch-info h5{
+            font-size: 15px;
+        }
+        .manager-designation, .branch-location{
+            font-size: 11px;
+        }
+        .lost-text{
+            font-size: 10px;
+        }
+        .lost-address{
+            font-size: 8px;
+        }
+    </style>
+</head>
+<body>
+    <table class="wrapper" cellspacing="0" cellpadding="0" align="center" style="min-height: 323.52px;">
+        <!-- header start -->
+        <tr>
+            <td>
+                <table class="inner-wrapper" cellspacing="0" cellpadding="0" align="center">
+                    <tr>
+                        <td>
+                            <img src="{{companyInfo.manegerial_logo}}" alt="amana logo" style="max-width: 100%;">
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <!-- header end -->
+        <!-- content start -->
+        <tr>
+            <td>
+                <table class="inner-wrapper" cellspacing="0" cellpadding="4" align="center">
+                    <tr>
+                        <td class="text-center manager-info" style="padding-top: 10px;">
+                            <h5 class="manager-name text-uppercase">{{name}}</h5>
+                            <p class="manager-designation text-uppercase">Branch Manager</p>
+                            <p class="manager-phone">{{phone}}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center branch-info">
+                            <h5 class="branch-title text-uppercase">{{companyInfo.name}}</h5>
+                            {{#each branches}}
+                                <p class="branch-location text-uppercase">{{this.name}}</p>
+                            {{/each}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center barcode-info">
+                            <img src="data:image/png;base64, {{this.imageData}}" alt="" style="width: 90%; height: 30px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center lost-info">
+                            <h5 class="lost-text text-uppercase"><span>If found, please contact to</span></h5>
+                            <p class="lost-address">House-27, Road-02, Sector-09, Uttara, Dhaka</p>
+                            <p class="lost-address">01761696982, 077162766</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <!-- content end -->
+        <tr>
+            <td>&nbsp;</td>
+        </tr>
+        <!-- footer start -->
+        <tr>
+            <td style="background-color: #6a3190; height: 7px">&nbsp;</td>
+        </tr>
+        <!-- footer end -->
+    </table>
+</body>
+</html>

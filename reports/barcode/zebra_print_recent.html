@@ -1,0 +1,73 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <style>
+        body{
+            margin: 0;
+            padding: 0 3px;
+        }
+        .single_barcode p {
+            margin: 0;
+            padding: 1px;
+            font-size: 6.5px;
+        }
+
+        .single_barcode {
+            text-align: center;
+            width: 100%;
+            height: auto;
+        }
+
+        .single_barcode h4 {
+            margin: 0;
+            padding: 1px;
+            font-size: 5.5px;
+            border: 1px solid black;
+        }
+
+        .single_barcode canvas {
+            width: 100%	
+        }
+
+        .email_main_div {
+            width: 100%;
+            margin: auto;
+            height: 100%;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email_main_div" id="invoice_section">
+
+        <table align="center" class="item_table">
+            <tbody>
+                {{#each data}}
+                <div class="single_barcode">
+                    {{#if this._id}}
+                    <p>{{this.company}}</p>
+                    <p style="font-size:6.5px; text-transform: capitalize;">{{this.subcategory}}</p>
+                    <p style="font-size:6.5px; text-transform: capitalize;">{{this.name}}</p>
+                    <img src="data:image/png;base64, {{this.imageData}}" style="width:100%; height: 37%;" alt="" />
+                    {{#if this.sizeAvailable}}
+                    <p style="text-align: left; text-transform: capitalize;">size <span style="text-transform: uppercase;">{{this.sizeShortForm}}</span></p>
+                    {{else}}
+	      <p style="text-align: left; text-transform: capitalize;visibility:hidden;">size</p>
+                    {{/if}}
+                    <h4>TK. {{this.price.sell}}{{#if this.vat}} + VAT{{/if}}</h4>
+                    {{else}}
+	                    <div style="height: 100%;"></div>	
+                    {{/if}}
+                </div>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

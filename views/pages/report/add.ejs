@@ -1,0 +1,410 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content">
+    
+    <% include ../../partials/content/header %>
+    
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Create</strong> Partition Information</h2>
+                        <button v-if="!formDisplay" @click="propcessCompleted" type="button" class="btn btn-primary float-right">Complete</button>
+                        <br/>
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div> 
+                        
+                        <form @submit.prevent="addPropertyPartition" v-if="formDisplay">
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Project</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" @change="getProjectTypes(project)" v-model="project">
+                                            <option value="">-- Select Project --</option>
+                                            <option v-for="(projectInfo, index) in allProject" :key="index" :value="projectInfo._id">{{projectInfo.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <template v-if="projectTypes && projectTypes.length > 0">
+                                        <h6 class="mt-2 mb-2">Project Types</h6>
+                                        <div class="radio inlineblock m-r-20" v-for="(type, index) in projectTypes">
+                                            <input :id="type.name" name="projectType" v-model="projectSelectedType" :value="type._id" type="radio">
+                                            <label :for="type.name" class="text-capitalize">{{type.name}}</label>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Property</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" @change="getPropertyType(property)" v-model="property">
+                                            <option value="" :selected="property==''">-- Select Property --</option>
+                                            <option v-for="(propertyInfo, index) in allProperty" :key="index" :value="propertyInfo._id">{{propertyInfo.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <template v-if="propertyTypes && propertyTypes.length > 0">
+                                        <h6 class="mt-2 mb-2">Property Types</h6>
+                                        <div class="radio inlineblock m-r-20" v-for="(type, index) in propertyTypes">
+                                            <input :id="type.name" name="propertyType" v-model="propertySelectedType" :value="type" type="radio">
+                                            <label :for="type.name" class="text-capitalize">{{type.name}}</label>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Property Partition Type</h6>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20" v-for="(partitionType, index) in propertyPartitionTypes">
+                                            <input type="radio" name="partitionType" @change="partitionTypeData(partitionType.name)"  :id="partitionType.name" class="with-gap" v-model="propertyPartitionSelectedType" :value="partitionType._id">
+                                            <label :for="partitionType.name">{{partitionType.name}}</label>
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Property Details</h6>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" v-model="name" placeholder="Poartition Name">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" v-model="summery" placeholder="Partition Summery">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="checkbox inlineblock m-r-20">
+                                        <input id="checkbox" v-model="garage" :checked="garage" type="checkbox">
+                                        <label for="checkbox" class="text-capitalize">Garrage Is Available</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="form-group"  v-if="garage">
+                                        <input type="text" class="form-control" v-model="garageRent" placeholder="Garrage Price / Rent">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" v-model="totalArea" placeholder="Total Area">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" v-model="price" :placeholder="isVisibleInstallmentSection.toLowerCase() === 'sale' ? 'Price per sqf': 'Monthly Rent'">
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <div class="form-line">
+                                            <textarea rows="4" class="form-control no-resize" v-model="details" placeholder="Partition Description"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 clearfix" v-if="isVisibleInstallmentSection.toLowerCase() === 'sale'">
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Property Payment Informations</h6>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" v-model="totalInstallments" class="form-control" placeholder="Total Number of Installment">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" v-model="perInstallmentCost" class="form-control" placeholder="Per Installment Amount">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" v-model="perInstallmentDueDay" class="form-control" placeholder="Due Date After Days">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="text" v-model="perInstallmentExtensionDay" class="form-control" placeholder="Installment Extension Days">
+                                    </div>
+                                </div>
+                            </div>    
+                            
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable" class="btn btn-primary btn-round">Save</button>
+                                    <button @click="clearInputFields" type="button" class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="row" v-else>
+                            <div class="col-lg-6 offset-lg-3">
+                                <h6 class="mt-2 mb-2">Upload files for this property partition</h6>
+                                <div class="upload_fields">
+                                    <div class="custom-file">
+                                      <input type="file" @change="uploadFile" :disabled="isLoading" id="uploadedFile" class="custom-file-input" />
+                                      <label class="custom-file-label" for="customFile">Upload property partition photos</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <template v-if="uploadedImages && uploadedImages.length > 0">
+                                        <div class="spinner-border text-primary mt-4" v-if="isLoading" style="margin: 0 auto" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                        <template v-else>
+                                            <div class="col-lg-3 col-md-6 mt-4 position-relative" v-for="(uploadedImage, index) in uploadedImages">
+                                                <img class="img-thumbnail img-fluid" :src="uploadedImage" alt="img">
+                                                <button @click="removeFile(index)" class="btn btn-icon btn-neutral btn-icon-mini position-absolute delete-button-position"><i class="zmdi zmdi-delete"></i></button>
+                                            </div>
+                                        </template>
+                                    </template>    
+                                    <template v-else>
+                                        <div class="spinner-border text-primary mt-4" v-if="isLoading" style="margin: 0 auto" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                        <div class="col-lg-12 clearfix" v-else>
+                                            <p class="text-center mt-5">No image uploaded for this property</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="<%= host %>/javascript/data_manipulation.js"></script>
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data:{
+            allProject: [],
+            allProperty: [],
+            project: '',
+            property: '',
+            propertySelectedType: '',
+            propertyPartitionSelectedType: '',
+            projectSelectedType: '',
+            projectTypes: [],
+            propertyTypes: [],
+            propertyPartitionTypes: [],
+            name: '',
+            details: '',
+            summery: '',
+            garage: false,
+            garageRent: null,
+            totalArea: null,
+            area_unit: 'sqf',
+            price: null,
+            price_unit: 'sqf',
+            totalInstallments: null,
+            perInstallmentCost: null,
+            perInstallmentDueDay: null,
+            perInstallmentExtensionDay: null,
+            isVisibleInstallmentSection: '',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            formDisplay: true,
+            propertyID: null,
+            uploadedImages: [],
+            isLoading: false,
+            adminAccess: []
+        },
+        mounted(){
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.getProjects()
+            this.getPropertyPartitionType()
+        },
+        methods:{
+            getProjects(){
+                let requestLink = '/api/project'
+                getData(requestLink).then((result) => {
+                    if(result.auth === true){
+                        this.allProject = result.response.data
+                    }
+                })
+            },
+            partitionTypeData(data){
+                this.isVisibleInstallmentSection = data
+            },
+            getPropertyPartitionType(){
+                let requestLink = '/api/partition/type'
+                getData(requestLink).then((result) => {
+                    if(result.auth === true){
+                        this.propertyPartitionTypes = result.response.data
+                        this.propertyPartitionSelectedType = result.response.data[0]._id
+                    }
+                })
+            },
+            getProjectTypes(index){
+                this.projectTypes = this.allProject.filter(project => project._id === index)[0].type
+                this.getPropertyOfProject(index)
+                this.property = ''
+                this.propertyTypes = []
+            },
+            getPropertyOfProject(projectID){
+                let requestLink = '/api/property/select'
+                getData(requestLink).then((result) => {
+                    if(result.auth === true){
+                        let propertyInfo = result.response.data.filter(property => property.project === projectID)
+                        this.allProperty = propertyInfo
+                    }
+                })
+            },
+            getPropertyType(propertyID){
+                this.propertyTypes = this.allProperty.filter(property => property._id === propertyID)[0].propertyType
+            },
+            clearNotification(){
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            clearInputFields(){
+                this.project = ''
+                this.property = ''
+                this.propertySelectedType = ''
+                this.propertyPartitionSelectedType = ''
+                this.projectTypes = []
+                this.propertyTypes = []
+
+                this.name = ''
+                this.details = ''
+                this.summery = ''
+
+                this.garage = false
+                this.garageRent = null
+                this.totalArea = null
+                this.price = null
+                this.totalInstallments = null
+                this.perInstallmentCost = null
+                this.perInstallmentDueDay = null
+                this.perInstallmentExtensionDay = null
+                
+            },
+            addPropertyPartition(){
+                this.clearNotification();
+                this.isDisable = true
+                
+
+                let propertyInfo = {
+                    project: this.project,
+                    property: this.property,
+                    project_type: this.projectSelectedType,
+                    property_type: this.propertySelectedType._id,
+                    name: this.name,
+                    details: this.details,
+                    summery: this.summery,
+                    ads_type: this.propertyPartitionSelectedType,
+                    price_unit: this.price_unit,
+                    price: this.price,
+                    garage_availability: this.garage,
+                    garage_price: this.garageRent,
+                    price_unit: this.price_unit,
+                    total_area: this.totalArea,
+                    area_unit: this.area_unit,
+                    installment_amount: this.totalInstallments,
+                    total_installment_number: this.perInstallmentCost,
+                    payment_due_duration: this.perInstallmentDueDay,
+                    payment_due_date_extension: this.perInstallmentExtensionDay
+                }
+
+                let requestLink = '/api/property/division'
+                let token = localStorage.getItem('token')
+
+                addNewData(requestLink, propertyInfo, token).then((result) => {
+                    if(result.auth===false)
+                    {
+                        this.errorResponse = result.response 
+                    }else{
+                        this.successResponse = result.response
+                        this.propertyID = this.successResponse.data._id
+                        this.formDisplay = false
+                        this.clearInputFields()
+                    }
+                    this.isDisable = false
+                })
+            },
+            uploadFile(){
+                this.isLoading = true
+                this.clearNotification();
+                let file = document.getElementById("uploadedFile").files[0]
+                let data = new FormData()
+                data.append('file', file)
+               
+                let requestLink = '/api/property/division/'+ this.propertyID +'/image/upload'
+                let token = localStorage.getItem('token')
+                uploadImageUpdateInfo(requestLink, data, token).then((result) => {
+                    console.log(result.response)
+                    if(result.auth===false)
+                    {
+                        this.errorResponse = result.response 
+                    }else{
+                        this.successResponse = result.response
+                        this.isLoading = false
+                        this.uploadedImages = result.response.data.images
+                    }
+                })
+            },
+            removeFile(imageIndex){
+                this.isLoading = true
+                let data = {
+                    image_index: imageIndex
+                }
+                let requestLink = '/api/property/division/'+ this.propertyID +'/image/remove'
+                let token = localStorage.getItem('token')
+
+                updateDataInfo(requestLink, data, token).then((result) => {
+                    console.log(result.response)
+                    if(result.auth===false)
+                    {
+                        this.errorResponse = result.response 
+                    }else{
+                        this.successResponse = result.response
+                        this.isLoading = false
+                        this.uploadedImages = result.response.data.images
+                    }
+                    
+                })
+            },
+            propcessCompleted(){
+                this.clearInputFields()
+                this.formDisplay = true
+                this.isLoading = false
+                this.uploadedImages = []
+                this.propertyID = null
+                this.errorResponse = null
+                this.successResponse = null
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

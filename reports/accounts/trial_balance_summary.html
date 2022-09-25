@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial Balance</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            font-size: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+
+
+        .bg-grey {
+            background-color: #f3f5f7;
+        }
+
+        .bg-white {
+            background-color: #fff;
+        }
+
+        /* global classes start */
+        .wrapper {
+            width: 720px;
+            min-width: 720px;
+            max-width: 720px;
+        }
+
+        .inner-wrapper {
+            width: 700px;
+            margin: 0 auto;
+        }
+
+        .center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .divider-x {
+            height: 1px;
+            width: 100%;
+            background-color: #444;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        /* global classes end */
+
+        .table-border th {
+            background-color: #eefcff;
+            padding-top: 7px;
+            padding-bottom: 7px;
+        }
+
+        .table-border td {
+            padding-top: 7px;
+            padding-bottom: 7px;
+        }
+
+        .table-border th,
+        .table-border td {
+            border: .5px solid#ddd;
+        }
+
+        .table-border tr:nth-child(odd) td {
+            background-color: #f0f0f0;
+        }
+
+        .table-border tr:last-child td {
+            border: none;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+<table cellspacing=0 cellpadding=0 width="100%">
+    <tr>
+        <td>
+            <table class="center bg-white wrapper" cellspacing=0 cellpadding=0 style="">
+                <!-- header start -->
+                <tr>
+                    <td>
+                        <table class="header" cellspacing="0" cellpadding="0" style="width: 100%;">
+
+                            <tr>
+                                <td>
+                                    <table class="header" cellspacing="0" cellpadding="0" style="width: 100%;">
+                                        <tr>
+                                            <td>
+                                                <table class="center header inner-wrapper" cellspacing=0 cellpadding=0>
+                                                    <tr>
+                                                        <td style="line-height: 2px;">&nbsp;</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <table class="center header" cellspacing=0 cellpadding=0 style="">
+                                                                <tr>
+                                                                    <td style="width: 38%; text-align: center;">
+                                                                        <img src={{company_logo}} width="100" height="48" alt="Company image">
+                                                                    </td>
+                                                                    <td>
+                                                                        <h1
+                                                                            style="font-size: 16px; text-align: left; text-transform: uppercase; margin-bottom: 5px;">
+                                                                            <span>{{company_name}}</span>
+                                                                        </h1>
+                                                                        <p style="font-size: 9px; text-align: left; text-transform: capitalize; font-weight: bold; margin-bottom: 5px; width: 250px;">{{branch_name}}, {{branch_address}}
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="line-height: 5px;">&nbsp;</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <table class="header" cellspacing=0 cellpadding=0 style="width: 100%;">
+                                                                <tr>
+                                                                    <td style="line-height: 5px;">&nbsp;</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        <table class="center header inner-wrapper" cellspacing=0 cellpadding=0>
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <h1 style="text-align: center;">Trial Balance Summary</h1>
+                                                                                    <p style="text-align: center;">(at Date {{toDate}})</p>
+                                                                                </td>
+                                                                                
+                                                                            </tr>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td style="line-height: 5px;">&nbsp;</td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="line-height: 5px;">&nbsp;</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <!-- header end -->
+                <!-- shop info part start -->
+
+                <tr>
+                    <td style="line-height: 10px;">&nbsp;</td>
+                </tr>
+                <!-- Payment method info part start -->
+                <tr>
+                    <td>
+                        <table class="center bg-white" cellspacing=0 cellpadding=0 width="100%">
+                            <!-- user info and payment info start -->
+                            <tr>
+                                <td>
+                                    <table class="center inner-wrapper" cellspacing=0 cellpadding=0>
+                                        <!-- payment information start -->
+                                        <tr>
+                                            <td>
+                                                <table cellspacing=0 cellpadding=0 width="100%">
+                                                    <tr>
+                                                        <td>
+                                                            <table cellspacing=0 cellpadding="3" width="100%"
+                                                                   class="table-border">
+<!--                                                                <tr>-->
+<!--                                                                    <th class="text-left" colspan="2" style="background-color: transparent; border-top: none; border-left: none;"></th>-->
+<!--                                                                    <th class="text-center" colspan="6">Credit</th>-->
+<!--                                                                    <th class="text-center" colspan="5">Debit</th>-->
+<!--                                                                </tr>-->
+                                                                <tr style=" text-align: left;">
+                                                                    <th class="text-left" rowspan="2">S/L</th>
+                                                                    <th class="text-left"  rowspan="2">Category</th>
+                                                                    <th class="text-center" colspan="2">Amount in Taka</th>
+                                                                </tr>
+
+                                                                <tr style=" text-align: left;">
+                                                                    <th class="text-center">Debit(TK)</th>
+                                                                    <th class="text-center">Credit(TK)</th>
+                                                                </tr>
+
+                                                                {{#each data}}
+                                                                <!-- record start -->
+                                                                <tr>
+                                                                    <td class="text-left">{{serial}}</td>                                                                   
+                                                                    <td class="text-left" style="text-transform: capitalize;">{{category}}</td>
+                                                                    {{#if isDebit}}
+                                                                    <td class="text-center">{{closingBalance}}</td>
+                                                                    {{else}}
+                                                                    <td class="text-center">-</td>
+                                                                    {{/if}}
+                                                                    {{#if isCredit}}
+                                                                    <td class="text-center">{{closingBalance}}</td>
+                                                                    {{else}}
+                                                                    <td class="text-center">-</td>
+                                                                    {{/if}}
+                                                                </tr>
+                                                                <!-- record end -->
+
+                                                                {{/each}}
+
+                                                                <!-- record start -->
+                                                                <tr>
+                                                                    <td class="text-left" colspan="2"
+                                                                        style="border-top: 3px solid #444; font-weight:bold;">
+                                                                        Total :
+                                                                    </td>
+                                                                    <td class="text-center"
+                                                                        style="border-top: 3px solid #444; font-weight:bold;">
+                                                                        {{grandTotalDebit}}
+                                                                    </td>
+                                                                    <td class="text-center"
+                                                                        style="border-top: 3px solid #444; font-weight:bold;">
+                                                                        {{grandTotalCredit}}
+                                                                    </td>
+
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="text-left" colspan="3"
+                                                                        style="border-top: 3px solid #444; font-weight:bold;">
+                                                                        Dispose Amount :
+                                                                    </td>
+                                                                    <td class="text-center"
+                                                                        style="border-top: 3px solid #444; font-weight:bold;">
+                                                                        {{totalDisposeAmont}}
+                                                                    </td>
+
+                                                                </tr>
+                                                                <!-- record end -->
+
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <!-- payment information end -->
+                                    </table>
+                                </td>
+                            </tr>
+                            <!-- user info and payment info end -->
+                            <tr>
+                                <td style="line-height: 5px;">
+                                    &nbsp;</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <!-- Payment method info part end -->
+                <tr>
+                    <td style="line-height: 10px;">
+                        &nbsp;</td>
+                </tr>
+                <tr>
+                    <td>
+                      <table cellspacing="0" cellpadding="10" width="100%">
+                        <tr>
+                          <td class="text-left"><span>Printed on</span> - <span>{{today}}  {{createTime}}</span> </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: bold; text-align: center;"><span>' This is a Computer Generated Report Hence No Signature Will Not Be Required. '</span> </td>
+                          </tr>
+                      </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+
+</html>

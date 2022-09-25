@@ -1,0 +1,65 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <style>
+        .single_barcode p {
+            margin: 0;
+            padding: 2px 0px;
+            font-size: 4.8px;
+        }
+
+        .single_barcode {
+            padding: 9px 5px;
+            text-align: center;
+            float: left;
+            width: 90px;
+            height: 72px;
+        }
+
+        .single_barcode h4 {
+            margin: 0;
+            padding: 2px;
+            font-size: 5px;
+            border: 2px solid black;
+        }
+
+        .single_barcode canvas {
+            width: 100%
+        }
+
+        .email_main_div {
+            width: 530px;
+            margin: auto;
+            min-height: 500px;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email_main_div" id="invoice_section">
+
+        <table align="center" class="item_table">
+            <tbody>
+                {{#each data}}
+                <div class="single_barcode">
+                    {{#if this._id}}
+                    <p>{{this.company}}</p>
+                    <img src="data:image/png;base64, {{this.imageData}}" style="width:100%" alt="" />
+                    <p>{{this.name}}</p>
+                    <h4>TK. {{this.price.sell}}{{#if this.vat}} + VAT{{/if}}</h4>
+                    {{else}}
+
+                    {{/if}}
+                </div>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

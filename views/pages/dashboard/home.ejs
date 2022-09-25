@@ -1,0 +1,1731 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+
+    .dtp .p10 > a {
+    color: white;
+    text-decoration: none;
+}
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #7e6990;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #7e6990;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #7e6990;
+    color: #fff;
+}
+
+.card{
+    border: 1px solid #7e6990;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+.panel-heading{
+    border: 1px solid #7e6990;
+    margin-bottom: 10px;
+}
+
+.panel-heading h4{
+    background-color: #fff !important;
+}
+
+.panel-group .panel-primary .panel-title{
+    font-size: 12px;
+}
+
+
+</style>
+
+<div id="add_data_section">
+    <div class="modal fade" id="searchSalesModal" tabindex="-1" role="dialog" v-show="adminAccess.length>0?adminAccess.includes('dashboard sales info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Sales Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getSalesSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromSalesDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toSalesDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="sales_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(salesInfo, index) in allSalesSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"><a role="button" data-toggle="collapse" data-parent="#sales_accordion_2" :href="'#salesSearchCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1"><strong>{{index +1}}.</strong> Order No. {{salesInfo.orderID}} - Paid Amount: {{salesInfo.total_bill}}</a> <div class="font-bold pl-3 pb-2">{{salesInfo.admin!=null?salesInfo.admin.name:'removed admin'}}@{{getActualDateTime(salesInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'salesSearchCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in salesInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price+'@'+productInfo.quantity+' = '+productInfo.subtotal}}</li>
+                                            </ul>
+                                            <div style="font-size: 12px;">
+                                                <div class="font-bold">subtotal: {{salesInfo.sub_total_bill.toFixed(2)}}</div> 
+                                                <div class="font-bold">+ vat: {{salesInfo.vat.toFixed(2)}}</div> 
+                                                <div class="font-bold">- discount: {{(salesInfo.discount.product+salesInfo.discount.others).toFixed(2)}}</div> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allSalesSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getSalesSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allSalesSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchRefundModal" tabindex="-1" role="dialog" v-show="adminAccess.length>0?adminAccess.includes('dashboard refund info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Refund Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getRefundSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromRefundDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toRefundDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="sales_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(salesInfo, index) in allRefundSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#refund_accordion_1" :href="'#refundCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Order No. {{salesInfo.serialNo}} - Refund Amount: {{salesInfo.total_bill.toFixed(2)}}</a> <div class="font-bold pl-3 pb-2">{{salesInfo.admin!=null?salesInfo.admin.name:'removed admin'}}@{{getActualDateTime(salesInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'refundCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in salesInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price+'@'+productInfo.quantity+' = '+productInfo.subtotal}}</li>
+                                            </ul>
+                                            <div style="font-size: 12px;">
+                                                <div class="font-bold">subtotal: {{salesInfo.sub_total_bill.toFixed(2)}}</div> 
+                                                <div class="font-bold">+ vat: {{salesInfo.vat.toFixed(2)}}</div> 
+                                                <div class="font-bold">- discount: {{(salesInfo.discount.product+salesInfo.discount.others).toFixed(2)}}</div> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allRefundSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getRefundSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allRefundSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchExchangeModal" tabindex="-1" role="dialog" v-show="adminAccess.length>0?adminAccess.includes('dashboard exchange info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Exchange Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getExchangeSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromExchangeDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toExchangeDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="sales_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(exchangeInfo, index) in allExchangeSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#exchange_accordion_1" :href="'#exchangeCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Order No. {{exchangeInfo.serialNo}} - Paid Amount: {{(exchangeInfo.total_bill - exchangeInfo.exchange_amount).toFixed(2)}}</a> <div class="font-bold pl-3 pb-2">{{exchangeInfo.admin!=null?exchangeInfo.admin.name:'removed admin'}}@{{getActualDateTime(exchangeInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'exchangeCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in exchangeInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price+'@'+productInfo.quantity+' = '+productInfo.subtotal}}</li>
+                                            </ul>
+                                            <div style="font-size: 12px;">
+                                                <div class="font-bold">subtotal: {{exchangeInfo.sub_total_bill.toFixed(2)}}</div> 
+                                                <div class="font-bold">+ vat: {{exchangeInfo.vat.toFixed(2)}}</div> 
+                                                <div class="font-bold">- discount: {{(exchangeInfo.discount.product+exchangeInfo.discount.others).toFixed(2)}}</div> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allExchangeSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getExchangeSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allExchangeSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchReceivingModal" tabindex="-1" role="dialog" v-show="adminAccess.length>0?adminAccess.includes('dashboard receiving info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Receiving Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getReceivingSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromReceivingDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toReceivingDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="receiving_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(receivingInfo, index) in allReceivingSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#receiving_accordion_2" :href="'#receivingCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1"><strong>{{index +1}}.</strong> Reciving No. {{receivingInfo.serialNo}} - {{receivingInfo.supplier.name}} (<strong>{{receivingInfo.totalAmount.toFixed(2)}}</strong>)</a> <div class="font-bold pl-3 pb-2">{{receivingInfo.admin!=null?receivingInfo.admin.name:'removed admin'}}@{{getActualDateTime(receivingInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'receivingCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in receivingInfo.products" @key="index">{{productInfo.product.name + ' '+ productInfo.product.price.purchase+'@'+productInfo.product.quantity+' = '+productInfo.product.total}}</li>
+                                            </ul>
+                                            <div style="font-size: 12px;">
+                                                <div class="font-bold">Sub Total: {{(receivingInfo.totalAmount+receivingInfo.applyDiscount).toFixed(2)}}</div> 
+                                                <div class="font-bold">-Discount: {{receivingInfo.applyDiscount.toFixed(2)}}</div> 
+                                                <div class="font-bold">Total: {{receivingInfo.totalAmount.toFixed(2)}}</div> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allReceivingSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getReceivingSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allReceivingSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchReturnModal" tabindex="-1" role="dialog" v-show="adminAccess.length>0?adminAccess.includes('dashboard return info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Return Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getReturnSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromReturnDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toReturnDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="return_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(returnInfo, index) in allReturnSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#return_accordion_2" :href="'#returnCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1"><strong>{{index +1}}.</strong> Order No. {{returnInfo.serialNo}} - {{returnInfo.supplier.name}} (<strong>{{returnInfo.totalAmount.toFixed(2)}}</strong>)</a> <div class="font-bold pl-3 pb-2">{{returnInfo.admin!=null?returnInfo.admin.name:'removed admin'}}@{{getActualDateTime(returnInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'returnCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in returnInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price.purchase+'@'+productInfo.quantity+' = '+productInfo.total}}</li>
+                                            </ul>
+                                            <div style="font-size: 12px;">
+                                                <div class="font-bold">Total: {{returnInfo.totalAmount.toFixed(2)}}</div> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allReturnSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getReturnSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allReturnSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchDisposalModal" tabindex="-1" role="dialog" v-show="adminAccess.length>0?adminAccess.includes('dashboard disposal info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Disposal Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getDisposeSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromDisposeDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toDisposeDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="disposal_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(disposeInfo, index) in allDisposalSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#disposal_accordion_2" :href="'#disposalCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1"><strong>{{index +1}}.</strong> Disposal No. {{disposeInfo.serialNo}}</a> <div class="font-bold pl-3 pb-2">{{disposeInfo.admin!=null?disposeInfo.admin.name:'removed admin'}}@{{getActualDateTime(disposeInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'disposalCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in disposeInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price.purchase+'@'+productInfo.disposal+' = '+(productInfo.price.purchase*productInfo.disposal).toFixed(2)}}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allDisposalSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getDisposeSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allDisposalSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchPriceModal" tabindex="-1" role="dialog"  v-show="adminAccess.length>0?adminAccess.includes('dashboard price mark up down info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Price Mark UP/Down Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getPriceMarkSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromPriceDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toPriceDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="price_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(priceMarkInfo, index) in allPriceSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#price_accordion_2" :href="'#priceCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1"><strong>{{index +1}}.</strong> Order No. {{priceMarkInfo.serialNo}} (<strong>{{priceMarkInfo.products.length}}</strong>)</a> <div class="font-bold pl-3 pb-2">{{priceMarkInfo.admin!=null?priceMarkInfo.admin.name:'removed admin'}}@{{getActualDateTime(priceMarkInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'priceCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in priceMarkInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price.previous_purchase+'@'+productInfo.price.previous_sell+' To '+productInfo.price.purchase+'@'+productInfo.price.sell}}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allPriceSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getPriceMarkSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allPriceSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchDiscountModal" tabindex="-1" role="dialog" v-show="adminAccess.length>0?adminAccess.includes('dashboard discount info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Discount Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getDiscountSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromDiscountDate" id="searchFromDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toDiscountDate" id="searchToDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="discount_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(discountInfo, index) in allDiscountSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#discount_accordion_2" :href="'#discountCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1"><strong>{{index +1}}.</strong> Discount No. {{discountInfo.serialNo}}</a> <div class="font-bold pl-3 pb-2">{{discountInfo.admin!=null?discountInfo.admin.name:'removed admin'}}@{{getActualDateTime(discountInfo.create)}}</div></h4>
+                                    </div>
+                                    <div :id="'discountCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in discountInfo.products" @key="index">{{productInfo.name + 'Discount:' + productInfo.discount}}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allDiscountSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getDiscountSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allDiscountSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="searchWarehouseRequisitionModal" tabindex="-1" role="dialog"  v-show="adminAccess.length>0?adminAccess.includes('warehouse requisition info'):false">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Requistion To Warehouse Activity</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form @submit.prevent="getWarehouseRequisitionSearchedItems('search')">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="fromWarehouseRequisitionDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="From" required>
+                                </div>
+                            </div>
+    
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input style="width: 100%;" type="text" id="toWarehouseRequisitionDate"
+                                        class="form-control datetimepicker"
+                                        placeholder="To" required>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <select class="form-control" v-model="selectedBranch">
+                                        <option value="">-- Select Branch --</option>
+                                        <option :value="{id: branch._id, name: branch.name}"
+                                            v-for="(branch, index) in allBranch" :key="index"
+                                            class="text-capitalize">{{branch.name}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit"
+                        class="btn btn-primary waves-effect">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else>
+                            <div class="panel-group" id="receiving_accordion_2" role="tablist" aria-multiselectable="true">
+                                <div class="panel panel-primary" v-for="(requisitionInfo, index) in allWarehouseRequisitionSearchedData.data" @key="index">
+                                    <div class="panel-heading" role="tab" id="headingOne_1">
+                                        <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#receiving_accordion_2" :href="'#receivingCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1"><strong>{{index +1}}.</strong> Reciving No. {{requisitionInfo.serialNo}} - {{requisitionInfo.supplier.name}} (<strong>{{requisitionInfo.totalAmount.toFixed(2)}}</strong>) @ <strong>{{requisitionInfo.branch.name}}</strong></a> <div class="font-bold pl-3 pb-2">{{requisitionInfo.admin!=null?requisitionInfo.admin.name:'removed admin'}}@{{getActualDateTime(requisitionInfo.create)}}</div></h4>
+                                        <div class="pl-3 pb-2">
+                                            <span class="badge badge-danger" v-if="requisitionInfo.supplyStatus==false">Not Supplied</span>
+                                            <span class="badge badge-info" v-else>Supplied</span>
+                                            <span class="badge badge-danger" v-if="requisitionInfo.receivedStatus==false">Not Received</span>
+                                            <span class="badge badge-info" v-else>Received</span>
+                                        </div>
+                                    </div>
+                                    <div :id="'receivingCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                        <div class="panel-body p-2">
+                                            <ul class="m-0 p-2">
+                                                <li v-for="(productInfo, index) in requisitionInfo.products" @key="index">{{productInfo.product.name + ' '+ productInfo.product.price.purchase+'@'+productInfo.product.quantity+' = '+productInfo.product.total}}</li>
+                                            </ul>
+                                            <div style="font-size: 12px;"> 
+                                                <div class="font-bold">Total: {{requisitionInfo.totalAmount.toFixed(2)}}</div> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center" v-if="allWarehouseRequisitionSearchedData.loadMore==true">
+                                    <button class="btn btn-link font-bold" @click="getWarehouseRequisitionSearchedItems()">load more</button>
+                                </div>
+                                
+                                <div class="text-center" v-else>
+                                    No more data found.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <p class="text-primary">Total <strong>{{allWarehouseRequisitionSearchedData.totalSell}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid">
+        
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div>
+                    <div class="header">
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-center pt-2" style="color: white;">Your current branch is :
+                                    <strong>{{branch.name}}</strong> <button @click="changeBranch" style="color: white; font-weight: bold;font-size: 14px;text-decoration: underline;" class="btn btn-link">Change Branch</button></p>     
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard sales info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Sales Activities Today</strong> <span class="float-right font-bold" v-if="salesDetailsSummery">{{salesDetailsSummery.totalSell}}</span></h2>
+                                        <div class="font-bold p-0 pt-2" style="font-size: 13px;" v-if="salesDetailsSummery">
+                                            Total Bill: {{salesDetailsSummery.totalBill.toFixed(2)}}
+                                        </div>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="sales_accordion_1" role="tablist" aria-multiselectable="true" v-if="salesDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(salesInfo, index) in salesDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#sales_accordion_1" :href="'#salesCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Order No. {{salesInfo.orderID}} - Paid Amount: {{salesInfo.total_bill}}</a> <div class="font-bold pl-3 pb-2">{{salesInfo.admin!=null?salesInfo.admin.name:'removed admin'}}@{{getActualTime(salesInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'salesCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in salesInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price+'@'+productInfo.quantity+' = '+productInfo.subtotal}}</li>
+                                                                </ul>
+                                                                <div style="font-size: 12px;">
+                                                                    <div class="font-bold">subtotal: {{salesInfo.sub_total_bill.toFixed(2)}}</div> 
+                                                                    <div class="font-bold">+ vat: {{salesInfo.vat.toFixed(2)}}</div> 
+                                                                    <div class="font-bold">- discount: {{(salesInfo.discount.product+salesInfo.discount.others).toFixed(2)}}</div> 
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="salesDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchSalesModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard exchange info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Exchange Activities Today</strong><span class="float-right font-bold" v-if="exchangeDetailsSummery">{{exchangeDetailsSummery.totalSell}}</span></h2>
+                                        <div class="font-bold p-0 pt-2" style="font-size: 13px;" v-if="exchangeDetailsSummery">
+                                            Total Bill: {{exchangeDetailsSummery.totalBill.toFixed(2)}}
+                                        </div>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="exchange_accordion_1" role="tablist" aria-multiselectable="true" v-if="exchangeDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(exchangeInfo, index) in exchangeDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#exchange_accordion_1" :href="'#exchangeCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Order No. {{exchangeInfo.serialNo}} - Paid Amount: {{(exchangeInfo.total_bill - exchangeInfo.exchange_amount).toFixed(2)}}</a> <div class="font-bold pl-3 pb-2">{{exchangeInfo.admin!=null?exchangeInfo.admin.name:'removed admin'}}@{{getActualTime(exchangeInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'exchangeCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in exchangeInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price+'@'+productInfo.quantity+' = '+productInfo.subtotal}}</li>
+                                                                </ul>
+                                                                <div style="font-size: 12px;">
+                                                                    <div class="font-bold">subtotal: {{exchangeInfo.sub_total_bill.toFixed(2)}}</div> 
+                                                                    <div class="font-bold">+ vat: {{exchangeInfo.vat.toFixed(2)}}</div> 
+                                                                    <div class="font-bold">- discount: {{(exchangeInfo.discount.product+exchangeInfo.discount.others).toFixed(2)}}</div> 
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="exchangeDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchExchangeModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard refund info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Refund Activities Today</strong><span class="float-right font-bold" v-if="refundDetailsSummery">{{refundDetailsSummery.totalSell}}</span></h2>
+                                        <div class="font-bold p-0 pt-2" style="font-size: 13px;" v-if="refundDetailsSummery">
+                                            Total Refund: {{refundDetailsSummery.totalBill.toFixed(2)}}
+                                        </div>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="refund_accordion_1" role="tablist" aria-multiselectable="true" v-if="refundDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(salesInfo, index) in refundDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#refund_accordion_1" :href="'#refundCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Order No. {{salesInfo.serialNo}} - Refund Amount: {{salesInfo.total_bill.toFixed(2)}}</a> <div class="font-bold pl-3 pb-2">{{salesInfo.admin!=null?salesInfo.admin.name:'removed admin'}}@{{getActualTime(salesInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'refundCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in salesInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price+'@'+productInfo.quantity+' = '+productInfo.subtotal}}</li>
+                                                                </ul>
+                                                                <div style="font-size: 12px;">
+                                                                    <div class="font-bold">subtotal: {{salesInfo.sub_total_bill.toFixed(2)}}</div> 
+                                                                    <div class="font-bold">+ vat: {{salesInfo.vat.toFixed(2)}}</div> 
+                                                                    <div class="font-bold">- discount: {{(salesInfo.discount.product+salesInfo.discount.others).toFixed(2)}}</div> 
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="refundDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchRefundModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard receiving info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Receving Activities Today</strong><span class="float-right font-bold" v-if="receivingDetailsSummery">{{receivingDetailsSummery.total}}</span></h2>
+                                        <div class="font-bold p-0 pt-2" style="font-size: 13px;" v-if="receivingDetailsSummery">
+                                            Total Amount: {{receivingDetailsSummery.totalBill.toFixed(2)}}
+                                        </div>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="receiving_accordion_1" role="tablist" aria-multiselectable="true" v-if="receivingDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(receivingInfo, index) in receivingDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#receiving_accordion_1" :href="'#receivingCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Reciving No. {{receivingInfo.serialNo}} - {{receivingInfo.supplier.name}} (<strong>{{receivingInfo.totalAmount.toFixed(2)}}</strong>)</a> <div class="font-bold pl-3 pb-2">{{receivingInfo.admin!=null?receivingInfo.admin.name:'removed admin'}}@{{getActualTime(receivingInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'receivingCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in receivingInfo.products" @key="index">{{productInfo.product.name + ' '+ productInfo.product.price.purchase+'@'+productInfo.product.quantity+' = '+productInfo.product.total}}</li>
+                                                                </ul>
+                                                                <div style="font-size: 12px;">
+                                                                    <div class="font-bold">Sub Total: {{(receivingInfo.totalAmount+receivingInfo.applyDiscount).toFixed(2)}}</div> 
+                                                                    <div class="font-bold">-Discount: {{receivingInfo.applyDiscount.toFixed(2)}}</div> 
+                                                                    <div class="font-bold">Total: {{receivingInfo.totalAmount.toFixed(2)}}</div> 
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="receivingDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchReceivingModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard return info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Return Activities Today</strong><span class="float-right font-bold" v-if="returnDetailsSummery">{{returnDetailsSummery.total}}</span></h2>
+                                        <div class="font-bold p-0 pt-2" style="font-size: 13px;" v-if="returnDetailsSummery">
+                                            Total Amount: {{returnDetailsSummery.totalBill.toFixed(2)}}
+                                        </div>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="return_accordion_1" role="tablist" aria-multiselectable="true" v-if="returnDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(returnInfo, index) in returnDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#return_accordion_1" :href="'#returnCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Order No. {{returnInfo.serialNo}} - {{returnInfo.supplier.name}} (<strong>{{returnInfo.totalAmount.toFixed(2)}}</strong>)</a> <div class="font-bold pl-3 pb-2">{{returnInfo.admin!=null?returnInfo.admin.name:'removed admin'}}@{{getActualTime(returnInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'returnCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in returnInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price.purchase+'@'+productInfo.quantity+' = '+productInfo.total}}</li>
+                                                                </ul>
+                                                                <div style="font-size: 12px;">
+                                                                    <div class="font-bold">Total: {{returnInfo.totalAmount.toFixed(2)}}</div> 
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="returnDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchReturnModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard disposal info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Disposal Activities Today</strong><span class="float-right font-bold" v-if="disposalDetailsSummery">{{disposalDetailsSummery.total}}</span></h2>
+                                        <div class="font-bold p-0 pt-2" style="font-size: 13px;" v-if="disposalDetailsSummery">
+                                            Total Amount: {{disposalDetailsSummery.totalBill.toFixed(2)}}
+                                        </div>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="disposal_accordion_1" role="tablist" aria-multiselectable="true" v-if="disposalDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(disposeInfo, index) in disposalDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#disposal_accordion_1" :href="'#disposalCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Disposal No. {{disposeInfo.serialNo}}</a> <div class="font-bold pl-3 pb-2">{{disposeInfo.admin!=null?disposeInfo.admin.name:'removed admin'}}@{{getActualTime(disposeInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'disposalCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in disposeInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price.purchase+'@'+productInfo.disposal+' = '+(productInfo.price.purchase*productInfo.disposal).toFixed(2)}}</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="disposalDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchDisposalModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard price mark up down info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Price Up/Down Activities Today</strong><span class="float-right font-bold" v-if="priceMarkDetailsSummery">{{priceMarkDetailsSummery.total}}</span></h2>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="price_accordion_1" role="tablist" aria-multiselectable="true" v-if="priceMarkDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(priceMarkInfo, index) in priceMarkDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#price_accordion_1" :href="'#priceCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Order No. {{priceMarkInfo.serialNo}} (<strong>{{priceMarkInfo.products.length}}</strong>)</a> <div class="font-bold pl-3 pb-2">{{priceMarkInfo.admin!=null?priceMarkInfo.admin.name:'removed admin'}}@{{getActualTime(priceMarkInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'priceCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in priceMarkInfo.products" @key="index">{{productInfo.name + ' '+ productInfo.price.previous_purchase+'@'+productInfo.price.previous_sell+' To '+productInfo.price.purchase+'@'+productInfo.price.sell}}</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="priceMarkDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchPriceModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('dashboard discount info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Discount Activities Today</strong><span class="float-right font-bold" v-if="discountDetailsSummery">{{discountDetailsSummery.total}}</span></h2>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="discount_accordion_1" role="tablist" aria-multiselectable="true" v-if="discountDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(discountInfo, index) in discountDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#discount_accordion_1" :href="'#discountCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Discount No. {{discountInfo.serialNo}}</a> <div class="font-bold pl-3 pb-2">{{discountInfo.admin!=null?discountInfo.admin.name:'removed admin'}}@{{getActualTime(discountInfo.create)}}</div></h4>
+                                                        </div>
+                                                        <div :id="'discountCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in discountInfo.products" @key="index">{{productInfo.name + 'Discount:' + productInfo.discount}}</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="discountDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchDiscountModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 col-lg-4" v-show="adminAccess.length>0?adminAccess.includes('warehouse requisition info'):false">
+                                <div class="card activities">
+                                    <div class="header pb-0">
+                                        <h2><strong>Warehouse Requisition Activities Today</strong><span class="float-right font-bold" v-if="warehouseRequesitionDetailsSummery">{{warehouseRequesitionDetailsSummery.total}}</span></h2>
+                                        <div class="font-bold p-0 pt-2" style="font-size: 13px;" v-if="warehouseRequesitionDetailsSummery">
+                                            Total Amount: {{warehouseRequesitionDetailsSummery.totalBill.toFixed(2)}}
+                                        </div>
+                                    </div>
+                                    <div class="body pb-2">
+                                        <div class="row clearfix">
+                                            <div class="col-md-12 col-lg-12">
+                                                <div class="panel-group" id="receiving_accordion_1" role="tablist" aria-multiselectable="true" v-if="warehouseRequesitionDetailsSummery">
+                                                    <div class="panel panel-primary" v-for="(requisitionInfo, index) in warehouseRequesitionDetailsSummery.data" @key="index">
+                                                        <div class="panel-heading" role="tab" id="headingOne_1">
+                                                            <h4 class="panel-title"> <a role="button" data-toggle="collapse" data-parent="#receiving_accordion_1" :href="'#receivingCollapse_'+index" aria-expanded="true" aria-controls="collapseOne_1">Requisition No. {{requisitionInfo.serialNo}} - {{requisitionInfo.supplier.name}} (<strong>{{requisitionInfo.totalAmount.toFixed(2)}}</strong>) @ <strong>{{requisitionInfo.branch.name}}</strong></a> <div class="font-bold pl-3 pb-2">{{requisitionInfo.admin!=null?requisitionInfo.admin.name:'removed admin'}}@{{getActualTime(requisitionInfo.create)}}</div></h4>
+                                                            <div class="pl-3 pb-2">
+                                                                <span class="badge badge-danger" v-if="requisitionInfo.supplyStatus==false">Not Supplied</span>
+                                                                <span class="badge badge-info" v-else>Supplied</span>
+                                                                <span class="badge badge-danger" v-if="requisitionInfo.receivedStatus==false">Not Received</span>
+                                                                <span class="badge badge-info" v-else>Received</span>
+                                                            </div> 
+                                                        </div>
+                                                        <div :id="'receivingCollapse_'+index" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne_1">
+                                                            <div class="panel-body p-2">
+                                                                <ul class="m-0 p-2">
+                                                                    <li v-for="(productInfo, index) in requisitionInfo.products" @key="index">{{productInfo.product.name + ' '+ productInfo.product.price.purchase+'@'+productInfo.product.quantity+' = '+productInfo.product.total}} </li>
+                                                                </ul>
+                                                                <div style="font-size: 12px;">
+                                                                    <div class="font-bold">Total: {{requisitionInfo.totalAmount.toFixed(2)}}</div> 
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-center" v-if="warehouseRequesitionDetailsSummery.data.length==0">
+                                                        No data found
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button data-toggle="modal" data-target="#searchWarehouseRequisitionModal" class="btn btn-link font-bold" data-backdrop="static"
+                                        data-keyboard="false" @click="clear_fields()">see details</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                        </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</div>
+
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+    integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+    crossorigin="anonymous"></script>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            searchPageNo: 1,
+            searchedItemCount: {
+                total: 0,
+                loadMore: false
+            },
+            allBranch: [],
+            selectedBranch: '',
+            branch: '',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            isSearchLoading: false,
+            fromDate: null,
+            toDate: null,
+            allSalesSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            salesDetailsSummery: null,
+            allExchangeSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            exchangeDetailsSummery: null,
+            allRefundSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            refundDetailsSummery: null,
+            allReceivingSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            receivingDetailsSummery: null,
+            allReturnSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            returnDetailsSummery: null,
+            allDisposalSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            disposalDetailsSummery: null,
+            allPriceSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            priceMarkDetailsSummery: null,
+            allDiscountSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            discountDetailsSummery: null,
+            warehouseRequesitionDetailsSummery: null,
+            allWarehouseRequisitionSearchedData: {
+                data: [],
+                totalSell: 0,
+                totalBill: 0,
+                loadMore: false
+            },
+            adminAccess: []
+        },
+        mounted() {
+            if(localStorage.getItem('branch')==null){
+                location.href = '/product/branch/select'
+            }else{
+                this.checkBranchInfo()
+                this.getBranchInfo()
+                this.getProductSales(1, null, null)
+                this.getProductRefund(1, null, null)
+                this.getProductExchange(1, null, null)
+                this.getSupplierReceiving(1, null, null)
+                this.getSupplierReturn(1, null, null)
+                this.getSupplierDispose(1, null, null)
+                this.getPriceMarkActivity(1, null, null)
+                this.getDiscountActivity(1, null, null)
+                this.getWarehouseRequisition(1, null, null, null, null)
+            }
+            
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        methods: {
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name
+                            }
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            clear_fields() {
+                this.searchPageNo = 1
+            },
+            getProductSales(pageNo, from, to){
+
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/pos/order/dashboard/list/' + pageNo + this.searchQueryStringRequest
+                
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.salesDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allSalesSearchedData.data.push(dataInfo)
+                            })
+                            this.allSalesSearchedData.loadMore = result.response.loadMore
+                            this.allSalesSearchedData.totalBill = result.response.totalBill
+                            this.allSalesSearchedData.totalSell = result.response.totalSell
+
+                            this.searchPageNo = this.searchPageNo + 1
+                        }   
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getSalesSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allSalesSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getProductSales(this.searchPageNo, $("#fromSalesDate").val(), $("#toSalesDate").val())
+            },
+            getProductRefund(pageNo, from, to){
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/pos/order/dashboard/refund/list/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.refundDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allRefundSearchedData.data.push(dataInfo)
+                            })
+                            this.allRefundSearchedData.loadMore = result.response.loadMore
+                            this.allRefundSearchedData.totalBill = result.response.totalBill
+                            this.allRefundSearchedData.totalSell = result.response.totalSell
+
+                           
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getRefundSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allRefundSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getProductRefund(this.searchPageNo, $("#fromRefundsDate").val(), $("#toRefundDate").val())
+            },
+            getProductExchange(pageNo, from, to){
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/pos/order/dashboard/exchange/list/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.exchangeDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allExchangeSearchedData.data.push(dataInfo)
+                            })
+                            this.allExchangeSearchedData.loadMore = result.response.loadMore
+                            this.allExchangeSearchedData.totalBill = result.response.totalBill
+                            this.allExchangeSearchedData.totalSell = result.response.totalSell
+    
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getExchangeSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allExchangeSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getProductExchange(this.searchPageNo, $("#fromExchangeDate").val(), $("#toExchangeDate").val())
+            },
+            getSupplierReceiving(pageNo, from, to){
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/transaction/supplier/receive/dashboard/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.receivingDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allReceivingSearchedData.data.push(dataInfo)
+                            })
+                            
+                            this.allReceivingSearchedData.loadMore = result.response.loadMore
+                            this.allReceivingSearchedData.totalBill = result.response.totalBill
+                            this.allReceivingSearchedData.totalSell = result.response.total
+    
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getReceivingSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allReceivingSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getSupplierReceiving(this.searchPageNo, $("#fromReceivingDate").val(), $("#toReceivingDate").val())
+            },
+            getSupplierReturn(pageNo, from, to){
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/transaction/supplier/return/dashboard/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.returnDetailsSummery = result.response
+                        }else{
+
+                            result.response.data.map(dataInfo=>{
+                                this.allReturnSearchedData.data.push(dataInfo)
+                            })
+
+                            this.allReturnSearchedData.loadMore = result.response.loadMore
+                            this.allReturnSearchedData.totalBill = result.response.totalBill
+                            this.allReturnSearchedData.totalSell = result.response.total
+    
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getReturnSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allReturnSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getSupplierReturn(this.searchPageNo, $("#fromReturnDate").val(), $("#toReturnDate").val())
+            },
+            getSupplierDispose(pageNo, from, to){
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/transaction/disposal/dashboard/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.disposalDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allDisposalSearchedData.data.push(dataInfo)
+                            })
+                            this.allDisposalSearchedData.loadMore = result.response.loadMore
+                            this.allDisposalSearchedData.totalBill = result.response.totalBill
+                            this.allDisposalSearchedData.totalSell = result.response.total
+    
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getDisposeSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allDisposalSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getSupplierDispose(this.searchPageNo, $("#fromDisposeDate").val(), $("#toDisposeDate").val())
+            },
+            getPriceMarkActivity(pageNo, from, to){
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/price-mark/up-down/dashboard/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.priceMarkDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allPriceSearchedData.data.push(dataInfo)
+                            })
+                            this.allPriceSearchedData.loadMore = result.response.loadMore
+                            this.allPriceSearchedData.totalBill = result.response.totalBill
+                            this.allPriceSearchedData.totalSell = result.response.total
+    
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getPriceMarkSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allPriceSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getPriceMarkActivity(this.searchPageNo, $("#fromPriceDate").val(), $("#toPriceDate").val())
+            },
+            getDiscountActivity(pageNo, from, to){
+                let branchID = localStorage.getItem('branch')
+                let token = localStorage.getItem('token')
+                
+                let searchText="?branch="+branchID
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/transaction/discount/dashboard/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null){
+                            this.discountDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allDiscountSearchedData.data.push(dataInfo)
+                            })
+                            this.allDiscountSearchedData.loadMore = result.response.loadMore
+                            this.allDiscountSearchedData.totalBill = result.response.totalBill
+                            this.allDiscountSearchedData.totalSell = result.response.total
+    
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getDiscountSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allDiscountSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                this.getDiscountActivity(this.searchPageNo, $("#fromDiscountDate").val(), $("#toDiscountDate").val())
+            },
+            getWarehouseRequisition(pageNo, from, to, branch, supplier){
+                let token = localStorage.getItem('token')
+
+                let searchText="?warehouse=true"
+                if(from!=null && to!=null){
+                    searchText += ('&from='+from+'&to='+to)
+                }
+
+                if(branch!=null){
+                    searchText += ('&branch='+branch)
+                }
+
+                if(supplier!=null){
+                    searchText += ('&supplier='+supplier)
+                }
+
+                this.searchQueryStringRequest = searchText
+
+                let requestLink = '/api/transaction/supplier/request/to-warehouse/dashboard/' + pageNo + this.searchQueryStringRequest
+                this.isSearchLoading = true
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if(from==null && to == null && branch==null && supplier==null){
+                            this.warehouseRequesitionDetailsSummery = result.response
+                        }else{
+                            result.response.data.map(dataInfo=>{
+                                this.allWarehouseRequisitionSearchedData.data.push(dataInfo)
+                            })
+                            
+                            this.allWarehouseRequisitionSearchedData.loadMore = result.response.loadMore
+                            this.allWarehouseRequisitionSearchedData.totalBill = result.response.totalBill
+                            this.allWarehouseRequisitionSearchedData.totalSell = result.response.total
+    
+                            this.searchPageNo = this.searchPageNo + 1
+                        }
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getWarehouseRequisitionSearchedItems(type=null) {
+                if(type=="search"){
+                    this.searchPageNo = 1
+                    this.allWarehouseRequisitionSearchedData = {
+                        data: [],
+                        totalSell: 0,
+                        totalBill: 0,
+                        loadMore: false
+                    }
+                }
+                let branchID = (this.selectedBranch==''?null:this.selectedBranch.id)
+                this.getWarehouseRequisition(this.searchPageNo, $("#fromWarehouseRequisitionDate").val(), $("#toWarehouseRequisitionDate").val(), branchID, null)
+            },
+            getActualTime(receiveDate){
+                let receivedDate = new Date(receiveDate)
+                return receivedDate.getHours()+":"+receivedDate.getMinutes()+":"+receivedDate.getSeconds()
+            },
+            getActualDateTime(receiveDate){
+                let receivedDate = new Date(receiveDate)
+                return receivedDate.getFullYear()+'-'+(receivedDate.getMonth()+1)+'-'+receivedDate.getDate()+' '+receivedDate.getHours()+":"+receivedDate.getMinutes()+":"+receivedDate.getSeconds()
+            }
+            
+        }
+    })
+</script>
+
+
+
+<% include ../../partials/footer %>
+
+<script>
+    $(function () {
+    //Datetimepicker plugin
+    $('.datetimepicker').bootstrapMaterialDatePicker({
+        format: 'YYYY-MM-DD',
+        clearButton: true,
+        weekStart: 1,
+        time: false
+    });
+  });
+</script>

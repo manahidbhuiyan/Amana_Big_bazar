@@ -1,0 +1,196 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <title><%= data.siteTitle %></title>
+    <link rel="icon" href="https://i.postimg.cc/WbGH8vPB/business1.png" sizes="32x32" />
+    <link rel="icon" href="https://i.postimg.cc/WbGH8vPB/business1.png" sizes="192x192" />
+    <link rel="apple-touch-icon-precomposed" href="https://i.postimg.cc/WbGH8vPB/business1.png" />
+    <style>
+        .email_table {
+            color: #333;
+            font-family: sans-serif;
+            font-size: 15px;
+            font-weight: 300;
+            text-align: center;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 99%;
+            margin: 6px auto;
+            box-shadow: none;
+        }
+
+        table {
+            color: #333;
+            font-family: sans-serif;
+            font-size: 15px;
+            font-weight: 300;
+            text-align: center;
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 99%;
+            margin: 50px auto;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .16);
+        }
+
+        th {
+            font-weight: bold;
+            padding: 10px;
+            border-bottom: 2px solid #000;
+        }
+
+        tbody td {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+        }
+
+
+
+        .email_main_div {
+            width: 700px;
+            margin: auto;
+            background-color: #EEEEEE;
+            min-height: 500px;
+            border: 2px groove #999999;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+
+        .item_table {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email_main_div" id="invoice_section">
+        <table class="email_table">
+            <tr>
+                <td width="400px;" style="text-align:left; padding:10px;">
+                    <img src="https://i.postimg.cc/bJqFcV1V/amana-big-bazar.png" width="300" height="100px" />
+                </td>
+                <td style="text-align:left; padding:10px;">
+                    <b>Amanabigbazar</b><br />
+                    North Tower, House Building, <br /> Plot: 107, Sector 7, <br /> Dhaka - 1230.<br />
+                </td>
+            </tr>
+        </table>
+
+        <table class="email_table" style="margin-top:14px;">
+            <tr>
+                <td width="350px;" style="text-align:left; padding:10px;">
+                    <strong>Order Date :</strong> {{new Date(order.create) | date_format}} <br> <br>
+                    <strong>Shipping Address :</strong><br />
+                    {{order.delivery.name}}<br />
+                    <strong>{{order.delivery.phone}}</strong><br />
+                    {{order.delivery.address}}<br />
+                </td>
+                <td style="text-align:left; padding:10px;">
+                    <strong>Your Order ID :</strong> {{order.orderID}} <br> <br>
+                    <strong>Payment:</strong><br />
+                    {{order.payment_method}} (<b>{{order.payment_status==false?"Not Paid":"Paid"}}</b>)<br />
+                    Bill: <b>{{order.total_bill}} tk</b><br />
+                    Paid: <b>{{order.paid_amount}} tk</b><br />
+                    Due: <b>{{order.total_bill-order.paid_amount}} tk</b><br />
+                </td>
+            </tr>
+        </table>
+
+        <table class="item_table">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item,index) in order.products" :key="index">
+                    <td>{{item.name}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td>TK. {{item.subtotal}}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align:right;">
+                        <table border="0" style="width: 255px;
+                        text-align: left;
+                        float: right;     margin: 10px 10px;">
+                            <tr>
+                                <td><strong>Sub Total : </strong></td>
+                                <td> TK. {{order.sub_total_bill}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>VAT : </strong></td>
+                                <td> TK. {{order.vat}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delivery Charge : </strong></td>
+                                <td> TK. {{order.delivery_charge}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Discount : </strong></td>
+                                <td> TK. {{order.discount}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Order Total : </strong></td>
+                                <td> TK. {{order.total_bill}}</td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="width:98%; padding:1%; margin-top:10px; font-size:15px; text-align:center;">
+            Corporate Office: Amena Villa, home - 27, Road - 2, Sector - 9, Uttara, Dhaka - 1230.
+        </div>
+    </div>
+    <script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="<%= host %>/javascript/project/type.js"></script>
+    <script>
+        new Vue({
+            el: '#invoice_section',
+            data: {
+                order: null,
+                order_id: '<%= data.orderId %>',
+                isDisable: false,
+                isLoading: true,
+                status: null,
+                product: null,
+                order_update: false
+
+            },
+            filters: {
+                date_format: function (value) {
+                    if (value) {
+                        return moment(String(value)).format('MM/DD/YYYY hh:mm')
+                    }
+                }
+            },
+            mounted() {
+                this.getOrderData()
+            },
+            methods: {
+                getOrderData() {
+                    let requestLink = '/api/order/view/' + this.order_id
+                    getSecureData(requestLink, localStorage.getItem('token')).then((result) => {
+                        if (result.auth === true) {
+                            this.order = result.response.data
+                            setTimeout(() => {
+                                window.print();
+                                document.addEventListener('contextmenu', event => event
+                                    .preventDefault());
+                            }, 2000)
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

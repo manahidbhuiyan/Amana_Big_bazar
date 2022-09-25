@@ -1,0 +1,324 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    .status_message h2{
+        font-size: large;
+    }
+</style>
+
+<!-- Main Content -->
+<section class="content" id="property_type_section">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Order</strong> Information</h2>
+                    </div>
+                    <div class="body">
+                        <div class="row" v-if="isLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <div class="row mb-2">
+                                <div class="col-md-12 text-center status_message">
+                                    <h2 class="badge badge-warning text-capityalize badge-secondary" v-if="status=='pending'">{{status}}</h2>
+                                    <h2 class="badge badge-primary text-capityalize badge-secondary"  v-if="status=='processing'">{{status}}</h2>
+                                    <h2 class="badge badge-info text-capityalize badge-secondary" v-if="status=='shipping'">{{status}}</h2>
+                                    <h2 class="badge badge-success text-capityalize badge-secondary" v-if="status=='delivered'">{{status}}</h2>
+                                    <h2 class="badge badge-danger text-capityalize badge-secondary" v-if="status=='cancel'">{{status}}</h2>
+                                </div>
+                            </div>
+                            <div class="row mb-2" v-show="adminAccess.length>0?adminAccess.includes('online order update'):false">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h6 class="mt-2 mb-2">Order Status</h6>
+                                            <div class="form-group">
+                                                <select class="form-control" v-model="status">
+                                                    <option value="pending" v-if="status=='pending'">Pending</option>
+                                                    <option v-if="status!='cancel' && status!='delivered'" value="processing">Processing</option>
+                                                    <option v-if="status!='cancel' && status!='delivered'" value="shipping">Shipping</option>
+                                                    <option v-if="status!='cancel'" value="delivered">Delivered</option>
+                                                    <option v-if="status!='delivered'" value="cancel">Cancel</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group" v-if="status=='cancel'">
+                                                <textarea class="form-control" v-model="cancel_reason" id="" cols="10" placeholder="write order cancel reason"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <button class="btn btn-primary btn-round"
+                                                @click="orderStatusChange()">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="mt-2 mb-2">Order Cancel Reason</h6>
+                                    <p>{{order.cancel_reason}}</p>
+                                </div>
+                            </div>
+                            <div class="row" style="border-top: 1px solid #ced4da;">
+                                <div class="col-md-4">
+                                    <p class="mt-2">Customer Information</p>
+                                    <span><b>Order Date : </b>{{new Date(order.create) | date_format}}</span><br />
+                                    <span><b>Expected Delivery : </b>{{new Date(order.delivery.delivery_datetime) | date_format}}</span><br />
+                                    <h5 class="mt-2 mb-2">Billing Address:</h5>
+                                    <span><b>Name : </b>{{order.user.name}}</span><br />
+                                    <span><b>Phone : </b>{{order.order_phone}}</span><br />
+                                    <span v-if="order.user.contact"><b>Address :
+                                        </b>{{order.user.contact.address}}</span><br />
+
+
+                                    <h5 class="mt-2 mb-2">Delivery Address:</h5>
+
+                                    <span><b>Name : </b>{{order.delivery.name}}</span><br />
+                                    <span><b>Phone : </b>{{order.delivery.phone}}</span><br />
+                                    <span><b>Address : </b>{{order.delivery.address}}</span><br />
+                                    <span>{{order.delivery.thana}}, {{order.delivery.district}}, {{order.delivery.division}}</span>
+                                    <br />
+
+                                    <a href="<%= host %>/order/invoice/print/<%= data.orderId %>" target="_blank"
+                                        class="btn btn-success btn-round float-right mr-4" v-show="adminAccess.length>0?adminAccess.includes('online order invoice'):false">Print Invoice</a>
+
+                                </div>
+                                <div class="col-md-8" v-if="!order_update">
+                                    <p class="mt-2">Product Information</p>
+                                    <table class="table">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Product Name</th>
+                                            <th class="text-right">Quantity</th>
+                                            <th class="text-right">Price</th>
+                                            <th class="text-right">Total</th>
+                                        </tr>
+                                        <tr v-for="(product ,index) in order.products">
+                                            <td>{{++index}}</td>
+                                            <td>{{product.name}}</td>
+                                            <td class="text-right">{{product.quantity}}</td>
+                                            <td class="text-right">{{product.price-product.discount}}</td>
+                                            <td class="text-right">
+                                                {{(product.price*product.quantity) - (product.quantity*product.discount)}}
+                                            </td>
+                                        </tr>
+                                        <tfoot>
+                                            <tr>
+                                                <th class="text-right" colspan="4">Sub Total : </th>
+                                                <th class="text-right">{{order.sub_total_bill}} TK.</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right" colspan="4">VAT : </th>
+                                                <th class="text-right">{{order.vat}} TK.</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right" colspan="4">Delivery Charge : </th>
+                                                <th class="text-right">{{order.delivery_charge}} TK.</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right" colspan="4">Discount : </th>
+                                                <th class="text-right">{{order.discount}} TK.</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right" colspan="4">Order Total : </th>
+                                                <th class="text-right">{{order.total_bill}} TK.</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right" colspan="4">Paid Amount : </th>
+                                                <th class="text-right">{{order.paid_amount}} TK.</th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-right" colspan="4">Due : </th>
+                                                <th class="text-right">{{order.total_bill - order.paid_amount}} TK.</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    <button class="btn btn-primary btn-round float-right" v-show="adminAccess.length>0?adminAccess.includes('online order update'):false" v-if="status=='pending'" @click="orderEditBtn()">Order
+                                        Edit</button>
+                                </div>
+                                <div class="col-md-8" v-if="order_update">
+                                    <p class="mt-2">Product Update</p>
+                                    <table class="table">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Product Name</th>
+                                            <th class="text-right">Quantity</th>
+                                            <th class="text-right">Price</th>
+                                            <th class="text-right">Total</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        <tr v-for="(product ,index) in order.products">
+                                            <td>{{++index}}</td>
+                                            <td>{{product.name}}</td>
+                                            <td class="text-right"> <input v-model="product.quantity"
+                                                    class="form-control" style="text-align: right;" type="number"
+                                                    min="1"
+                                                    @change="orderProductQuantityUpdate({code: product.code, operation: 'quantity'}, $event)" />
+                                            </td>
+                                            <td class="text-right"><input v-model="product.price" class="form-control"
+                                                    style="text-align: right;" type="number" min="1"
+                                                    @change="orderProductQuantityUpdate({code: product.code, operation: 'price'}, $event)" />
+                                            </td>
+                                            <td class="text-right">{{product.price*product.quantity}}</td>
+                                            <td class="text-center text-danger"><i class="zmdi zmdi-close"
+                                                    style="cursor:pointer"
+                                                    @click="orderProductDelete(product.code)"></i></td>
+                                        </tr>
+                                        <tfoot>
+                                            <tr>
+                                                <th class="text-right" colspan="3"> Delivery Charge : </th>
+                                                <th class="text-right"><input v-model="order.delivery_charge"
+                                                        class="form-control" style="text-align: right;" type="number"
+                                                        min="1"
+                                                        @change="orderProductQuantityUpdate({code: 0, operation: 'delivery_charge'}, $event)" />
+                                                </th>
+                                                <td>TK.</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    <button class="btn btn-danger btn-round float-right mr-4"
+                                        @click="orderEditCloseBtn()">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+<script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
+
+<script>
+    new Vue({
+        el: '#property_type_section',
+        data: {
+            order: null,
+            order_id: '<%= data.orderId %>',
+            isDisable: false,
+            isLoading: true,
+            status: null,
+            product: null,
+            order_update: false,
+            cancel_reason: '',
+            adminAccess: []
+        },
+        filters: {
+            date_format: function (value) {
+                if (value) {
+                    return moment(String(value)).format('MM/DD/YYYY hh:mm')
+                }
+            }
+        },
+        mounted() {
+            this.getOrderData()
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        methods: {
+            dateFormating(dateTime) {
+                return (dateTime.getDate() + '-' + (dateTime.getMonth() + 1) + '-' + dateTime.getFullYear() +
+                    ' ' + dateTime.getHours() + ':' + dateTime.getMinutes() + ':' + dateTime.getSeconds())
+            },
+            getOrderData() {
+                let requestLink = '/api/order/view/' + this.order_id
+                getSecureData(requestLink, localStorage.getItem('token')).then((result) => {
+                    if (result.auth === true) {
+                        this.order = result.response.data
+                        console.log(this.order)
+                        this.isLoading = false
+                        this.field_data()
+                    }
+                })
+            },
+            add_type_section() {
+                this.remove_type_section()
+                this.type_section = 'add'
+            },
+            field_data() {
+                this.status = this.order.order_status.toLowerCase()
+            },
+            orderStatusChange() {
+                let requestLink = '/api/order/status_update'
+                let token = localStorage.getItem('token')
+
+                if(this.status.toLowerCase()=='cancel' && this.cancel_reason==''){
+                    alert("You must define cancel reason in message box")
+                }else{
+                    this.isDisable = true
+                    this.isLoading = true
+                    updateTypeInfo(requestLink, {
+                        id: this.order_id,
+                        status: this.status.toLowerCase(),
+                        cancel_reason: this.cancel_reason
+                    }, token).then((result) => {
+                        if (result.auth === true) {
+                            this.order = result.response.data
+                            this.field_data()
+                        }
+                        this.isLoading = false
+                        this.isDisable = false
+                    })
+                }
+            },
+            orderEditBtn() {
+                this.order_update = true
+            },
+            orderEditCloseBtn() {
+                this.order_update = false
+            },
+            orderProductDelete(code) {
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/order/order_update'
+                let token = localStorage.getItem('token')
+                updateTypeInfo(requestLink, {
+                    id: this.order_id,
+                    code: code,
+                    type: 'delete'
+                }, token).then((result) => {
+                    if (result.auth === true) {
+                        this.order = result.response.data
+                        this.field_data()
+                    }
+
+                    this.isLoading = false
+                    this.isDisable = false
+                })
+            },
+            orderProductQuantityUpdate(productInfo, event) {
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/order/order_update'
+                let token = localStorage.getItem('token')
+                updateTypeInfo(requestLink, {
+                    id: this.order_id,
+                    code: productInfo.code,
+                    operation: productInfo.operation,
+                    type: 'update',
+                    value: event.target.value
+                }, token).then((result) => {
+                    if (result.auth === true) {
+                        this.order = result.response.data
+                        this.field_data()
+                    }
+
+                    this.isLoading = false
+                    this.isDisable = false
+                })
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

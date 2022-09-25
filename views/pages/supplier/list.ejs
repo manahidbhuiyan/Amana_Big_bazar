@@ -1,0 +1,872 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content" id="property_type_section">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body" v-on:scroll="handleScroll">
+                        <div class="container" v-if="type_section === 'add'">
+                            <div class="row clearfix">
+                                <div class="col-lg-8 offset-lg-2">
+                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                        <div class="header">
+                                            <h2><strong>Create</strong> New Supplier </h2>
+                                            <ul class="header-dropdown m-r--5">
+                                                <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                        role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                            class="material-icons">close</i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="body">
+                                            <div v-if="errorResponse!==null">
+                                                <div class="alert alert-danger" v-for="error in errorResponse">
+                                                    {{error.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div v-if="successResponse!==null">
+                                                <div class="alert alert-success">
+                                                    {{successResponse.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="name" class="form-control"
+                                                            placeholder="Supplier Name">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            @keyup="getPhoneNumber($event, phoneNumber)"
+                                                            v-model="phoneNumber" placeholder="Phone no.">
+                                                    </div>
+                                                    <span class="badge badge-primary"
+                                                        style="font-size: 12px; cursor: pointer;margin-right: 5px;"
+                                                        v-for="(number, index) in phone" :key="index">{{number}} <span
+                                                            aria-hidden="true"
+                                                            @click="removePhoneNumber(index)">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="address" class="form-control"
+                                                            placeholder="Address">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getBrandSelect($event, brand)" v-model="brand">
+                                                            <option value="">-- Select Brand --</option>
+                                                            <option :value="{id: brand._id, name: brand.name}"
+                                                                v-for="(brand, index) in allBrand" :key="index"
+                                                                class="text-capitalize">{{brand.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2 mb-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedBrand, index) in selectedBrands"
+                                                        :key="index">{{selectedBrand.name}} <span
+                                                            @click="removeBrandSelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getSubcategorySelect($event, subcategory)"
+                                                            v-model="subcategory">
+                                                            <option value="">-- Select Subcategory --</option>
+                                                            <option
+                                                                :value="{id: subcategory._id, name: subcategory.name}"
+                                                                v-for="(subcategory, index) in allSubcategory"
+                                                                :key="index" class="text-capitalize">
+                                                                {{subcategory.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2 mb-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedSubcategory, index) in selectedSubcategories"
+                                                        :key="index">{{selectedSubcategory.name}} <span
+                                                            @click="removeSubcategorySelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getCategorySelect($event, category)"
+                                                            v-model="category">
+                                                            <option value="">-- Select Category --</option>
+                                                            <option :value="{id: category._id, name: category.name}"
+                                                                v-for="(category, index) in allCategory" :key="index"
+                                                                class="text-capitalize">{{category.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2 mb-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedCategory, index) in selectedCategories"
+                                                        :key="index">{{selectedCategory.name}} <span
+                                                            @click="removeCategorySelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getBranchSelect($event, branch)" v-model="branch">
+                                                            <option value="">-- Select Branch --</option>
+                                                            <option :value="{id: branch._id, name: branch.name}"
+                                                                v-for="(branch, index) in allBranch" :key="index"
+                                                                class="text-capitalize">{{branch.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedBranch, index) in selectedBranches"
+                                                        :key="index">{{selectedBranch.name}} <span
+                                                            @click="removeBranchSelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <div class="radio inlineblock m-r-20">
+                                                            <input type="radio" name="instantPayment" id="before_sell"
+                                                                v-model="instantPayment" class="with-gap" value="true">
+                                                            <label for="before_sell">Payment Before Sell</label>
+                                                        </div>
+                                                        <div class="radio inlineblock">
+                                                            <input type="radio" name="instantPayment" id="after_sell"
+                                                                v-model="instantPayment" class="with-gap" value="false">
+                                                            <label for="after_sell">Payment After Sell</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6>Warehouse Supplier</h6>
+                                                    <div class="form-group">
+                                                        <div class="radio inlineblock m-r-20">
+                                                            <input type="radio" name="warehouseSupplier" id="warehouse_supplier_yes"
+                                                                v-model="warehouseSupplier" class="with-gap" value="true">
+                                                            <label for="warehouse_supplier_yes">Yes</label>
+                                                        </div>
+                                                        <div class="radio inlineblock">
+                                                            <input type="radio" name="warehouseSupplier" id="warehouse_supplier_no"
+                                                                v-model="warehouseSupplier" class="with-gap" value="false">
+                                                            <label for="warehouse_supplier_no">No</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6>Active Supplier</h6>
+                                                    <div class="form-group">
+                                                        <div class="radio inlineblock m-r-20">
+                                                            <input type="radio" name="activeSupplier" id="active_supplier_yes"
+                                                                v-model="activeSupplier" class="with-gap" value="true">
+                                                            <label for="active_supplier_yes">Yes</label>
+                                                        </div>
+                                                        <div class="radio inlineblock">
+                                                            <input type="radio" name="activeSupplier" id="active_supplier_no"
+                                                                v-model="activeSupplier" class="with-gap" value="false">
+                                                            <label for="active_supplier_no">No</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable" @click="addItem"
+                                                        class="btn btn-primary btn-round">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container" v-if="type_section == 'edit'">
+                            <div class="row clearfix">
+                                <div class="col-lg-8 offset-lg-2">
+                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                        <div class="header">
+                                            <h2><strong>Edit</strong> Supplier </h2>
+                                            <ul class="header-dropdown m-r--5">
+                                                <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                        role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                            class="material-icons">close</i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="body">
+                                            <div v-if="errorResponse!==null">
+                                                <div class="alert alert-danger" v-for="error in errorResponse">
+                                                    {{error.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div v-if="successResponse!==null">
+                                                <div class="alert alert-success">
+                                                    {{successResponse.msg}}
+                                                    <button type="button" class="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="name" class="form-control"
+                                                            placeholder="Supplier Name">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control"
+                                                            @keyup="getPhoneNumber($event, phoneNumber)"
+                                                            v-model="phoneNumber" placeholder="Phone no.">
+                                                    </div>
+                                                    <span class="badge badge-primary"
+                                                        style="font-size: 12px; cursor: pointer;margin-right: 5px;"
+                                                        v-for="(number, index) in phone" :key="index">{{number}} <span
+                                                            aria-hidden="true"
+                                                            @click="removePhoneNumber(index)">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <input type="text" v-model="address" class="form-control"
+                                                            placeholder="Address">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getBrandSelect($event, brand)" v-model="brand">
+                                                            <option value="">-- Select Brand --</option>
+                                                            <option :value="{id: brand._id, name: brand.name}"
+                                                                v-for="(brand, index) in allBrand" :key="index"
+                                                                class="text-capitalize">{{brand.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2 mb-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedBrand, index) in selectedBrands"
+                                                        :key="index">{{selectedBrand.name}} <span
+                                                            @click="removeBrandSelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getSubcategorySelect($event, subcategory)"
+                                                            v-model="subcategory">
+                                                            <option value="">-- Select Subcategory --</option>
+                                                            <option
+                                                                :value="{id: subcategory._id, name: subcategory.name}"
+                                                                v-for="(subcategory, index) in allSubcategory"
+                                                                :key="index" class="text-capitalize">
+                                                                {{subcategory.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2 mb-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedSubcategory, index) in selectedSubcategories"
+                                                        :key="index">{{selectedSubcategory.name}} <span
+                                                            @click="removeSubcategorySelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getCategorySelect($event, category)"
+                                                            v-model="category">
+                                                            <option value="">-- Select Category --</option>
+                                                            <option :value="{id: category._id, name: category.name}"
+                                                                v-for="(category, index) in allCategory" :key="index"
+                                                                class="text-capitalize">{{category.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2 mb-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedCategory, index) in selectedCategories"
+                                                        :key="index">{{selectedCategory.name}} <span
+                                                            @click="removeCategorySelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <select class="form-control"
+                                                            @change="getBranchSelect($event, branch)" v-model="branch">
+                                                            <option value="">-- Select Branch --</option>
+                                                            <option :value="{id: branch._id, name: branch.name}"
+                                                                v-for="(branch, index) in allBranch" :key="index"
+                                                                class="text-capitalize">{{branch.name}}</option>
+                                                        </select>
+                                                    </div>
+                                                    <span class="badge badge-primary text-capitalize mr-2"
+                                                        style="font-size: 12px; cursor: pointer;"
+                                                        v-for="(selectedBranch, index) in selectedBranches"
+                                                        :key="index">{{selectedBranch.name}} <span
+                                                            @click="removeBranchSelect(index)"
+                                                            aria-hidden="true">&times;</span></span>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <div class="radio inlineblock m-r-20">
+                                                            <input type="radio" name="instantPayment" id="before_sell"
+                                                                v-model="instantPayment" class="with-gap" value="true">
+                                                            <label for="before_sell">Payment Before Sell</label>
+                                                        </div>
+                                                        <div class="radio inlineblock">
+                                                            <input type="radio" name="instantPayment" id="after_sell"
+                                                                v-model="instantPayment" class="with-gap" value="false">
+                                                            <label for="after_sell">Payment After Sell</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6>Warehouse Supplier</h6>
+                                                    <div class="form-group">
+                                                        <div class="radio inlineblock m-r-20">
+                                                            <input type="radio" name="warehouseSupplier" id="warehouse_supplier_yes"
+                                                                v-model="warehouseSupplier" class="with-gap" value="true">
+                                                            <label for="warehouse_supplier_yes">Yes</label>
+                                                        </div>
+                                                        <div class="radio inlineblock">
+                                                            <input type="radio" name="warehouseSupplier" id="warehouse_supplier_no"
+                                                                v-model="warehouseSupplier" class="with-gap" value="false">
+                                                            <label for="warehouse_supplier_no">No</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <h6>Active Supplier</h6>
+                                                    <div class="form-group">
+                                                        <div class="radio inlineblock m-r-20">
+                                                            <input type="radio" name="activeSupplier" id="active_supplier_yes"
+                                                                v-model="activeSupplier" class="with-gap" value="true">
+                                                            <label for="active_supplier_yes">Yes</label>
+                                                        </div>
+                                                        <div class="radio inlineblock">
+                                                            <input type="radio" name="activeSupplier" id="active_supplier_no"
+                                                                v-model="activeSupplier" class="with-gap" value="false">
+                                                            <label for="active_supplier_no">No</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        @click="updateProjectType"
+                                                        class="btn btn-primary btn-round">Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center clearfix">
+                            <div class="col-lg-5">
+                                <div v-if="type_section === 'delete'">
+                                    <div v-if="errorResponse!==null">
+                                        <div class="alert alert-danger" v-for="error in errorResponse">
+                                            {{error.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-if="successResponse!==null">
+                                        <div class="alert alert-success">
+                                            {{successResponse.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button class="btn btn-primary float-right btn-xs" type="button" @click="add_type_section" v-show="adminAccess.length>0?adminAccess.includes('create supplier'):false">Add New</button>
+                            </div>
+                        </div> 
+                        <div class="row">
+                            <div class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                <div class="form-group">
+                                    <select class="form-control" v-model="searchType">
+                                        <option value="name">Supplier Name</option>
+                                        <option value="brand">Brand Name</option>
+                                        <option value="subcategory">Subcategory Name</option>
+                                        <option value="category">Category Name</option>
+                                        <option value="branch">Branch Name</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                <div class="form-group">
+                                    <input type="text" @keyup="searchData($event)" class="form-control"
+                                        v-model="searchText" placeholder="Search Keyword">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-if="isLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive" v-else>
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable"
+                                id="infoListTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Name</th>
+                                        <!-- <th>Phone</th> -->
+                                        <th>Brand</th>
+                                        <th>Branches</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-if="allListItem.length > 0">
+                                    <tr v-for="(item, index) in allListItem" :key="item._id">
+                                        <td>{{ index + 1 }}</td>
+                                        <td style="text-transform: capitalize;">{{item.name}}</td>
+                                        <!-- <td style="text-transform: capitalize;"><span class="badge badge-primary"
+                                                style="font-size: 12px; cursor: pointer; margin-right: 5px;"
+                                                v-for="(phone, index) in item.contact.phone"
+                                                :key="index">{{phone}}</span></td> -->
+                                        <td style="text-transform: capitalize;"><span
+                                                v-for="(brand, index) in item.brand" :key="index"><span
+                                                    class="badge badge-primary"
+                                                    style="font-size: 12px; cursor: pointer; margin-right: 5px;">{{brand.name}}</span><br
+                                                    v-if="(index+1)%2 == 0" /> </span></td>
+
+                                        <td style="text-transform: capitalize;"> <span
+                                                v-for="(branch, index) in item.branch" :key="index"><span
+                                                    class="badge badge-primary"
+                                                    style="font-size: 12px; cursor: pointer; margin-right: 5px;">{{branch.name}}</span><br
+                                                    v-if="(index+1)%1 == 0" /> </span></td>
+                                        <td>
+                                            <button :disabled="isDisable" @click="edit_item_section(item._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini"><i
+                                                    class="zmdi zmdi-edit" v-show="adminAccess.length>0?adminAccess.includes('update supplier'):false"></i></button>
+                                            <button :disabled="isDisable" @click="deleteItem(item._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini" v-show="adminAccess.length>0?adminAccess.includes('delete supplier'):false"><i
+                                                    class="zmdi zmdi-delete"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody v-else>
+                                    <tr>
+                                        <td class="text-center" colspan="10">No data found here</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</section>
+
+<script>
+    var pageNo = 1
+
+    new Vue({
+        el: '#property_type_section',
+        data: {
+            allListItem: [],
+            searchType: 'name',
+            searchText: '',
+            allBrand: [],
+            selectedBrands: [],
+            allSubcategory: [],
+            selectedSubcategories: [],
+            allCategory: [],
+            selectedCategories: [],
+            allBranch: [],
+            selectedBranches: [],
+            name: '',
+            phoneNumber: '',
+            phone: [],
+            address: '',
+            branch: '',
+            category: '',
+            subcategory: '',
+            brand: '',
+            instantPayment: false,
+            warehouseSupplier: false,
+            activeSupplier: true,
+            type_section: null,
+            editItemID: '',
+            editItemValue: '',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: true,
+            isNextDataLastEmpty: false,
+            searchQueryString: '',
+            adminAccess: []
+
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.getAllItemData()
+            this.getBranchInfo()
+            this.getCategoryInfo()
+            this.getSubcategoryInfo()
+            this.getBrandInfo()
+        },
+        created() {
+            window.addEventListener('scroll', this.handleScroll);
+        },
+        destroyed() {
+            window.removeEventListener('scroll', this.handleScroll);
+        },
+        methods: {
+            searchData(e) {
+                if (e.keyCode === 13) {
+                    pageNo = 1
+                    this.allListItem = []
+                    if (this.searchText == '') {
+                        this.searchQueryString = ''
+                    } else {
+                        this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                    }
+                    this.getAllItemData()
+                }
+            },
+            getPositionHeight(element) {
+                var rect = element.getBoundingClientRect();
+                return (rect.y + 100) < $(window).height()
+            },
+            handleScroll(event) {
+                // Any code to be executed when the window is scrolled
+                if (this.getPositionHeight($('#infoListTable tbody tr:last-child').get(0)) === true && this
+                    .isNextDataLastEmpty === false) {
+                    if (!this.isNextDataLastEmpty) {
+                        pageNo++
+                        this.isNextDataLastEmpty = true
+                        this.getAllItemData()
+                    }
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            getBranchSelect(e, branch) {
+                let branchData = branch
+                if (branchData !== '') {
+                    if (this.selectedBranches.filter((selectedBranch => selectedBranch.id === branchData.id))
+                        .length == 0) {
+                        this.selectedBranches.push(branchData)
+                    }
+                    this.branch = ''
+                }
+            },
+            removeBranchSelect(removeindex) {
+                this.selectedBranches = this.selectedBranches.filter((value, index) => index !== removeindex)
+            },
+            getCategoryInfo() {
+                let requestLink = '/api/category'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allCategory = result.response.data
+                    }
+                })
+            },
+            getCategorySelect(e, category) {
+                let categoryData = category
+                if (categoryData !== '') {
+                    if (this.selectedCategories.filter((selectedCategory => selectedCategory.id === categoryData
+                            .id)).length == 0) {
+                        this.selectedCategories.push(categoryData)
+                    }
+                    console.log(this.selectedCategories)
+                    this.category = ''
+                }
+            },
+            removeCategorySelect(removeindex) {
+                this.selectedCategories = this.selectedCategories.filter((value, index) => index !==
+                    removeindex)
+            },
+            getSubcategoryInfo() {
+                let requestLink = '/api/subcategory'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSubcategory = result.response.data
+                    }
+                })
+            },
+            getSubcategorySelect(e, subcategory) {
+                let subcategoryData = subcategory
+                if (subcategoryData !== '') {
+                    if (this.selectedSubcategories.filter((selectedSubcategory => selectedSubcategory.id ===
+                            subcategoryData.id)).length == 0) {
+                        this.selectedSubcategories.push(subcategoryData)
+                    }
+                    console.log(this.selectedSubcategories)
+                    this.subcategory = ''
+                }
+            },
+            removeSubcategorySelect(removeindex) {
+                this.selectedSubcategories = this.selectedSubcategories.filter((value, index) => index !==
+                    removeindex)
+            },
+            getBrandInfo() {
+                let requestLink = '/api/brand'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBrand = result.response.data
+                    }
+                })
+            },
+            getBrandSelect(e, brand) {
+                let brandData = brand
+                if (brandData !== '') {
+                    if (this.selectedBrands.filter((selectedBrand => selectedBrand.id === brandData.id))
+                        .length == 0) {
+                        this.selectedBrands.push(brandData)
+                    }
+                    this.brand = ''
+                }
+            },
+            removeBrandSelect(removeindex) {
+                this.selectedBrands = this.selectedBrands.filter((value, index) => index !== removeindex)
+            },
+            getPhoneNumber(e, phoneNo) {
+                if (e.keyCode == 188) {
+                    let phoneNumberData = phoneNo.trim().split(',')[0]
+                    this.phone.push(phoneNumberData)
+                    this.phoneNumber = ''
+                }
+            },
+            removePhoneNumber(removeindex) {
+                this.phone = this.phone.filter((value, index) => index !== removeindex)
+            },
+            getAllItemData() {
+                let requestLink = '/api/supplier/' + pageNo + '?' + this.searchQueryString
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        if (result.response.data.length === 0) {
+                            this.isNextDataLastEmpty = true
+                        } else {
+                            result.response.data.map((data) => {
+                                this.allListItem.push(data)
+                            })
+                            console.log(this.allListItem)
+                            this.isNextDataLastEmpty = false
+                        }
+                        this.isLoading = false
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            add_type_section() {
+                this.remove_type_section()
+                this.type_section = 'add'
+            },
+            edit_item_section(ItemID) {
+                this.editItemID = ItemID
+                this.remove_type_section()
+                this.isDisable = true
+                this.type_section = 'edit'
+                let requestLink = '/api/supplier/data/' + ItemID
+
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.name = result.response.data.name
+                        this.phone = result.response.data.contact.phone
+                        this.address = result.response.data.contact.address
+                        this.instantPayment = result.response.data.instantPayment
+                        this.warehouseSupplier = result.response.data.warehouseSupplier
+                        this.activeSupplier = result.response.data.activeSupplier
+                        this.selectedBranches = result.response.data.branch.map(value => {
+                            return {
+                                id: value._id,
+                                name: value.name
+                            }
+                        })
+
+                        this.selectedCategories = result.response.data.category.map(value => {
+                            return {
+                                id: value._id,
+                                name: value.name
+                            }
+                        })
+
+                        this.selectedSubcategories = result.response.data.subcategory.map(value => {
+                            return {
+                                id: value._id,
+                                name: value.name
+                            }
+                        })
+
+                        this.selectedBrands = result.response.data.brand.map(value => {
+                            return {
+                                id: value._id,
+                                name: value.name
+                            }
+                        })
+
+                        console.log(result.response.data)
+
+                        $('html, body').animate({
+                            scrollTop: 0
+                        }, 'slow', function () {});
+                    }
+                    this.isDisable = false
+                })
+            },
+            remove_type_section() {
+                this.clear_notifications()
+                this.type_section = null
+                this.clear_fields()
+            },
+            clear_fields() {
+                this.selectedBranches = []
+                this.selectedCategories = []
+                this.selectedSubcategories = []
+                this.selectedBrands = []
+                this.name = ''
+                this.phone = []
+                this.phoneNumber = ''
+                this.address = ''
+                this.branch = ''
+                this.category = ''
+                this.subcategory = ''
+                this.brand = ''
+                this.instantPayment = false
+                this.warehouseSupplier = false
+                this.activeSupplier = true
+            },
+            addItem() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/supplier'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    name: this.name.toLowerCase(),
+                    phone: this.phone,
+                    address: this.address.toLowerCase(),
+                    branch: this.selectedBranches.map(value => value.id),
+                    category: this.selectedCategories.map(value => value.id),
+                    subcategory: this.selectedSubcategories.map(value => value.id),
+                    brand: this.selectedBrands.map(value => value.id),
+                    instantPayment: this.instantPayment,
+                    warehouseSupplier: this.warehouseSupplier,
+                    activeSupplier: this.activeSupplier
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        // this.clear_fields()
+                        this.allListItem = []
+                        this.successResponse = result.response
+                        pageNo = 1
+                        this.getAllItemData()
+                    }
+                    this.isDisable = false
+                    this.isLoading = false
+                })
+            },
+            updateProjectType() {
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/supplier'
+                let token = localStorage.getItem('token')
+                updateTypeInfo(requestLink, {
+                    supplier: this.editItemID,
+                    name: this.name?this.name.toLowerCase():'',
+                    phone: this.phone,
+                    address: this.address?this.address.toLowerCase():'',
+                    branch: this.selectedBranches.map(value => value.id),
+                    category: this.selectedCategories.map(value => value.id),
+                    subcategory: this.selectedSubcategories.map(value => value.id),
+                    brand: this.selectedBrands.map(value => value.id),
+                    instantPayment: this.instantPayment,
+                    warehouseSupplier: this.warehouseSupplier,
+                    activeSupplier: this.activeSupplier
+                }, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.allListItem = []
+                        pageNo = 1
+                        this.successResponse = result.response
+                        this.getAllItemData()
+                    }
+                    this.isDisable = false
+                })
+            },
+            deleteItem(ItemID) {
+                showDeleteConfirmationMessage().then((value) => {
+                    if (value === true) {
+                        this.remove_type_section()
+                        this.isDisable = true
+                        this.isLoading = true
+                        let requestLink = '/api/supplier/'
+                        let token = localStorage.getItem('token')
+                        deleteType(requestLink, ItemID, token).then((result) => {
+                            console.log(result)
+                            this.type_section = 'delete'
+                            if (result.auth === false) {
+                                this.errorResponse = result.response
+                            } else {
+                                this.successResponse = result.response
+                            }
+                            this.allListItem = []
+                            pageNo = 1
+                            this.getAllItemData()
+
+                            $('html, body').animate({
+                                    scrollTop: 0
+                                }, 'slow', function () {});
+                            this.isDisable = false
+                        })
+                    }
+                })
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

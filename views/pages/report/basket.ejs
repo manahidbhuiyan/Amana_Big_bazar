@@ -1,0 +1,591 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <style>
+                body {
+                    padding-right: 0px !important;
+                }
+
+                .dtp .p10>a {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .dtp>.dtp-content>.dtp-date-view>header.dtp-header {
+                    background: #7e6990;
+                    color: #fff;
+                    text-align: center;
+                    padding: 0.3em;
+                }
+
+                .dtp div.dtp-date,
+                .dtp div.dtp-time {
+                    background: #7e6990;
+                    text-align: center;
+                    color: #fff;
+                    padding: 10px;
+                }
+
+                .dtp table.dtp-picker-days tr>td>a.selected {
+                    background: #7e6990;
+                    color: #fff;
+                }
+            </style>
+
+            <!-- Main Content -->
+            <section class="content">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid" id="add_data_section">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="header">
+                                        <h2><strong>Create</strong> Comparative Basket Report</h2>
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <p class="text-center text-primary">Your current branch is :
+                                                    <strong>{{branch.name}}</strong>
+                                                </p>
+                                                <button @click="changeBranch" class="btn btn-primary">Change
+                                                    Branch</button>
+                                            </div>
+                                        </div>
+                                        <br />
+                                    </div>
+                                    <div class="body">
+                                        <div class="row">
+                                            <div class="col-lg-6 offset-lg-3">
+                                                <% include ../notification/message %>
+                                            </div>
+                                        </div>
+
+                                        <form @submit.prevent="downloadComparativeBasketReport">
+                                            <h4 class="text-center mt-5">Comparative Basket Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">First Month/Week From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="firstMonthFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">First Month/Week To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="firstMonthToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Second Month/Week From Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="secondMonthFromDate"
+                                                            class="form-control datetimepicker" placeholder="From Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Second Month/Week To Date</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="secondMonthToDate"
+                                                            class="form-control datetimepicker" placeholder="To Date"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">comparison Time Length</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="comparison_length">
+                                                            <option value="monthly" class="text-capitalize">Monthly
+                                                            </option>
+                                                            <option value="weekly" class="text-capitalize">Weekly
+
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        <form @submit.prevent="downloadDailyComparativeBasketReport">
+                                            <h4 class="text-center mt-5">Daily Comparative Basket Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">First Day</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="firstDay"
+                                                            class="form-control datetimepicker" placeholder="First Day"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Second Day</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="secondDay"
+                                                            class="form-control datetimepicker" placeholder="Second Day"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form @submit.prevent="downloadHourlyComparativeBasketReport">
+                                            <h4 class="text-center mt-5">Hourly Comparative Basket Report</h4>
+                                            <div class="row mb-3 clearfix">
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Time From</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="timeFrom"
+                                                            class="form-control datetimepicker2" placeholder="Time From"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Time To</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" id="timeTo"
+                                                            class="form-control datetimepicker2" placeholder="Time To"
+                                                            required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <h6 class="mt-2 mb-2">Report Type</h6>
+                                                    <div class="form-group">
+                                                        <select class="form-control" v-model="reportType">
+                                                            <option value="pdf" class="text-capitalize">PDF</option>
+                                                            <option value="excel" class="text-capitalize">Excel</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-sm-12">
+                                                    <button type="submit" :disabled="isDisable"
+                                                        class="btn btn-primary btn-round"><span
+                                                            v-if="isDisable">Downloading...</span><span
+                                                            v-else>Download</span></button>
+                                                    <button @click="clear_fields" type="button"
+                                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </section>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+                integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+                crossorigin="anonymous"></script>
+
+            <script>
+                new Vue({
+                    el: '#add_data_section',
+                    data: {
+                        branch: '',
+                        allCardsInfo: [],
+                        allMobileBankingInfo: [],
+                        cards: [],
+                        card: 'all',
+                        type: 'summery',
+                        allCategory: [],
+                        category: 'all',
+                        allSupplier: [],
+                        supplier: 'all',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: false,
+                        reportType: 'pdf',
+                        comparison_length: 'monthly',
+                        adminAccess: [],
+                    },
+                    mounted() {
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                        this.checkBranchInfo()
+                        this.getBranchInfo()
+                        this.getSupplierInfo()
+                        this.getCategoryInfo()
+                        this.getCardsData()
+                    },
+                    methods: {
+                        getSupplierInfo() {
+                            let requestLink = '/api/supplier?branch=' + localStorage.getItem('branch')
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSupplier = result.response.data
+                                }
+                            })
+                        },
+                        getCategoryInfo() {
+                            let requestLink = '/api/category?branch=' + localStorage.getItem('branch')
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCategory = result.response.data
+                                }
+                            })
+                        },
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            name: result.response.data.name
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        getCardsData() {
+                            let requestLink = '/api/lookup/info/data/search/card_name'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allCardsInfo = result.response.data
+                                    result.response.data.map(purposeInfo => {
+                                        this.cards.push(purposeInfo.title)
+                                    })
+                                }
+                            })
+
+                            let requestLink2 = '/api/lookup/info/data/search/mobile_banking'
+                            getType(requestLink2).then((result) => {
+                                if (result.auth === true) {
+                                    this.allMobileBankingInfo = result.response.data
+                                    result.response.data.map(purposeInfo => {
+                                        this.cards.push(purposeInfo.title)
+                                    })
+                                }
+                            })
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        clear_fields() {
+                            $("#fromDate").val("")
+                            $("#toDate").val("")
+                        },
+                        downloadComparativeBasketReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                prevMonthFrom: $("#firstMonthFromDate").val(),
+                                prevMonthTo: $("#firstMonthToDate").val(),
+                                currentMonthFrom: $("#secondMonthFromDate").val(),
+                                currentMonthTo: $("#secondMonthToDate").val(),
+                                comparisonLength: this.comparison_length
+                            }
+                            // for checking correct month or week
+                            // let prevMonthFrom = $("#firstMonthFromDate").val()
+                            // prevMonthFrom = new Date(prevMonthFrom)
+                            // let prevMonthFromDate = prevMonthFrom.getDate()
+                            // let prevMonth1 = prevMonthFrom.getMonth() + 1
+                            // let prevYear1 = prevMonthFrom.getFullYear()
+
+                            // let prevMonthTo = $("#firstMonthToDate").val()
+                            // prevMonthTo = new Date(prevMonthTo)
+                            // let prevMonthToDate = prevMonthTo.getDate()
+                            // let prevMonth2 = prevMonthTo.getMonth() + 1
+                            // let prevYear2 = prevMonthTo.getFullYear()
+
+                            // let currentMonthFrom = $("#secondMonthFromDate").val()
+                            // currentMonthFrom = new Date(currentMonthFrom)
+                            // let currentMonthFromDate = currentMonthFrom.getDate()
+                            // let currentMonth1 = currentMonthFrom.getMonth() + 1
+                            // let currentYear1 = currentMonthFrom.getFullYear()
+
+                            // let currentMonthTo = $("#secondMonthToDate").val()
+                            // currentMonthTo = new Date(currentMonthTo)
+                            // let currentMonthToDate = currentMonthTo.getDate()
+                            // let currentMonth2 = currentMonthTo.getMonth() + 1
+                            // let currentYear2 = currentMonthTo.getFullYear()
+
+                            // if (this.comparison_length == 'monthly' && prevMonth1 != 2 && currentMonth1 != 2) {
+                            //     if (!(prevMonth1 == prevMonth2) || !(currentMonth1 == currentMonth2) || ((prevMonthToDate - prevMonthFromDate) < 29) || ((currentMonthToDate - currentMonthFromDate) < 29) || !(prevYear1 == prevYear2) || !(currentYear1 == currentYear2)) {
+                            //         alert('Your Month Picking is wrong!! Please select a correct Month')
+                            //         this.isDisable = false
+                            //         return
+                            //     }
+                            // } else if (this.comparison_length == 'monthly' && prevMonthToDate == 28 && prevMonth1 == 2) {
+                            //     if (!(prevMonth1 == prevMonth2) || !((prevMonthToDate - prevMonthFromDate) == 27)) {
+                            //         alert('Your First Month Picking is wrong!! Please select a correct Month')
+                            //         this.isDisable = false
+                            //         return
+                            //     }
+                            // } else if (this.comparison_length == 'monthly' && prevMonthToDate == 29 && prevMonth1 == 2) {
+                            //     if (!(prevMonth1 == prevMonth2) || !((prevMonthToDate - prevMonthFromDate) == 28)) {
+                            //         alert('Your First Month Picking is wrong!! Please select a correct Month')
+                            //         this.isDisable = false
+                            //         return
+                            //     }
+                            // } else if (this.comparison_length == 'monthly' && currentMonthToDate == 28 && currentMonth1 == 2) {
+                            //     if (!(currentMonth1 == currentMonth2) || !((currentMonthToDate - currentMonthFromDate) == 27)) {
+                            //         alert('Your Second Month Picking is wrong!! Please select a correct Month')
+                            //         this.isDisable = false
+                            //         return
+                            //     }
+                            // } else if (this.comparison_length == 'monthly' && currentMonthToDate == 29 && currentMonth1 == 2) {
+                            //     if (!(currentMonth1 == currentMonth2) || !((currentMonthToDate - currentMonthFromDate) == 28)) {
+                            //         alert('Your Second Month Picking is wrong!! Please select a correct Month')
+                            //         this.isDisable = false
+                            //         return
+                            //     }
+                            // } else {
+                            //     if (!(prevMonth1 == prevMonth2) || !(currentMonth1 == currentMonth2) || !((prevMonthToDate - prevMonthFromDate) == 6) || !((currentMonthToDate - currentMonthFromDate) == 6) || !(prevYear1 == prevYear2) || !(currentYear1 == currentYear2)) {
+                            //         alert('Your Week Picking is wrong!! Please select a correct Week')
+                            //         this.isDisable = false
+                            //         return
+                            //     }
+                            // }
+
+                            let requestLink = '/api/report/basket'
+                            let filename = this.comparison_length + '_basket_report.pdf'
+
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/basket/" + token + "/" + itemInfo.prevMonthFrom + "/" + itemInfo.prevMonthTo + "/" + itemInfo.currentMonthFrom + "/" + itemInfo.currentMonthTo + "/" + itemInfo.comparisonLength + "?branch=" + localStorage.getItem('branch');
+
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename;
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+                            }
+
+                        },
+                        downloadDailyComparativeBasketReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+                            let itemInfo = {
+                                firstDay: $("#firstDay").val(),
+                                secondDay: $("#secondDay").val(),
+                            }
+
+                            let requestLink = '/api/report/basket/daily'
+                            let filename = 'daily_basket_report.pdf'
+
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/basket/daily/" + token + "/" + itemInfo.firstDay + "/" + itemInfo.secondDay + "?branch=" + localStorage.getItem('branch');
+
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename;
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+                            }
+
+                        },
+                        downloadHourlyComparativeBasketReport() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let token = localStorage.getItem('token')
+
+
+                            let itemInfo = {
+                                timeFrom: $("#timeFrom").val(),
+                                timeTo: $("#timeTo").val()
+                            }
+
+                            let timeFromDate = new Date(itemInfo.timeFrom).getDate()
+                            let timeToDate = new Date(itemInfo.timeTo).getDate()
+
+                            let timeFromHours = new Date(itemInfo.timeFrom).getHours()
+                            let timeToHours = new Date(itemInfo.timeTo).getHours()
+
+                            let timeFromMin = new Date(itemInfo.timeFrom).getMinutes()
+                            let timeToMin = new Date(itemInfo.timeTo).getMinutes()
+
+                            if (timeFromDate !== timeToDate) {
+                                alert("Wrong Date Input!! Please Select Same Date.")
+                                this.isDisable = false
+                                return
+                            }
+
+                            if ((timeFromHours == 0 && timeFromMin == 0) || (timeToHours == 0 && timeToMin == 0)) {
+                                alert("Wrong Time Input!! Please At least Give 1 Minute.")
+                                this.isDisable = false
+                                return
+                            }
+
+                            let requestLink = '/api/report/basket/hourly'
+                            let filename = 'hourly_basket_report.pdf'
+
+
+                            requestLink += '?branch=' + localStorage.getItem('branch')
+
+                            if (this.reportType == 'excel') {
+                                var link = document.createElement('a');
+                                link.target = "_blank";
+                                link.href = "/api/report/basket/hourly/" + token + "/" + itemInfo.timeFrom + "/" + itemInfo.timeTo + "?branch=" + localStorage.getItem('branch');
+
+                                //link.download = 'all_customer_summery.pdf';
+                                link.dispatchEvent(new MouseEvent('click'));
+                                this.isDisable = false
+                                this.isLoading = false
+                                this.from = ''
+                                this.to = ''
+                            } else {
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                    } else {
+                                        var link = document.createElement('a');
+                                        link.href = result.response.fileLink;
+                                        link.download = filename;
+                                        link.dispatchEvent(new MouseEvent('click'));
+                                        this.isDisable = false
+                                        this.isLoading = false
+                                        //this.clear_fields()
+                                    }
+                                    this.isDisable = false
+                                })
+                            }
+                        }
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>
+
+                <script>
+                    $(function () {
+                        //Datetimepicker plugin
+                        $('.datetimepicker').bootstrapMaterialDatePicker({
+                            format: 'YYYY-MM-DD',
+                            clearButton: true,
+                            weekStart: 1,
+                            time: false
+                        });
+                    });
+                    $(function () {
+                        //Datetimepicker plugin
+                        $('.datetimepicker2').bootstrapMaterialDatePicker({
+                            format: 'YYYY-MM-DD HH:mm',
+                            clearButton: true,
+                            weekStart: 1,
+                            time: true
+                        });
+                    });
+                </script>

@@ -1,0 +1,121 @@
+<!-- Top Bar -->
+<nav class="navbar p-l-5 p-r-5" id="top_navigation">
+    <ul class="nav navbar-nav navbar-left">
+        <li>
+            <div class="navbar-header">
+                <a href="javascript:void(0);" class="bars"></a>
+                <a class="navbar-brand" href="<%= host %>/dashboard"><img style="width: 70px;"
+                        src="<%= host %>/assets/images/icons/dashboard_logo.svg" width="30" alt="<%= companyInfo.name %>"></a>
+            </div>
+        </li>
+        <li><a href="javascript:void(0);" class="ls-toggle-btn" data-close="true"><i class="zmdi zmdi-swap"></i></a>
+        </li>
+        <li class="hidden-md-down"><a @click.prevent="removeReportPermission" title="Events"><i class="zmdi zmdi-calendar"></i></a></li>
+        <li class="dropdown" v-if="branchID"> <a href="javascript:void(0);" class="dropdown-toggle"
+                data-toggle="dropdown" role="button"><i class="zmdi zmdi-notifications"></i>
+                <div class="notify"><span class="point">{{orderNotification}}</span>
+                </div>
+            </a>
+            <ul class="dropdown-menu pullDown" v-if="orderList.length >0">
+                <li class="body">
+                    <ul class="menu list-unstyled">
+                        <li v-for="(order,index) in orderList" :key="index">
+                            <a :href="'<%= host %>/dashboard/order/view/'+order._id">
+                                <div class="media">
+                                    <div class="media-body">
+                                        <span class="name">#{{order.orderID}} <span class="time">{{order.total_bill}}
+                                                TK.</span></span>
+                                        <span class="message">{{order.order_phone}}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="footer"> <a href="<%= host %>/dashboard/order/list?search=pending">View All</a> </li>
+            </ul>
+        </li>
+        <li class="hidden-sm-down">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search...">
+                <span class="input-group-addon"><i class="zmdi zmdi-search"></i></span>
+            </div>
+        </li>
+        <li class="float-right">
+            <a href="javascript:void(0);" data-type="cancel" class="mega-menu js-sweetalert" data-close="true"><i
+                    class="zmdi zmdi-power"></i></a>
+        </li>
+    </ul>
+</nav>
+
+<script src="<%= host %>/socket.io/socket.io.min.js"></script>
+<script src="<%= host %>/javascript/project/type.js"></script>
+
+<script>
+    const logoutAuth = () => {
+        localStorage.clear()
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+        window.location = '/login'
+    }
+    new Vue({
+        el: '#top_navigation',
+        data: {
+            orderList: [],
+            orderNotification: 0,
+            branchID: localStorage.getItem(
+                'branch')
+        },
+        mounted() {
+            this.getOrder()
+            var socket = io();
+            socket.on('order placed', () => {
+                if (localStorage.getItem(
+                    'branch')) {
+                    this.getOrder()
+                }
+            });
+        },
+        methods: {
+            getOrder() {
+                if(localStorage.getItem('branch')!=null){
+                    let requestLink = '/api/order/' + localStorage.getItem(
+                        'branch') + '/notification/list'
+                    let token = localStorage.getItem("token")
+                    getSecureData(requestLink, token).then((result) => {
+                        this.orderNotification = result.response.count
+                        this.orderList = result.response.data
+                    })
+                }
+            },
+            removeReportPermission() {
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/admin/remove-report-permission?branch=' + branchID
+                let token = localStorage.getItem("token")
+                let itemInfo = {}
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    console.log('inside add new')
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        console.log(result)
+                        this.successResponse = result.response
+                        location.href = '<%= host %>/dashboard'
+                    }
+
+                })
+            }
+        }
+    })
+</script>
+
+
+<style scoped>
+    .notify .point {
+        background-color: #3d4c5a;
+        position: relative;
+        right: -20px;
+        top: -46px;
+        font-size: 8px;
+        padding: 6px 10px;
+    }
+</style>

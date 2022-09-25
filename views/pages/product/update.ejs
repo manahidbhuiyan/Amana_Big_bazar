@@ -1,0 +1,838 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+
+    .dtp .p10 > a {
+    color: white;
+    text-decoration: none;
+}
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #7e6990;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #7e6990;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #7e6990;
+    color: #fff;
+}
+
+</style>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Update</strong> Product Information</h2>
+                        <div class="row">
+                            <div class="col-sm-12 text-center">
+                                <p class="text-center text-primary">Your current branch is :
+                                    <strong>{{branch.name}}</strong></p>
+                                <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                            </div>
+                        </div>
+                        <button v-if="!formDisplay" @click="propcessCompleted" type="button"
+                            class="btn btn-primary float-right">Complete</button>
+                        <br />
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+
+                        <form @submit.prevent="updateItem" v-if="formDisplay">
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Category</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" @change="getSubcategoryInfo(category, true)"
+                                            v-model="category">
+                                            <option value="">-- Select Category --</option>
+                                            <option :value="{_id: category._id, name: category.name}"
+                                                v-for="(category, index) in allCategory" :key="index"
+                                                class="text-capitalize">{{category.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Subcategory</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" @change="selectSubCategory(subcategory, true)"
+                                            v-model="subcategory">
+                                            <option value="">-- Select Subcategory --</option>
+                                            <option
+                                                :value="{_id: subcategory._id, name: subcategory.name, isSizeAvailable: subcategory.isSizeAvailable, isWeightAvailable: subcategory.isWeightAvailable}"
+                                                v-for="(subcategory, index) in allSubcategory" :key="index"
+                                                class="text-capitalize">{{subcategory.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6" v-if="isSizeVisible">
+                                    <h6 class="mt-2 mb-2">Size</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" @change="getSizeTypesSelect($event, size)"
+                                            v-model="size">
+                                            <option value="">-- Select Size --</option>
+                                            <option :value="{_id: size._id, name: size.name, shortform: size.shortform}"
+                                                v-for="(size, index) in allSize" :key="index" class="text-capitalize">
+                                                {{size.name}} ({{size.shortform}})</option>
+                                        </select>
+                                    </div>
+                                    <span class="badge badge-primary text-capitalize mr-2"
+                                        style="font-size: 12px; cursor: pointer;"
+                                        v-for="(selectedSize, index) in selectedSize" :key="index">{{selectedSize.name}}
+                                        <span @click="removeSizeTypesSelect(index)"
+                                            aria-hidden="true">&times;</span></span>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Weight Unit</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="weightUnit">
+                                            <option value="">-- Select Weight --</option>
+                                            <option
+                                                :value="{_id: weight._id, name: weight.name, shortform: weight.shortform}"
+                                                v-for="(weight, index) in allWeightUnit" :key="index"
+                                                class="text-capitalize">{{weight.name}} ({{weight.shortform}})</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Weight</h6>
+                                    <div class="form-group">
+                                        <input type="number" v-model="weight" class="form-control"
+                                            placeholder="Enter Weight">
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Brand</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" @change="getSupplierInfo(brand, true)" v-model="brand">
+                                            <option value="">-- Select Brand --</option>
+                                            <option :value="{_id: brand._id, name: brand.name}"
+                                                v-for="(brand, index) in allBrand" :key="index" class="text-capitalize">
+                                                {{brand.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Supplier</h6>
+                                    <div class="form-group">
+                                        <select class="form-control" v-model="supplier">
+                                            <option value="">-- Select Supplier --</option>
+                                            <option :value="{_id: supplier._id, name: supplier.name}"
+                                                v-for="(supplier, index) in allSupplier" :key="index"
+                                                class="text-capitalize">{{supplier.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-4 col-md-3">
+                                    <h6>Online Active</h6>
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="online_active" id="online_active_yes" v-model="online_active"
+                                                class="with-gap" value="true">
+                                            <label for="online_active_yes">Yes</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="online_active" id="online_active_no" v-model="online_active"
+                                                class="with-gap" value="false">
+                                            <label for="online_active_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-3">
+                                    <h6>POS Active</h6>
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="pos_active" id="pos_active_yes" v-model="pos_active"
+                                                class="with-gap" value="true">
+                                            <label for="pos_active_yes">Yes</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="pos_active" id="pos_active_no" v-model="pos_active"
+                                                class="with-gap" value="false">
+                                            <label for="pos_active_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-3">
+                                    <h6>New Product</h6>
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="new_product" id="new_product_yes"
+                                                v-model="new_product" class="with-gap" value="true">
+                                            <label for="new_product_yes">Yes</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="new_product" id="new_product_no"
+                                                v-model="new_product" class="with-gap" value="false">
+                                            <label for="new_product_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-3">
+                                    <h6>Special Offer</h6>
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="special_offer" id="special_offer_yes"
+                                                v-model="special_offer" class="with-gap" value="true">
+                                            <label for="special_offer_yes">Yes</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="special_offer" id="special_offer_no"
+                                                v-model="special_offer" class="with-gap" value="false">
+                                            <label for="special_offer_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-3">
+                                    <h6>Best Sell</h6>
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="best_sell" id="best_sell_yes" v-model="best_sell"
+                                                class="with-gap" value="true">
+                                            <label for="best_sell_yes">Yes</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="best_sell" id="best_sell_no" v-model="best_sell"
+                                                class="with-gap" value="false">
+                                            <label for="best_sell_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 col-md-3">
+                                    <h6>Personal Discount</h6>
+                                    <div class="form-group">
+                                        <div class="radio inlineblock m-r-20">
+                                            <input type="radio" name="personalDiscountAvailable" id="personal_discount_yes" v-model="personalDiscountAvailable"
+                                                class="with-gap" value="true">
+                                            <label for="personal_discount_yes">Yes</label>
+                                        </div>
+                                        <div class="radio inlineblock">
+                                            <input type="radio" name="personalDiscountAvailable" id="personal_discount_no" v-model="personalDiscountAvailable"
+                                                class="with-gap" value="false">
+                                            <label for="personal_discount_no">No</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <h6>Product Thumbnail</h6>
+                                    <div class="row">
+                                        <div class="col-sm-12" v-if="thumbnailImageUrl !== ''">
+                                            <img style="width: 250px;" :src="thumbnailImageUrl" alt="">
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <input type="file" @change="uploadThumbnailImage"
+                                                    class="form-control-file" id="thumbnail_photo" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Product Barcode</h6>
+                                </div>
+                                <div class="col-md-12">
+                                    <canvas id="productBarcode"></canvas>
+                                </div>
+                            </div>
+                            <div class="row mb-3 clearfix">
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Product Name</h6>
+                                    <div class="form-group">
+                                        <input type="text" v-model="name" class="form-control"
+                                            placeholder="Product Name">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Barcode</h6>
+                                    <div class="form-group">
+                                        <input type="text" v-model="barcode" @change="changeBorcode"
+                                            class="form-control" placeholder="Barcode">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Reorder Level</h6>
+                                    <div class="form-group">
+                                        <input type="text" v-model="reorderLevel" class="form-control"
+                                            placeholder="Reorder Level">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h6 class="mt-2 mb-2">Expire Date</h6>
+                                    <div class="form-group">
+                                        <input type="text" id="expireDate" class="form-control datetimepicker"
+                                            placeholder="Expire Date">
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Other Details</h6>
+                                    <div class="form-group">
+                                        <ul>
+                                            <li><b>Serial No:</b> {{serialNo}}</li>
+                                            <li><b>Purchase:</b> {{purchase}} tk.</li>
+                                            <li><b>Sell:</b> {{sell}} tk.</li>
+                                            <li><b>Discount:</b> {{discount}} tk.</li>
+                                            <li><b>VAT(%):</b> {{vat}}</li>
+                                            <li v-if="created_by!=null"><b>Last Updated By:</b> {{created_by.name}}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <h6 class="mt-2 mb-2">Product Description</h6>
+                                    <div class="form-group">
+                                        <div class="form-line">
+                                            <textarea rows="4" class="form-control no-resize" v-model="description"
+                                                placeholder="Product Description"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <button type="submit" :disabled="isDisable"
+                                        class="btn btn-primary btn-round">Save</button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple">Reset</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="row" v-else>
+                            <div class="col-lg-6 offset-lg-3">
+                                <h6 class="mt-2 mb-2">Upload files for this product</h6>
+                                <div class="upload_fields">
+                                    <div class="custom-file">
+                                        <input type="file" @change="uploadFile" :disabled="isLoading" id="uploadedFile"
+                                            class="custom-file-input" />
+                                        <label class="custom-file-label" for="customFile">Upload product photos</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    <template v-if="uploadedImages && uploadedImages.length > 0">
+                                        <div class="spinner-border text-primary mt-4" v-if="isLoading"
+                                            style="margin: 0 auto" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                        <template v-else>
+                                            <div class="col-lg-3 col-md-6 mt-4 position-relative"
+                                                v-for="(uploadedImage, index) in uploadedImages">
+                                                <img style="height: 210px;width: 100%;" class="img-thumbnail img-fluid"
+                                                    :src="uploadedImage" alt="img">
+                                                <button @click="removeFile(index)"
+                                                    class="btn btn-icon btn-neutral btn-icon-mini position-absolute delete-button-position"><i
+                                                        class="zmdi zmdi-delete"></i></button>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <div class="spinner-border text-primary mt-4" v-if="isLoading"
+                                            style="margin: 0 auto" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                        <div class="col-lg-12 clearfix" v-else>
+                                            <p class="text-center mt-5">No image uploaded for this property</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+    integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+    crossorigin="anonymous"></script>
+
+<script>
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            productID: '<%= data.productID %>',
+            allSupplier: [],
+            allBrand: [],
+            allSubcategory: [],
+            allCategory: [],
+            allBranch: [],
+            allWeightUnit: [],
+            allSize: [],
+            selectedSize: [],
+            name: '',
+            serialNo: '',
+            barcode: '',
+            currentQuantity: null,
+            totalReturnQuantity: null,
+            returnNo: null,
+            totalDisposalQuantity: null,
+            disposal: null,
+            description: '',
+            supplier: '',
+            uploadedImages: [],
+            reorderLevel: '',
+            weight: null,
+            size: '',
+            weightUnit: '',
+            vat: null,
+            sellingType: 'kg',
+            branch: '',
+            category: '',
+            subcategory: '',
+            brand: '',
+            created_by: null,
+            pos_active: true,
+            online_active: false,
+            new_product: false,
+            special_offer: false,
+            best_sell: false,
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            formDisplay: true,
+            isNextDataLastEmpty: false,
+            searchQueryString: '',
+            isSizeVisible: false,
+            isWeightVisible: false,
+            thumbnailImageUrl: '',
+            purchase: null,
+            discount: 0,
+            sell: null,
+            isReceivedProduct: false,
+            personalDiscountAvailable: true,
+            adminAccess: []
+        },
+        mounted() {
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+            this.updateInformationAutoFill()
+            this.checkBranchInfo()
+            // this.getBranchInfo()
+            this.getCategoryInfo()
+            this.getAllWeightUnit()
+            this.getAllSize()
+        },
+        methods: {
+            changeBranch() {
+                localStorage.removeItem('branch')
+                localStorage.setItem('referrerURL', window.location.href)
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            changeBorcode() {
+                try {
+                    // The return value is the canvas element
+                    let canvas = bwipjs.toCanvas('productBarcode', {
+                        bcid: 'code128', // Barcode type
+                        text: this.barcode.toString(), // Text to encode
+                        scale: 3, // 3x scaling factor
+                        height: 10, // Bar height, in millimeters
+                        includetext: true, // Show human-readable text
+                        textxalign: 'center', // Always good to set this
+                    });
+                    this.showBarcode = true
+                } catch (e) {
+                    // `e` may be a string or Error object
+                }
+            },
+            updateInformationAutoFill() {
+                let requestLink = '/api/product/single/' + this.productID
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.isReceivedProduct = result.response.alreadyReceived
+                        this.serialNo = result.response.data.serialNo
+                        this.productData = result.response.data
+                        console.log(this.productData)
+                        this.category = this.productData.category
+                        this.getSubcategoryInfo(this.category)
+                        this.subcategory = this.productData.subcategory
+                        this.selectSubCategory(this.subcategory)
+                        this.brand = this.productData.brand
+                        this.getSupplierInfo(this.brand)
+                        if (this.productData.unitType) {
+                            this.weightUnit = this.productData.unitType
+                        }
+                        this.selectedSize = this.productData.availableSize
+                        this.supplier = this.productData.supplier
+                        this.new_product = this.productData.newProduct
+                        this.special_offer = this.productData.specialOffer
+                        this.pos_active = this.productData.pos_active == false ? this.productData.pos_active:true
+                        this.online_active = this.productData.online_active == true ? this.productData.online_active: false
+                        this.best_sell = this.productData.bestSell
+                        this.uploadedImages = this.productData.images
+                        this.name = this.productData.name
+                        this.purchase = this.productData.price.purchase
+                        this.sell = this.productData.price.sell
+                        this.vat = this.productData.vat
+                        this.discount = this.productData.discount
+                        this.barcode = this.productData.barcode
+                        this.created_by = this.productData.created_by
+                        this.totalReturnQuantity = this.productData.returnNo != null ? this.productData
+                            .returnNo : 0
+                        this.totalDisposalQuantity = this.productData.disposal != null ? this
+                            .productData.disposal : 0
+                        this.reorderLevel = this.productData.reorderLevel
+                        if(this.productData.expireDate){
+                            let expiredInfo = new Date(this.productData.expireDate)
+                            $("#expireDate").val(expiredInfo.getFullYear()+"-"+(expiredInfo.getMonth()+1)+"-"+expiredInfo.getDate())
+                        }
+                        this.weight = this.productData.weight
+                        this.personalDiscountAvailable = this.productData.personalDiscountAvailable == true ? 'true' : 'false'
+                        this.description = this.productData.description
+                        if (this.productData.thumbnail) {
+                            this.thumbnailImageUrl = this.productData.thumbnail
+                        }
+
+                        try {
+                            // The return value is the canvas element
+                            let canvas = bwipjs.toCanvas('productBarcode', {
+                                bcid: 'code128', // Barcode type
+                                text: this.barcode.toString(), // Text to encode
+                                scale: 3, // 3x scaling factor
+                                height: 10, // Bar height, in millimeters
+                                includetext: true, // Show human-readable text
+                                textxalign: 'center', // Always good to set this
+                            });
+                        } catch (e) {
+                            // `e` may be a string or Error object
+                        }
+                    }
+                })
+            },
+            uploadThumbnailImage() {
+                let file = document.getElementById("thumbnail_photo").files[0]
+                this.thumbnailImageUrl = URL.createObjectURL(file)
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data.id,
+                                name: result.response.data.name
+                            }
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getSizeTypesSelect(e, productSizeType) {
+                let productSizeTypeData = productSizeType
+                if (productSizeTypeData !== '') {
+                    if (this.selectedSize.filter((selectedSize => selectedSize._id === productSizeTypeData._id))
+                        .length == 0) {
+                        this.selectedSize.push(productSizeTypeData)
+                    }
+                    this.size = ''
+                }
+            },
+            removeSizeTypesSelect(removeindex) {
+                this.selectedSize = this.selectedSize.filter((value, index) => index !== removeindex)
+            },
+            selectSubCategory(value, change = false) {
+                this.clear_subcategoryinfo()
+                if (value.isSizeAvailable == true) {
+                    this.isSizeVisible = true
+                } else {
+                    this.isSizeVisible = false
+                }
+
+                if (value.isWeightAvailable == true) {
+                    this.isWeightVisible = true
+                } else {
+                    this.isWeightVisible = false
+                }
+
+                this.getBrandInfo(value, change)
+            },
+            getPositionHeight(element) {
+                var rect = element.getBoundingClientRect();
+                return (rect.y + 100) < $(window).height()
+            },
+            getAllSize() {
+                let requestLink = '/api/product/size'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSize = result.response.data
+                    }
+                })
+            },
+            getAllWeightUnit() {
+                let requestLink = '/api/product/weight'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allWeightUnit = result.response.data
+                    }
+                })
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            getCategoryInfo() {
+                let branchID = '?branch='+localStorage.getItem('branch')
+                let requestLink = '/api/category' + branchID
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allCategory = result.response.data
+                    }
+                })
+            },
+            getSubcategoryInfo(value, change = false) {
+                let branchID = '?branch='+localStorage.getItem('branch')
+                let requestLink = '/api/subcategory/category/' + value._id + branchID
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSubcategory = result.response.data
+                        if(change== true){
+                            this.subcategory = ''
+                        }
+                    }
+                })
+            },
+            getBrandInfo(value, change = false) {
+                let branchID = '?branch='+localStorage.getItem('branch')
+                let requestLink = '/api/brand/subcategory/' + value._id + branchID
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBrand = result.response.data
+                        if(change == true){
+                            this.brand = ''
+                        }
+                    }
+                })
+            },
+            getSupplierInfo(value, change = false) {
+                let branchID = '?branch='+localStorage.getItem('branch')
+                let requestLink = '/api/supplier/brand/' + value._id + branchID
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allSupplier = result.response.data
+                        if(change== true){
+                            this.supplier = ''
+                        }
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            remove_type_section() {
+                this.clear_notifications()
+                this.type_section = null
+                this.clear_fields()
+            },
+            clear_fields() {
+                this.name = ''
+                this.barcode = ''
+                this.returnNo = null
+                this.disposal = null
+                this.description = ''
+                this.supplier = ''
+                this.reorderLevel = ''
+                this.weight = ''
+                $("#expireDate").val("")
+                this.vat = null
+                this.category = ''
+                this.subcategory = ''
+                this.brand = ''
+                this.clear_subcategoryinfo()
+            },
+            clear_subcategoryinfo() {
+                this.selectedSize = []
+                this.weightUnit = ''
+            },
+            updateItem() {
+                this.clear_notifications()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/product'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    productID: this.productID,
+                    name: this.name,
+                    barcode: this.barcode,
+                    returnNo: this.returnNo,
+                    disposal: this.disposal,
+                    description: this.description,
+                    supplier: this.supplier._id,
+                    expireDate: this.expireDate,
+                    reorderLevel: this.reorderLevel,
+                    weight: this.weight,
+                    sellingType: this.sellingType,
+                    branch: localStorage.getItem('branch'),
+                    category: this.category._id,
+                    subcategory: this.subcategory._id,
+                    brand: this.brand._id,
+                    newProduct: this.new_product == 'true' ? true : false,
+                    specialOffer: this.special_offer == 'true' ? true : false,
+                    bestSell: this.best_sell == 'true' ? true : false,
+                    online_active: this.online_active,
+                    pos_active: this.pos_active,
+                    personalDiscountAvailable: this.personalDiscountAvailable == 'true' ? true : false
+                }
+
+                if (this.weight != null) {
+                    itemInfo.weight = this.weight
+                }
+
+                if (this.selectedSize.length > 0) {
+                    itemInfo.availableSize = this.selectedSize.map(value => value._id)
+                }
+
+                if (this.weightUnit != '') {
+                    itemInfo.unitType = this.weightUnit._id
+                }
+
+                if ($("#expireDate").val()) {
+                    itemInfo.expireDate = $("#expireDate").val()
+                }
+
+                updateDataInfo(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                        $('html, body').animate({
+                            scrollTop: 0
+                        }, 'slow', function () {});
+                    } else {
+                        this.clear_fields()
+                        this.successResponse = result.response
+                        this.productID = this.successResponse.data._id
+                        this.formDisplay = false
+                        this.isLoading = false
+                        this.thumbnaiUpload();
+                    }
+                    this.isDisable = false
+                })
+            },
+            thumbnaiUpload() {
+                let file = document.getElementById("thumbnail_photo").files[0]
+                if (file != undefined) {
+                    let data = new FormData()
+                    data.append('file', file)
+
+                    let requestLink = '/api/product/' + this.productID + '/thumbnail/upload'
+                    let token = localStorage.getItem('token')
+                    uploadImageUpdateInfo(requestLink, data, token).then((result) => {})
+                }
+            },
+            uploadFile() {
+                this.isLoading = true
+                this.clear_notifications();
+                let file = document.getElementById("uploadedFile").files[0]
+                let data = new FormData()
+                data.append('file', file)
+
+                let requestLink = '/api/product/' + this.productID + '/image/upload'
+                let token = localStorage.getItem('token')
+                uploadImageUpdateInfo(requestLink, data, token).then((result) => {
+                    console.log(result.response)
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.successResponse = result.response
+                        this.isLoading = false
+                        this.uploadedImages = result.response.data.images
+                    }
+                })
+            },
+            removeFile(imageIndex) {
+                this.isLoading = true
+                let data = {
+                    image_index: imageIndex
+                }
+                let requestLink = '/api/product/' + this.productID + '/image/remove'
+                let token = localStorage.getItem('token')
+
+                updateDataInfo(requestLink, data, token).then((result) => {
+                    console.log(result.response)
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.successResponse = result.response
+                        this.isLoading = false
+                        this.uploadedImages = result.response.data.images
+                    }
+
+                })
+            },
+            propcessCompleted() {
+                location.href = '<%= host %>/dashboard/product/list'
+            }
+        }
+    })
+</script>
+
+<script>
+    $(function () {
+    //Datetimepicker plugin
+    $('.datetimepicker').bootstrapMaterialDatePicker({
+        format: 'YYYY-MM-DD',
+        clearButton: true,
+        weekStart: 1,
+        time: false
+    });
+  });
+  </script>
+
+<% include ../../partials/footer %>

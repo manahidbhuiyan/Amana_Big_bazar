@@ -1,0 +1,1009 @@
+<% include ../../partials/header %> <% include ../../partials/nav %> <% include
+../../partials/left-sidebar %>
+
+<style>
+  body {
+    padding-right: 0px !important;
+  }
+
+  .dtp .p10 > a {
+    color: white;
+    text-decoration: none;
+  }
+  .dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #7e6990;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+  }
+  .dtp div.dtp-date,
+  .dtp div.dtp-time {
+    background: #7e6990;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+  }
+  .dtp table.dtp-picker-days tr > td > a.selected {
+    background: #7e6990;
+    color: #fff;
+  }
+</style>
+
+<!-- Main Content -->
+<section class="content">
+  <% include ../../partials/content/header %>
+
+  <div class="container-fluid" id="add_data_section">
+    <div class="row clearfix">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="header">
+            <h2><strong>Create</strong> Sales ------- Report</h2>
+            <div class="row">
+              <div class="col-sm-12 text-center">
+                <p class="text-center text-primary">
+                  Your current branch is : <strong>{{ branch.name }}</strong>
+                </p>
+                <button @click="changeBranch" class="btn btn-primary">
+                  Change Branch
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="body">
+            <div class="row">
+              <div class="col-lg-6 offset-lg-3">
+                <% include ../notification/message %>
+              </div>
+            </div>
+
+            <form @submit.prevent="downloadCategorySalesReport">
+              <h4 class="text-center">Category wise sales report</h4>
+              <div class="row mb-3 clearfix">
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">From Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="fromCategoryDate"
+                      class="form-control datetimepicker"
+                      placeholder="From Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">To Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="toCategoryDate"
+                      class="form-control datetimepicker"
+                      placeholder="To Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div
+                  class="col-sm-6"
+                  v-if="category_wise_details_checkbox==true"
+                >
+                  <h6 class="mt-2 mb-2">Category</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="category">
+                      <option
+                        :value="{id: supplier._id, name: supplier.name}"
+                        v-for="(supplier, index) in allCategory"
+                        :key="index"
+                        class="text-capitalize"
+                      >
+                        {{ supplier.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <div class="form-check ml-1 mt-2">
+                      <label class="form-check-label">
+                        <input
+                          type="checkbox"
+                          v-model="category_wise_details_checkbox"
+                          class="form-check-input"
+                        />
+                        Category wise stock details
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">Report Type</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="reportType">
+                      <option value="pdf" class="text-capitalize">PDF</option>
+                      <option value="excel" class="text-capitalize">
+                        Excel
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                  <button
+                    type="submit"
+                    :disabled="isDisable"
+                    class="btn btn-primary btn-round"
+                  >
+                    <span v-if="isDisable">Downloading...</span
+                    ><span v-else>Download</span>
+                  </button>
+                  <button
+                    @click="clear_fields"
+                    type="button"
+                    class="btn btn-default btn-round btn-simple"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <form @submit.prevent="downloadSubcategorySalesReport">
+              <h4 class="text-center">Subcategory wise sales report</h4>
+              <div class="row mb-3 clearfix">
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">From Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="fromSubcategoryDate"
+                      class="form-control datetimepicker"
+                      placeholder="From Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">To Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="toSubcategoryDate"
+                      class="form-control datetimepicker"
+                      placeholder="To Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div
+                  class="col-sm-6"
+                  v-if="subcategory_wise_details_checkbox==true"
+                >
+                  <h6 class="mt-2 mb-2">Subcategory</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="subcategory">
+                      <option
+                        :value="{id: supplier._id, name: supplier.name}"
+                        v-for="(supplier, index) in allSubcategory"
+                        :key="index"
+                        class="text-capitalize"
+                      >
+                        {{ supplier.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <div class="form-check ml-1 mt-2">
+                      <label class="form-check-label">
+                        <input
+                          type="checkbox"
+                          v-model="subcategory_wise_details_checkbox"
+                          class="form-check-input"
+                        />
+                        subcategory wise stock details
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">Report Type</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="reportType">
+                      <option value="pdf" class="text-capitalize">PDF</option>
+                      <option value="excel" class="text-capitalize">
+                        Excel
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                  <button
+                    type="submit"
+                    :disabled="isDisable"
+                    class="btn btn-primary btn-round"
+                  >
+                    <span v-if="isDisable">Downloading...</span
+                    ><span v-else>Download</span>
+                  </button>
+                  <button
+                    @click="clear_fields"
+                    type="button"
+                    class="btn btn-default btn-round btn-simple"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <form @submit.prevent="downloadSupplierSalesReport">
+              <h4 class="text-center">Supplier wise sales report</h4>
+              <div class="row mb-3 clearfix">
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">From Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="fromSupplierDate"
+                      class="form-control datetimepicker"
+                      placeholder="From Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">To Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="toSupplierDate"
+                      class="form-control datetimepicker"
+                      placeholder="To Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div
+                  class="col-sm-6"
+                  v-if="supplier_wise_details_checkbox==true"
+                >
+                  <h6 class="mt-2 mb-2">Supplier</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="supplier">
+                      <option
+                        :value="{id: supplier._id, name: supplier.name}"
+                        v-for="(supplier, index) in allSupplier"
+                        :key="index"
+                        class="text-capitalize"
+                      >
+                        {{ supplier.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <div class="form-check ml-1 mt-2">
+                      <label class="form-check-label">
+                        <input
+                          type="checkbox"
+                          v-model="supplier_wise_details_checkbox"
+                          class="form-check-input"
+                        />
+                        supplier wise stock details
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">Report Type</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="reportType">
+                      <option value="pdf" class="text-capitalize">PDF</option>
+                      <option value="excel" class="text-capitalize">
+                        Excel
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                  <button
+                    type="submit"
+                    :disabled="isDisable"
+                    class="btn btn-primary btn-round"
+                  >
+                    <span v-if="isDisable">Downloading...</span
+                    ><span v-else>Download</span>
+                  </button>
+                  <button
+                    @click="clear_fields"
+                    type="button"
+                    class="btn btn-default btn-round btn-simple"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <form @submit.prevent="downloadBrandSalesReport">
+              <h4 class="text-center">Brand wise sales report</h4>
+              <div class="row mb-3 clearfix">
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">From Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="fromBrandDate"
+                      class="form-control datetimepicker"
+                      placeholder="From Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">To Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="toBrandDate"
+                      class="form-control datetimepicker"
+                      placeholder="To Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-6" v-if="brand_wise_details_checkbox==true">
+                  <h6 class="mt-2 mb-2">Brand</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="brand">
+                      <option
+                        :value="{id: supplier._id, name: supplier.name}"
+                        v-for="(supplier, index) in allBrand"
+                        :key="index"
+                        class="text-capitalize"
+                      >
+                        {{ supplier.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <div class="form-check ml-1 mt-2">
+                      <label class="form-check-label">
+                        <input
+                          type="checkbox"
+                          v-model="brand_wise_details_checkbox"
+                          class="form-check-input"
+                        />
+                        Brand wise stock details
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">Report Type</h6>
+                  <div class="form-group">
+                    <select class="form-control" v-model="reportType">
+                      <option value="pdf" class="text-capitalize">PDF</option>
+                      <option value="excel" class="text-capitalize">
+                        Excel
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                  <button
+                    type="submit"
+                    :disabled="isDisable"
+                    class="btn btn-primary btn-round"
+                  >
+                    <span v-if="isDisable">Downloading...</span
+                    ><span v-else>Download</span>
+                  </button>
+                  <button
+                    @click="clear_fields"
+                    type="button"
+                    class="btn btn-default btn-round btn-simple"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <form @submit.prevent="salesPersonWiseSalesReport">
+              <h4 class="text-center">Sales person sales report</h4>
+              <div class="row mb-3 clearfix">
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">From Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="fromSalesPersonDate"
+                      class="form-control datetimepicker"
+                      placeholder="From Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">To Date</h6>
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="toSalesPersonDate"
+                      class="form-control datetimepicker"
+                      placeholder="To Date"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <h6 class="mt-2 mb-2">Sales Person</h6>
+                  <div class="form-group">
+                    <select
+                      class="form-control"
+                      v-model="selected_sales_person"
+                      required
+                    >
+                      <option value="">select a sales person</option>
+                      <option
+                        :value="{id: salesPerson._id, name: salesPerson.name}"
+                        v-for="(salesPerson, index) in branchWiseSalesPersons"
+                        :key="index"
+                        class="text-capitalize"
+                      >
+                        {{ salesPerson.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row clearfix">
+                <div class="col-sm-12">
+                  <button
+                    type="submit"
+                    :disabled="isDisable"
+                    class="btn btn-primary btn-round"
+                  >
+                    <span v-if="isDisable">Downloading...</span
+                    ><span v-else>Download</span>
+                  </button>
+                  <button
+                    @click="clear_fields"
+                    type="button"
+                    class="btn btn-default btn-round btn-simple"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/2.0.10/bwip-js-min.js"
+  integrity="sha512-5uGnKj8h56cEozQZHq09metdJx1V6UM8qs7M+bG7EJMKYAKBl+CWo1SdmqU9RZTTlzIIa4xTCR5LWBY3spP9zw=="
+  crossorigin="anonymous"
+></script>
+
+<script>
+  new Vue({
+    el: "#add_data_section",
+    data: {
+      branch: "",
+      errorResponse: null,
+      successResponse: null,
+      isDisable: false,
+      allSupplier: [],
+      branchWiseSalesPersons: [],
+      selected_sales_person: "",
+      supplier: null,
+      supplier_wise_details_checkbox: false,
+      category_wise_details_checkbox: false,
+      subcategory_wise_details_checkbox: false,
+      brand_wise_details_checkbox: false,
+      isLoading: false,
+      allCategory: [],
+      category: null,
+      allSubcategory: [],
+      subcategory: null,
+      allBrand: [],
+      brand: null,
+      reportType: "pdf",
+      adminAccess: [],
+    },
+    mounted() {
+      this.adminAccess = "<%= data.adminInfo.admin_roles %>".split(",");
+      this.getCategoryInfo();
+      this.getSubCategoryInfo();
+      this.checkBranchInfo();
+      this.getBrandInfo();
+      this.getBranchInfo();
+      this.getSupplierInfo();
+      this.getSalesPersonInfo();
+    },
+    methods: {
+      getCategoryInfo() {
+        let requestLink =
+          "/api/category?branch=" + localStorage.getItem("branch");
+        getType(requestLink).then((result) => {
+          if (result.auth === true) {
+            this.allCategory = result.response.data;
+            let categoryData = result.response.data;
+            this.category = {
+              id: categoryData[0]._id,
+              name: categoryData[0].name,
+            };
+          }
+        });
+      },
+      getSubCategoryInfo() {
+        let requestLink =
+          "/api/subcategory?branch=" + localStorage.getItem("branch");
+        getType(requestLink).then((result) => {
+          if (result.auth === true) {
+            this.allSubcategory = result.response.data;
+            let subcategoryData = result.response.data;
+            this.subcategory = {
+              id: subcategoryData[0]._id,
+              name: subcategoryData[0].name,
+            };
+          }
+        });
+      },
+      getBrandInfo() {
+        let requestLink = "/api/brand?branch=" + localStorage.getItem("branch");
+        getType(requestLink).then((result) => {
+          if (result.auth === true) {
+            this.allBrand = result.response.data;
+            let brandData = result.response.data;
+            this.brand = { id: brandData[0]._id, name: brandData[0].name };
+          }
+        });
+      },
+      changeBranch() {
+        localStorage.removeItem("branch");
+        localStorage.setItem("referrerURL", window.location.href);
+        location.href = "<%= host %>" + "/product/branch/select";
+      },
+      checkBranchInfo() {
+        if (localStorage.getItem("branch")) {
+          let branchID = localStorage.getItem("branch");
+
+          let requestLink = "/api/branch/data/" + branchID;
+          getType(requestLink).then((result) => {
+            if (result.auth === true) {
+              this.branch = {
+                id: result.response.data._id,
+                name: result.response.data.name,
+              };
+            } else {
+              localStorage.removeItem("branch");
+              localStorage.setItem("referrerURL", window.location.href);
+              location.href = "<%= host %>" + "/product/branch/select";
+            }
+          });
+        } else {
+          localStorage.removeItem("branch");
+          localStorage.setItem("referrerURL", window.location.href);
+          location.href = "<%= host %>" + "/product/branch/select";
+        }
+      },
+      getSupplierInfo() {
+        let requestLink =
+          "/api/supplier?branch=" + localStorage.getItem("branch");
+        getType(requestLink).then((result) => {
+          if (result.auth === true) {
+            this.allSupplier = result.response.data;
+            let supplierData = result.response.data;
+            this.supplier = {
+              id: supplierData[0]._id,
+              name: supplierData[0].name,
+            };
+          }
+        });
+      },
+      getSalesPersonInfo() {
+        let token = localStorage.getItem("token");
+        let requestLink =
+          "/api/sales-person/branch-wise/all?branch=" +
+          localStorage.getItem("branch");
+        getSecureData(requestLink, token).then((result) => {
+          if (result.auth === true) {
+            this.branchWiseSalesPersons = result.response.data;
+          }
+        });
+      },
+      getBranchInfo() {
+        let requestLink = "/api/branch";
+        getType(requestLink).then((result) => {
+          if (result.auth === true) {
+            this.allBranch = result.response.data;
+          }
+        });
+      },
+      clear_notifications() {
+        this.errorResponse = null;
+        this.successResponse = null;
+      },
+      clear_fields() {
+        $("#fromCategoryDate").val("");
+        $("#toCategoryDate").val("");
+
+        $("#fromSubcategoryDate").val("");
+        $("#toSubcategoryDate").val("");
+
+        $("#fromSupplierDate").val("");
+        $("#toSupplierDate").val("");
+
+        $("#fromBrandDate").val("");
+        $("#toBrandDate").val("");
+
+        $("#fromSalesPersonDate").val("");
+        $("#toSalesPersonDate").val("");
+      },
+      downloadCategorySalesReport() {
+        this.clear_notifications();
+        this.isDisable = true;
+        this.isLoading = true;
+        let requestLink =
+          "/api/report/category/sell/list?branch=" +
+          localStorage.getItem("branch");
+        let token = localStorage.getItem("token");
+
+        let itemInfo = {
+          from: $("#fromCategoryDate").val(),
+          to: $("#toCategoryDate").val(),
+        };
+
+        let file_name = "category_wise_sell.pdf";
+
+        if (this.category_wise_details_checkbox == true) {
+          requestLink =
+            "/api/report/category/sell/details?branch=" +
+            localStorage.getItem("branch");
+          itemInfo.category = this.category.id;
+          file_name = "category_wise_sell_details.pdf";
+        }
+
+        if (this.reportType == "excel") {
+          var link = document.createElement("a");
+          link.target = "_blank";
+          if (this.category_wise_details_checkbox == true) {
+            link.href =
+              "/api/report/category/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "/" +
+              this.category.id +
+              "?branch=" +
+              localStorage.getItem("branch");
+          } else {
+            link.href =
+              "/api/report/category/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "?branch=" +
+              localStorage.getItem("branch");
+          }
+
+          //link.download = 'all_customer_summery.pdf';
+          link.dispatchEvent(new MouseEvent("click"));
+          this.isDisable = false;
+          this.isLoading = false;
+          this.from = "";
+          this.to = "";
+        } else {
+          addNewType(requestLink, itemInfo, token).then((result) => {
+            if (result.auth === false) {
+              this.errorResponse = result.response;
+            } else {
+              var link = document.createElement("a");
+              link.href = result.response.fileLink;
+              link.download = file_name;
+              link.dispatchEvent(new MouseEvent("click"));
+              this.isDisable = false;
+              this.isLoading = false;
+              this.clear_fields();
+            }
+            //this.isDisable = false
+          });
+        }
+      },
+      downloadSubcategorySalesReport() {
+        this.clear_notifications();
+        this.isDisable = true;
+        this.isLoading = true;
+        let requestLink =
+          "/api/report/subcategory/sell/list?branch=" +
+          localStorage.getItem("branch");
+        let token = localStorage.getItem("token");
+
+        let itemInfo = {
+          from: $("#fromSubcategoryDate").val(),
+          to: $("#toSubcategoryDate").val(),
+        };
+
+        let file_name = "subcategory_wise_sell.pdf";
+
+        if (this.subcategory_wise_details_checkbox == true) {
+          requestLink =
+            "/api/report/subcategory/sell/details?branch=" +
+            localStorage.getItem("branch");
+          itemInfo.subcategory = this.subcategory.id;
+          file_name = "subcategory_wise_sell_details.pdf";
+        }
+
+        if (this.reportType == "excel") {
+          var link = document.createElement("a");
+          link.target = "_blank";
+          if (this.subcategory_wise_details_checkbox == true) {
+            link.href =
+              "/api/report/subcategory/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "/" +
+              this.subcategory.id +
+              "?branch=" +
+              localStorage.getItem("branch");
+          } else {
+            link.href =
+              "/api/report/subcategory/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "?branch=" +
+              localStorage.getItem("branch");
+          }
+
+          //link.download = 'all_customer_summery.pdf';
+          link.dispatchEvent(new MouseEvent("click"));
+          this.isDisable = false;
+          this.isLoading = false;
+          this.from = "";
+          this.to = "";
+        } else {
+          addNewType(requestLink, itemInfo, token).then((result) => {
+            if (result.auth === false) {
+              this.errorResponse = result.response;
+            } else {
+              var link = document.createElement("a");
+              link.href = result.response.fileLink;
+              link.download = file_name;
+              link.dispatchEvent(new MouseEvent("click"));
+              this.isDisable = false;
+              this.isLoading = false;
+              this.clear_fields();
+            }
+            //this.isDisable = false
+          });
+        }
+      },
+      downloadSupplierSalesReport() {
+        this.clear_notifications();
+        this.isDisable = true;
+        this.isLoading = true;
+        let requestLink =
+          "/api/report/supplier/sell/list?branch=" +
+          localStorage.getItem("branch");
+        let token = localStorage.getItem("token");
+
+        let itemInfo = {
+          from: $("#fromSupplierDate").val(),
+          to: $("#toSupplierDate").val(),
+        };
+
+        let file_name = "supplier_wise_sell.pdf";
+
+        if (this.supplier_wise_details_checkbox == true) {
+          requestLink =
+            "/api/report/supplier/sell/details?branch=" +
+            localStorage.getItem("branch");
+          itemInfo.supplier = this.supplier.id;
+          file_name = "supplier_wise_sell_details.pdf";
+        }
+
+        if (this.reportType == "excel") {
+          var link = document.createElement("a");
+          link.target = "_blank";
+          if (this.supplier_wise_details_checkbox == true) {
+            link.href =
+              "/api/report/supplier/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "/" +
+              this.supplier.id +
+              "?branch=" +
+              localStorage.getItem("branch");
+          } else {
+            link.href =
+              "/api/report/supplier/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "?branch=" +
+              localStorage.getItem("branch");
+          }
+
+          //link.download = 'all_customer_summery.pdf';
+          link.dispatchEvent(new MouseEvent("click"));
+          this.isDisable = false;
+          this.isLoading = false;
+          this.from = "";
+          this.to = "";
+        } else {
+          addNewType(requestLink, itemInfo, token).then((result) => {
+            if (result.auth === false) {
+              this.errorResponse = result.response;
+            } else {
+              var link = document.createElement("a");
+              link.href = result.response.fileLink;
+              link.download = file_name;
+              link.dispatchEvent(new MouseEvent("click"));
+              this.isDisable = false;
+              this.isLoading = false;
+              this.clear_fields();
+            }
+            //this.isDisable = false
+          });
+        }
+      },
+      downloadBrandSalesReport() {
+        this.clear_notifications();
+        this.isDisable = true;
+        this.isLoading = true;
+        let requestLink =
+          "/api/report/brand/sell/list?branch=" +
+          localStorage.getItem("branch");
+        let token = localStorage.getItem("token");
+
+        let itemInfo = {
+          from: $("#fromBrandDate").val(),
+          to: $("#toBrandDate").val(),
+        };
+
+        let file_name = "brand_wise_sell.pdf";
+
+        if (this.brand_wise_details_checkbox == true) {
+          requestLink =
+            "/api/report/brand/sell/details?branch=" +
+            localStorage.getItem("branch");
+          itemInfo.brand = this.brand.id;
+          file_name = "brand_wise_sell_details.pdf";
+        }
+
+        if (this.reportType == "excel") {
+          var link = document.createElement("a");
+          link.target = "_blank";
+          if (this.brand_wise_details_checkbox == true) {
+            link.href =
+              "/api/report/brand/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "/" +
+              this.brand.id +
+              "?branch=" +
+              localStorage.getItem("branch");
+          } else {
+            link.href =
+              "/api/report/brand/sell/" +
+              token +
+              "/" +
+              itemInfo.from +
+              "/" +
+              itemInfo.to +
+              "?branch=" +
+              localStorage.getItem("branch");
+          }
+
+          //link.download = 'all_customer_summery.pdf';
+          link.dispatchEvent(new MouseEvent("click"));
+          this.isDisable = false;
+          this.isLoading = false;
+          this.from = "";
+          this.to = "";
+        } else {
+          addNewType(requestLink, itemInfo, token).then((result) => {
+            if (result.auth === false) {
+              this.errorResponse = result.response;
+            } else {
+              var link = document.createElement("a");
+              link.href = result.response.fileLink;
+              link.download = file_name;
+              link.dispatchEvent(new MouseEvent("click"));
+              this.isDisable = false;
+              this.isLoading = false;
+              this.clear_fields();
+            }
+            //this.isDisable = false
+          });
+        }
+      },
+      salesPersonWiseSalesReport() {
+        this.clear_notifications();
+        this.isDisable = true;
+        this.isLoading = true;
+        let requestLink =
+          "/api/report/sales-person-wise-sell?branch=" +
+          localStorage.getItem("branch");
+        let token = localStorage.getItem("token");
+
+        let itemInfo = {
+          from: $("#fromSalesPersonDate").val(),
+          to: $("#toSalesPersonDate").val(),
+          sales_person: this.selected_sales_person.id,
+        };
+
+        addNewType(requestLink, itemInfo, token).then((result) => {
+          if (result.auth === false) {
+            this.errorResponse = result.response;
+          } else {
+            var link = document.createElement("a");
+            link.href = result.response.fileLink;
+            link.download = "sales_person_wise_sell.pdf";
+            link.dispatchEvent(new MouseEvent("click"));
+            this.isDisable = false;
+            this.isLoading = false;
+            this.clear_fields();
+          }
+          //this.isDisable = false
+        });
+      },
+    },
+  });
+</script>
+
+<% include ../../partials/footer %>
+
+<script>
+  $(function () {
+    //Datetimepicker plugin
+    $(".datetimepicker").bootstrapMaterialDatePicker({
+      format: "YYYY-MM-DD",
+      clearButton: true,
+      weekStart: 1,
+      time: false,
+    });
+  });
+</script>

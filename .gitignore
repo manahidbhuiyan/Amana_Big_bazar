@@ -1,0 +1,7 @@
+node_modules
+client/node_modules
+package-lock.json
+.idea
+/public/import
+/database-backup
+.DS_store

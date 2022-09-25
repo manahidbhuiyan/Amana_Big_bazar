@@ -1,0 +1,239 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid" id="add_data_section">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2><strong>Manage</strong> Images</h2>
+                    </div>
+                    <div class="body">
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <% include ../notification/message %>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6 offset-lg-3">
+                                <h6 class="mt-2 mb-2">Upload your images</h6>
+                                <div class="upload_fields">
+                                    <div class="custom-file">
+                                        <input type="file" @change="uploadFile" :disabled="isLoading" id="uploadedFile"
+                                            class="custom-file-input" />
+                                        <label class="custom-file-label" for="customFile">Upload your photos</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="row mt-4">
+                                    <div class="col-5 col-md-4 col-lg-3 col-xl-2 offset-md-1 offset-lg-2 offset-xl-3">
+                                        <div class="form-group">
+                                            <select class="form-control" v-model="searchType">
+                                                <option value="name">Image Name</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-7 col-md-6 col-lg-5 col-xl-4">
+                                        <div class="form-group">
+                                            <input type="text" @keyup="searchData($event)" class="form-control"
+                                                v-model="searchText" placeholder="Search Keyword">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" id="imageListData">
+                                    <template v-if="uploadedImages && uploadedImages.length > 0">
+                                        <div class="spinner-border text-primary mt-2" v-if="isLoading"
+                                            style="margin: 0 auto" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                        <template v-else>
+                                            <div class="col-lg-3 col-md-6 mt-2 mb-1 position-relative"
+                                                v-for="(uploadedImage, index) in uploadedImages">
+                                                <img style="height: 210px;width: 100%;" class="img-thumbnail img-fluid"
+                                                    :src="uploadedImage.url" alt="img" />
+                                                <div
+                                                    class="text-center text-primary text-capitalize p-1 font-weight-normal">
+                                                    {{uploadedImage.name}}</div>
+                                                <input type="text" :value="uploadedImage.url" :id="'copy_text_'+index"
+                                                    style="width: 100%;
+                                                border: 1px solid #dee2e6;
+                                                padding: 0px 5px;" readonly />
+                                                <button @click="copyImageLink('copy_text_'+index)" title="Copy link"
+                                                    class="btn btn-icon btn-neutral btn-icon-mini position-absolute link-button-position"><i
+                                                        class="zmdi zmdi-link"></i></button>
+                                                <button @click="removeFile(uploadedImage._id)"
+                                                    class="btn btn-icon btn-neutral btn-icon-mini position-absolute delete-button-position"><i
+                                                        class="zmdi zmdi-delete"></i></button>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <div class="spinner-border text-primary mt-2" v-if="isLoading"
+                                            style="margin: 0 auto" role="status">
+                                            <span class="sr-only">Loading...</span>
+                                        </div>
+                                        <div class="col-lg-12 clearfix" v-else>
+                                            <p class="text-center mt-5">No image uploaded yet.</p>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    var pageNo = 1
+
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            uploadedImages: [],
+            searchType: 'name',
+            searchText: '',
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: true,
+            isNextDataLastEmpty: false,
+            searchQueryString: '',
+            isSizeVisible: false,
+            isWeightVisible: false
+        },
+        mounted() {
+            this.getAllItemData()
+        },
+        created() {
+            window.addEventListener('scroll', this.handleScroll);
+        },
+        destroyed() {
+            window.removeEventListener('scroll', this.handleScroll);
+        },
+        methods: {
+            copyImageLink(clipText) {
+                let copyText = document.getElementById(clipText);
+                copyText.select();
+                document.execCommand("copy");
+                console.log(copyText.value)
+            },
+            getAllItemData() {
+                let requestLink = '/api/upload/images/' + pageNo + '?' + this.searchQueryString
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        if (result.response.data.length === 0) {
+                            this.isNextDataLastEmpty = true
+                        } else {
+                            result.response.data.map((data) => {
+                                this.uploadedImages.push(data)
+                            })
+                            this.isNextDataLastEmpty = false
+                        }
+                        this.isLoading = false
+                    }
+                })
+            },
+            getPositionHeight(element) {
+                var rect = element.getBoundingClientRect();
+                return (rect.y + 100) < $(window).height()
+            },
+            handleScroll(event) {
+                // Any code to be executed when the window is scrolled
+                if (this.getPositionHeight($('#imageListData div:last-child').get(0)) === true && this
+                    .isNextDataLastEmpty === false) {
+                    if (!this.isNextDataLastEmpty) {
+                        pageNo++
+                        this.isNextDataLastEmpty = true
+                        this.getAllItemData()
+                    }
+                }
+            },
+            searchData(e) {
+                if (e.keyCode === 13) {
+                    pageNo = 1
+                    this.uploadedImages = []
+                    if (this.searchText == '') {
+                        this.searchQueryString = ''
+                    } else {
+                        this.searchQueryString = 'type=' + this.searchType + '&&text=' + this.searchText
+                    }
+                    this.getAllItemData()
+                }
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            uploadFile() {
+                this.clear_notifications();
+                let file = document.getElementById("uploadedFile").files[0]
+                let data = new FormData()
+                data.append('file', file)
+
+                let name = prompt("Please enter image name");
+
+                data.append('name', name)
+                if (name) {
+                    this.isLoading = true
+                    let requestLink = '/api/upload/image/create'
+                    let token = localStorage.getItem('token')
+                    uploadImageInfo(requestLink, data, token).then((result) => {
+                        console.log(result.response)
+                        if (result.auth === false) {
+                            this.errorResponse = result.response
+                        } else {
+                            pageNo = 1
+                            this.uploadedImages = []
+                            this.getAllItemData()
+                            this.successResponse = result.response
+                            this.isLoading = false
+                        }
+                    })
+                }
+            },
+            removeFile(imageID) {
+                this.isLoading = true
+                let requestLink = '/api/upload/image/remove/' + imageID
+                let token = localStorage.getItem('token')
+
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        pageNo = 1
+                        this.uploadedImages = []
+                        this.getAllItemData()
+                        this.successResponse = result.response
+                        this.isLoading = false
+                        $('html, body').animate({
+                            scrollTop: 0
+                        }, 'slow', function () {});
+                    }
+                })
+            },
+            propcessCompleted() {
+                this.clear_fields()
+                this.isLoading = false
+                this.uploadedImages = []
+                this.errorResponse = null
+                this.successResponse = null
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

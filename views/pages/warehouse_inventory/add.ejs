@@ -1,0 +1,843 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <style>
+                body {
+                    padding-right: 0px !important;
+                }
+
+                .dtp .p10>a {
+                    color: white;
+                    text-decoration: none;
+                }
+
+                .dtp>.dtp-content>.dtp-date-view>header.dtp-header {
+                    background: #7e6990;
+                    color: #fff;
+                    text-align: center;
+                    padding: 0.3em;
+                }
+
+                .dtp div.dtp-date,
+                .dtp div.dtp-time {
+                    background: #7e6990;
+                    text-align: center;
+                    color: #fff;
+                    padding: 10px;
+                }
+
+                .dtp table.dtp-picker-days tr>td>a.selected {
+                    background: #7e6990;
+                    color: #fff;
+                }
+
+
+                /*dropdown style*/
+                .dropdown-custom {
+                    width: 100%;
+                }
+
+                .dropdown-content-custom {
+                    background-color: #fff;
+                    min-width: 160px;
+                    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+                    border: 1px solid #f1f1f1;
+                    z-index: 1;
+                    width: 90%;
+                    max-height: 250px;
+                    overflow-y: scroll;
+                    top: 38px !important;
+                }
+
+                .dropdown-custom>.searchField {
+                    width: 80% !important;
+                }
+            </style>
+            <div id="add_data_section">
+
+
+                <!-- Main Content -->
+                <section class="content">
+
+                    <% include ../../partials/content/header %>
+
+                        <div class="container-fluid">
+                            <div class="row clearfix">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="header">
+                                            <h2><strong>Create</strong> Warehouse Inventory</h2>
+                                            <div class="row">
+                                                <div class="col-sm-12 text-center">
+                                                    <p class="text-center text-primary">Your current branch
+                                                        is :
+                                                        <strong>{{branch.name}}</strong>
+                                                    </p>
+                                                    <button @click="changeBranch" class="btn btn-primary">Change
+                                                        Branch</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="body">
+                                            <div class="row">
+                                                <div class="col-lg-6 offset-lg-3">
+                                                    <% include ../notification/message %>
+                                                </div>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <form @submit.prevent="getWarehouseInventoryProduct()">
+                                                    <div class="row clearfix px-4">
+                                                        <div class="col-sm-12">
+                                                            <h6 class="mt-2 mb-4">Load Inventory Product</h6>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row clearfix px-4">
+                                                        <div class="col-sm-4">
+                                                            <h6 class="mt-2 mb-2">Category<span style="color: red;">*</span>
+                                                            </h6>
+                                                            <div class="form-group">
+                                                                <select class="form-control" @change="getSubcategoryInfo(category)" v-model="category" required>
+                                                                    <option value="">-- Select Category --</option>
+                                                                    <option value="all">All</option>
+                                                                    <option :value="{id: category._id, name: category.name}" v-for="(category, index) in allCategory"
+                                                                        :key="index" class="text-capitalize">
+                                                                        {{category.name}}</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <h6 class="mt-2 mb-2">Subcategory</h6>
+                                                            <div class="form-group">
+                                                                <select class="form-control" @change="selectSubCategory(subcategory)" v-model="subcategory"
+                                                                    :disabled="category == 'all'">
+                                                                    <option value="">-- Select Subcategory --</option>
+                                                                    <option :value="{id: subcategory._id, name: subcategory.name}"
+                                                                        v-for="(subcategory, index) in allSubcategory" :key="index" class="text-capitalize">
+                                                                        {{subcategory.name}}
+                                                                    </option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <h6 class="mt-2 mb-2">Brand</h6>
+                                                            <div class="form-group">
+                                                                <select class="form-control" @change="getSupplierInfo(brand)" v-model="brand"
+                                                                    :disabled="category == 'all'">
+                                                                    <option value="">-- Select Brand --</option>
+                                                                    <option :value="{id: brand._id, name: brand.name}" v-for="(brand, index) in allBrand" :key="index"
+                                                                        class="text-capitalize">
+                                                                        {{brand.name}}</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4">
+                                                            <h6 class="mt-2 mb-2">Supplier</h6>
+                                                            <div class="form-group">
+                                                                <select class="form-control" v-model="supplier" :disabled="category == 'all'">
+                                                                    <option value="">-- Select Supplier --</option>
+                                                                    <option :value="{id: supplier._id, name: supplier.name}" v-for="(supplier, index) in allSupplier"
+                                                                        :key="index" class="text-capitalize">{{supplier.name}}</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12 mt-2 mb-2">
+                                                            <button type="submit" class="btn btn-primary waves-effect" data-backdrop="static" data-keyboard="false"
+                                                                :disabled="isDisable"><span v-if="isDisable">Loading...</span><span v-else>Load Inventory
+                                                                    Product</span></button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                                </div>
+                                                <div class="row clearfix mt-5">
+                                                <form @submit.prevent="addProduct()">
+                                                    <div class="row clearfix px-4">
+                                                        <div class="col-sm-12">
+                                                            <h6 class="mt-2 mb-2">Product Load On Scan</h6>
+                                                        </div>
+                                                        <div class="col-sm-12">
+                                                            <div class="form-group">
+                                                                <div class="radio inlineblock m-r-20">
+                                                                    <input type="radio" name="load_on_scan"
+                                                                        id="active_yes" v-model="load_on_scan"
+                                                                        @change="changeLoadOnScan" class="with-gap"
+                                                                        :value="true">
+                                                                    <label for="active_yes">Yes</label>
+                                                                </div>
+                                                                <div class="radio inlineblock">
+                                                                    <input type="radio" name="load_on_scan"
+                                                                        id="active_no" v-model="load_on_scan"
+                                                                        @change="changeLoadOnScan" class="with-gap"
+                                                                        :value="false">
+                                                                    <label for="active_no">No</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row clearfix px-4">
+                                                        <div class="col-lg-4">
+                                                            <h6 class="mt-2 mb-2">Product Barcode</h6>
+                                                            <div class="form-group">
+                                                                <input style="width: 100%;" type="text"
+                                                                    v-model="barcode"
+                                                                    @change="getBarCode($event, barcode)"
+                                                                    id="barcodeField" class="form-control"
+                                                                    placeholder="Product Barcode" :disabled="isDisable">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <h6 class="mt-2 mb-2">Item</h6>
+                                                            <div class="form-group dropdown-custom dropdown">
+                                                                <input type="text" v-model="productName"
+                                                                    @keyup="filterInventoryProductList()"
+                                                                    class="form-control searchField dropdown-toggle"
+                                                                    data-toggle="dropdown"
+                                                                    placeholder="select a product"
+                                                                    style="width:100% !important"
+                                                                    :disabled="isDisable">
+                                                                <div class="dropdown-menu dropdown-content-custom">
+                                                                    <a @click.prevent="warehouseInventoryProductSearchData(product)"
+                                                                        v-for="(product, index) in inventoryProductListFilter"
+                                                                        :key="index"
+                                                                        class="dropdown-item text-capitalize"
+                                                                        href="">{{product.name}}</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-lg-4">
+                                                            <h6 class="mt-2 mb-2">Cost Price</h6>
+                                                            <div class="form-group">
+                                                                <input type="text" class="form-control"
+                                                                    @change="changeCostPrice(costPrice)"
+                                                                    v-model="costPrice" placeholder="Cost Price"
+                                                                    disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <h6 class="mt-2 mb-2">Sell Price</h6>
+                                                            <div class="form-group">
+                                                                <input type="text" class="form-control"
+                                                                    v-model="sellPrice" placeholder="Sell Price"
+                                                                    disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <h6 class="mt-2 mb-2">Warehouse Inventory Stock</h6>
+                                                            <div class="form-group">
+                                                                <input type="text" class="form-control"
+                                                                    v-model="inventoryStock"
+                                                                    placeholder="Inventory Stock" disabled>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4">
+                                                            <h6 class="mt-2 mb-2">Quantity</h6>
+                                                            <div class="form-group">
+                                                                <input type="number" class="form-control"
+                                                                    @change="changeQuantity" placeholder="Quantity"
+                                                                    v-model="quantity" min="0.0001" step="any"
+                                                                    :disabled="load_on_scan">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12">
+                                                            <button type="submit" class="btn btn-primary waves-effect"
+                                                                data-backdrop="static" data-keyboard="false"><i
+                                                                    class="zmdi zmdi-plus"></i></button>
+                                                            <!-- <button type="submit" class="btn btn-primary waves-effect" data-backdrop="static" data-keyboard="false"><i
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                class="zmdi zmdi-circle"></i></button> -->
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="row clearfix">
+                                                <div class="col-lg-12">
+                                                    <div class="cart_management">
+                                                        <div class="col-sm-12">
+                                                            <h6 class="mt-2 mb-2">Product Details</h6>
+                                                            <div class="table-responsive">
+                                                                <table
+                                                                    class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                                                    id="infoListTable">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>SL</th>
+                                                                            <th>Barcode</th>
+                                                                            <th>Name</th>
+                                                                            <th>Cost Price</th>
+                                                                            <th>Sales Price</th>
+                                                                            <th>New Add Qty</th>
+                                                                            <th>St. Qty</th>
+                                                                            <th>Total Cost price</th>
+                                                                            <th>Total sell price</th>
+                                                                            <th>Action</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody v-if="requestedProducts.length > 0 ">
+                                                                        <tr v-for="(requestDetails, index) in requestedProducts"
+                                                                            key="index">
+                                                                            <td>{{index + 1}}</td>
+                                                                            <td>{{requestDetails.product.barcode}}
+                                                                            </td>
+                                                                            <td style="width: 100px;">
+                                                                                {{requestDetails.product.name}}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{requestDetails.price.purchase}}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{requestDetails.price.sell}}
+                                                                            </td>
+                                                                            <td>
+                                                                                <input type="number"
+                                                                                    @change="updateInfo(index)"
+                                                                                    :id="'quantity_'+index"
+                                                                                    :value="requestDetails.product.newAddQuantity"
+                                                                                    min="0" step="any">
+                                                                            </td>
+                                                                            <td>
+                                                                                {{requestDetails.inventoryStock}}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{requestDetails.product.totalCostPrice}}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{requestDetails.product.totalSellPrice}}
+                                                                                tk.</td>
+                                                                            <td>
+                                                                                <div @click="removeInfo(index)"
+                                                                                    title="remove"><i
+                                                                                        class="zmdi zmdi-close"></i>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                    <tbody v-else>
+                                                                        <tr>
+                                                                            <td class="text-center" colspan="12">No data
+                                                                                found
+                                                                                here</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-lg-3 offset-lg-3">
+                                                    <h6 class="mt-2 mb-2">Total Quantity</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" :value="totalQuantity"
+                                                            disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <h6 class="mt-2 mb-2">Grand Total</h6>
+                                                    <div class="form-group">
+                                                        <input type="text" class="form-control" :value="grandTotal"
+                                                            disabled>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 ml-2">
+                                                    <button type="submit" class="btn btn-primary waves-effect"
+                                                        data-backdrop="static" data-keyboard="false"
+                                                        @click="saveInventoryProduct" v-show="!isUpdateState"
+                                                        :disabled="isLoading">Save</button>
+                                                    <button type="submit" class="btn btn-primary waves-effect"
+                                                        data-backdrop="static" data-keyboard="false"
+                                                        @click="resetAllFields()">Reset</button>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </section>
+
+            </div>
+
+
+            <script>
+                new Vue({
+                    el: '#add_data_section',
+                    data: {
+                        searchPageNo: 1,
+                        searchedItemCount: {
+                            total: 0,
+                            loadMore: false
+                        },
+                        allSearchedData: [],
+                        isSearchLoading: false,
+                        searchText: '',
+                        orderID: null,
+                        branch: '',
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: false,
+                        isUpdateState: false,
+                        requsitionID: null,
+                        requsitionNoShow: null,
+                        requisition_date: "",
+                        expected_date: "",
+                        load_on_scan: true,
+                        categoryFilter: [],
+                        allCategory: [],
+                        allSupplier: [],
+                        allBrand: [],
+                        allSubcategory: [],
+                        category: "",
+                        subcategory: '',
+                        brand: '',
+                        supplier: '',
+                        categoryName: "",
+                        inventoryProductList: [],
+                        inventoryProductListFilter: [],
+                        inventoryStock: 0,
+                        allSupplier: [],
+                        productName: "",
+                        barcode: "",
+                        costPrice: null,
+                        sellPrice: null,
+                        currentStock: null,
+                        total: 0,
+                        totalCostPrice: 0,
+                        totalSellPrice: 0,
+                        quantity: 1,
+                        vat: 0,
+                        selectedItem: "",
+                        quantityDisable: false,
+                        requestedProducts: [],
+                        totalQuantity: null,
+                        grandTotal: null,
+                        searchSupplier: "",
+                        requisitionNo: "",
+                        _id: "",
+                        downloadRequestID: null,
+                        searchQueryStringRequest: '',
+                        adminAccess: []
+                    },
+                    mounted() {
+                        this.checkBranchInfo()
+                        this.getBranchInfo()
+                        this.getCategoryInfo()
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                    },
+                    methods: {
+                        changeCostPrice(costPrice) {
+                            this.selectedItem.price.purchase = costPrice
+                        },
+                        changeLoadOnScan() {
+                            if (this.load_on_scan == true) {
+                                this.quantity = 1
+                            } else {
+                                this.quantity = 0
+                            }
+                            this.clear_forms()
+                        },
+                        filterCategoryList() {
+                            if (this.categoryName != "") {
+                                let search = new RegExp(this.categoryName, 'i');
+                                this.categoryFilter = this.allCategory.filter(categoryInfo => search.test(categoryInfo.name))
+                            } else {
+                                this.categoryFilter = this.allCategory
+                            }
+                        },
+                        filterInventoryProductList() {
+                            if (this.productName != "") {
+                                let search = new RegExp(this.productName, 'i');
+                                this.inventoryProductListFilter = this.inventoryProductList.filter(productInfo => search.test(productInfo.name))
+                            } else {
+                                this.inventoryProductListFilter = this.inventoryProductList
+                            }
+                        },
+                        categorySearchData(data) {
+                            this.categoryName = data.name
+                            this.category = data
+                            this.getWarehouseInventoryProduct()
+                        },
+                        warehouseInventoryProductSearchData(data) {
+                            this.productName = data.name
+                            this.selectedItem = data
+                            this.autoFillProductInfo()
+                        },
+                        addProduct() {
+                            this.clearResponseMessage()
+
+                            if (this.barcode == "" || this.selectedItem.name == "") {
+                                return alert("Insert product info correctly.");
+                            }
+
+                            let searchResult = this.requestedProducts.filter((productInfo) => {
+                                if (!this.load_on_scan && productInfo.product.barcode == this.barcode) {
+                                    productInfo.product.newAddQuantity += (Number(this.quantity))
+                                }
+
+                                return productInfo.product.barcode == this.barcode
+                            })
+
+
+                            if (searchResult.length > 0) {
+                                if (this.load_on_scan) {
+                                    searchResult[0].product.newAddQuantity += 1
+                                }
+
+                                searchResult[0].product.totalCostPrice = (searchResult[0].product.newAddQuantity * this.selectedItem.price.purchase).toFixed(2)
+                                searchResult[0].product.totalSellPrice = (searchResult[0].product.newAddQuantity * this.selectedItem.price.sell).toFixed(2)
+                            } else {
+                                this.requestedProducts.push({
+                                    supplier: this.selectedItem.supplier._id,
+                                    brand: this.selectedItem.brand._id,
+                                    category: this.selectedItem.category._id,
+                                    subcategory: this.selectedItem.subcategory._id,
+                                    price: this.selectedItem.price,
+                                    inventoryStock: this.selectedItem.stock_quantity,
+                                    product: {
+                                        _id: this.selectedItem._id,
+                                        barcode: this.barcode,
+                                        name: this.selectedItem.name,
+                                        totalCostPrice: (Number(this.quantity) * this.selectedItem.price.purchase).toFixed(2),
+                                        totalSellPrice: (Number(this.quantity) * this.selectedItem.price.sell).toFixed(2),
+                                        newAddQuantity: Number(this.quantity)
+                                    }
+                                })
+
+                                $("#barcodeField").focus()
+                                this.quantityDisable = true
+                            }
+
+                            this.totalCalculation()
+                            this.clear_forms()
+                        },
+                        saveInventoryProduct() {
+                            if (this.requestedProducts.length > 0) {
+                                this.isLoading = true
+                                let requestLink = '/api/warehouse/inventory/add'
+                                let token = localStorage.getItem('token')
+
+                                let itemInfo = this.requestedProducts
+
+                                addNewType(requestLink, itemInfo, token).then((result) => {
+                                    if (result.auth == true) {
+                                        this.successResponse = result.response
+                                        this.clear_forms()
+                                        this.requestedProducts = []
+                                        this.grandTotal = 0
+                                        this.totalQuantity = 0
+                                        this.getWarehouseInventoryProduct()
+                                    } else {
+                                        this.errorResponse = result.response
+                                    }
+                                    this.isLoading = false
+                                    $('html, body').animate({
+                                        scrollTop: 0
+                                    }, 'slow', function () { });
+                                })
+                            } else {
+                                alert("Sorry no product selected yet.")
+                            }
+                        },
+                        totalCalculation() {
+                            let totalCostPrice = 0
+                            let totalSellPrice = 0
+                            let totalQuantity = 0
+                            this.requestedProducts.map((requestDetail, index) => {
+                                totalQuantity += Number(requestDetail.product.newAddQuantity)
+                                totalCostPrice += Number((Number(requestDetail.product.newAddQuantity) * Number(requestDetail.price.purchase)).toFixed(2))
+                                totalSellPrice += Number((Number(requestDetail.product.newAddQuantity) * Number(requestDetail.price.purchase)).toFixed(2))
+
+                                if ((this.requestedProducts.length - 1) == index) {
+                                    this.totalQuantity = totalQuantity
+                                    this.grandTotal = totalCostPrice.toFixed(2)
+                                }
+                            })
+                        },
+                        resetAllFields() {
+                            this.clear_forms()
+                            this.downloadRequestID = null
+                            this.isUpdateState = false
+                            this.requsitionID = null
+                            this.requsitionNoShow = null
+                            this.requestedProducts = []
+                            this.supplierWiseProductList = []
+                            this.supplier = ""
+                            this.supplierName = ""
+                            this.purpose = ""
+                            this.remarks = ""
+                            this.totalQuantity = null
+                            this.grandTotal = null
+                            if (this.load_on_scan == false) {
+                                this.quantityDisable = false
+                            }
+
+                        },
+                        clear_forms() {
+                            this._id = ""
+                            this.barcode = ""
+                            this.productName = ""
+                            this.selectedItem = ""
+                            this.measurementUnitList = []
+                            this.measurementUnit = ""
+                            this.costPrice = null
+                            this.sellPrice = null
+                            this.inventoryStock = 0
+                            this.vat = 0
+
+                            if (this.load_on_scan === false) {
+                                this.quantity = 0
+                            }
+                        },
+                        updateInfo(index) {
+
+                            let purchase_price = this.requestedProducts[index].price.purchase
+                            let sell_price = this.requestedProducts[index].price.sell
+                            let quantity = Number($("#quantity_" + index).val())
+
+                            this.requestedProducts[index].product.newAddQuantity = quantity
+                            this.requestedProducts[index].product.totalCostPrice = Number((quantity * purchase_price).toFixed(2))
+                            this.requestedProducts[index].product.totalSellPrice = Number((quantity * sell_price).toFixed(2))
+
+                            this.totalCalculation()
+                        },
+                        removeInfo(index) {
+                            this.clear_forms()
+                            this.requestedProducts.splice(index, 1)
+                            this.totalCalculation()
+                        },
+                        changeQuantity() {
+                            if (this.costPrice > -1) {
+                                this.total = this.quantity * this.costPrice
+                            }
+                        },
+                        autoFillProductInfo() {
+                            if (this.selectedItem == "") {
+
+                            } else {
+                                this._id = this.selectedItem._id
+                                this.barcode = this.selectedItem.barcode
+                                this.costPrice = this.selectedItem.price.purchase
+                                this.sellPrice = this.selectedItem.price.sell
+                                this.inventoryStock = this.selectedItem.stock_quantity
+                                this.total = 0
+
+                                //check if the product exist 
+                                let searchResult = this.requestedProducts.filter((productInfo) => {
+                                    return productInfo.product.barcode == this.barcode
+                                })
+
+                                if (this.load_on_scan == false && searchResult.length == 0) {
+                                    this.quantity = 0
+                                    this.quantityDisable = false
+                                } else {
+                                    this.quantityDisable = true
+                                }
+                            }
+                        },
+                        getWarehouseInventoryProduct() {
+                            if (this.category == "") {
+                                this.clear_forms()
+                            } else {
+                                this.clear_forms()
+                                this.isDisable = true
+                                let link = ''
+                                if (this.category != 'all') {
+                                    link = '?category=' + this.category.id
+
+                                    if (this.subcategory != "") {
+                                        link = link + '&subcategory=' + this.subcategory.id
+                                    }
+                                    if (this.brand != "") {
+                                        link = link + '&brand=' + this.brand.id
+                                    }
+                                    if (this.supplier != "") {
+                                        link = link + '&supplier=' + this.supplier.id
+                                    }
+                                } else {
+                                    link = '?category=' + this.category
+                                }
+                                let requestLink = '/api/warehouse/inventory/category' + link
+                                
+
+                                getType(requestLink).then((result) => {
+                                    if (result.auth == true) {
+                                        this.productName = ""
+                                        this.inventoryProductList = []
+                                        this.inventoryProductList = result.response.data
+                                        this.inventoryProductListFilter = result.response.data
+                                    }
+                                    this.isDisable = false
+                                    this.category = ''
+                                    this.subcategory = ''
+                                    this.brand = ''
+                                    this.supplier = ''
+                                })
+                            }
+
+                        },
+                        getCurrentDate() {
+                            var today = new Date();
+                            var dd = String(today.getDate()).padStart(2, '0');
+                            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                            var yyyy = today.getFullYear();
+
+                            today = yyyy + '-' + mm + '-' + dd;
+
+                            this.expected_date = today
+                            this.requisition_date = today
+                        },
+                        getCategoryInfo() {
+                            let branchID = '?branch=' + localStorage.getItem('branch')
+                            let requestLink = '/api/category'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.categoryName = ""
+                                    this.allCategory = result.response.data
+                                    this.categoryFilter = result.response.data
+                                }
+                            })
+                        },
+                        getSubcategoryInfo(value) {
+                            if (value != 'all') {
+                                let branchID = '?branch=' + localStorage.getItem('branch')
+                                let requestLink = '/api/subcategory/category/' + value.id
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.allSubcategory = result.response.data
+                                        this.subcategory = ''
+                                    }
+                                })
+                            }
+                        },
+                        getBrandInfo(value) {
+                            let branchID = '?branch=' + localStorage.getItem('branch')
+                            let requestLink = '/api/brand/subcategory/' + value.id
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBrand = result.response.data
+                                    this.brand = ''
+                                }
+                            })
+                        },
+                        getSupplierInfo(value) {
+                            let branchID = '?branch=' + localStorage.getItem('branch')
+                            let requestLink = '/api/supplier/brand/' + value.id + '?activeSupplier=true&warehouseSupplier=true'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allSupplier = result.response.data
+                                    this.supplier = ''
+                                }
+                            })
+                        },
+                        selectSubCategory(value) {
+                            this.getBrandInfo(value)
+                        },
+                        searchReset() {
+                            this.searchPageNo = 1
+                            this.searchedItemCount = {
+                                total: 0,
+                                loadMore: false
+                            }
+                            this.allSearchedData = []
+                        },
+                        clearResponseMessage() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        getBarCode(e, barcode) {
+                            this.addItem(barcode)
+                        },
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data._id,
+                                            serialNo: result.response.data.serialNo,
+                                            name: result.response.data.name,
+                                            address: result.response.data.address,
+                                            thana: result.response.data.thana.name,
+                                            district: result.response.data.district.name,
+                                            phone: result.response.data.phone,
+                                            flat_order: result.response.data.flat_order,
+                                            point_bench_mark: result.response.data.point_settings.bench_mark,
+                                            point_purchase: result.response.data.point_settings.purchase,
+                                            point_expand: result.response.data.point_settings.expand,
+                                            use_points_on: result.response.data.point_settings.use_points_on
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        getBranchInfo() {
+                            let requestLink = '/api/branch'
+                            getType(requestLink).then((result) => {
+                                if (result.auth === true) {
+                                    this.allBranch = result.response.data
+                                }
+                            })
+                        },
+                        addItem(barcode) {
+                            if (this.load_on_scan == false) {
+                                this.quantityDisable = false
+                            }
+
+                            let product = this.inventoryProductList.filter((product, index) => {
+
+                                if (this.load_on_scan == false) {
+                                    this.quantityDisable = true
+                                }
+                                return product.barcode == barcode
+                            })
+                            if (product.length > 0) {
+                                this.selectedItem = product[0]
+                                this.costPrice = this.selectedItem.price.purchase
+                                this.productName = this.selectedItem.name
+                                this.sellPrice = this.selectedItem.price.sell
+                                this.inventoryStock = this.selectedItem.stock_quantity
+                                this.total = 0
+
+                                if (this.load_on_scan == false) {
+                                    this.quantity = 0
+                                }
+                            } else {
+                                alert("No product found")
+                            }
+                        }
+                    }
+                })
+            </script>
+
+            <script>                                                                                                                                         $(function () {
+                    $("#add_data_section").on('wheel', function () {
+                        $('input[type=number]').on('mousewheel', function (e) { $(this).blur(); });
+                    });
+                });
+            </script>
+
+            <% include ../../partials/footer %>

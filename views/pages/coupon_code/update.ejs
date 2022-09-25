@@ -1,0 +1,519 @@
+<% include ../../partials/header %>
+
+    <% include ../../partials/nav %>
+
+        <% include ../../partials/left-sidebar %>
+
+            <style>
+                .dtp>.dtp-content>.dtp-date-view>header.dtp-header {
+                    background: #7e6990;
+                    color: #fff;
+                    text-align: center;
+                    padding: 0.3em;
+                }
+
+                .dtp div.dtp-date,
+                .dtp div.dtp-time {
+                    background: #7e6990;
+                    text-align: center;
+                    color: #fff;
+                    padding: 10px;
+                }
+
+                .dtp table.dtp-picker-days tr>td>a.selected {
+                    background: #7e6990;
+                    color: #fff;
+                }
+            </style>
+
+            <!-- Main Content -->
+            <section class="content" id="property_type_section">
+
+                <% include ../../partials/content/header %>
+
+                    <div class="container-fluid">
+                        <div class="row clearfix">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="header">
+                                        <h2><strong>Update</strong> Coupon Code Information</h2>
+                                        <div class="row">
+                                            <div class="col-sm-12 text-center">
+                                                <p class="text-center text-primary">Your current branch is :
+                                                    <strong>{{branch.name}}</strong>
+                                                </p>
+                                                <button @click="changeBranch" class="btn btn-primary">Change
+                                                    Branch</button>
+                                            </div>
+                                        </div>
+
+                                        <br />
+                                    </div>
+                                    <div class="body" v-on:scroll="">
+                                        <div class="container">
+                                            <div class="row clearfix">
+                                                <div class="col-lg-12">
+                                                    <div class="card" style="border: 1px solid rgb(155, 111, 193);">
+                                                        <div class="header">
+                                                            <h2><strong>Update</strong> Coupon Code </h2>
+                                                        </div>
+                                                        <div class="body">
+                                                            <div v-if="errorResponse!==null">
+                                                                <div class="alert alert-danger"
+                                                                    v-for="error in errorResponse">
+                                                                    {{error.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div v-if="successResponse!==null">
+                                                                <div class="alert alert-success">
+                                                                    {{successResponse.msg}}
+                                                                    <button type="button" class="close"
+                                                                        data-dismiss="alert" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-10 mt-1">
+                                                                    <div class="form-group">
+                                                                        <input type="text" v-model="CouponCode"
+                                                                            class="form-control" name="CouponCode"
+                                                                            placeholder="Coupon Code" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-sm-2">
+                                                                    <button type="submit" @click="generateCoupon"
+                                                                        class="btn btn-primary btn-round">Generate</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-12">
+                                                                    <h6 class="mt-2 mb-3">Coupon Code Detail
+                                                                        Information
+                                                                    </h6>
+
+                                                                    <div class="row">
+
+                                                                        <div class="col-md-4">
+                                                                            <p>Percentage
+                                                                            </p>
+                                                                            <div class="form-group">
+                                                                                <input type="number" step="any"
+                                                                                    v-model="percentage"
+                                                                                    class="form-control"
+                                                                                    name="percentage"
+                                                                                    placeholder="Percentage" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <p>Max. Amount</p>
+                                                                            <div class="form-group">
+                                                                                <input type="number" step="any"
+                                                                                    v-model="max_amount"
+                                                                                    class="form-control"
+                                                                                    name="max_amount"
+                                                                                    placeholder="Max Amount" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <p>Min Purchase Amount(TK)</p>
+                                                                            <div class="form-group">
+                                                                                <input type="number" step="any"
+                                                                                    v-model="min_purchase"
+                                                                                    name="min_purchase"
+                                                                                    class="form-control" required />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <p class="mt-2 mb-2">Validate From <span
+                                                                                    style="color: red;">*</span></p>
+                                                                            <div class="form-group">
+                                                                                <input type="text" id="fromDate"
+                                                                                    class="form-control datetimepicker"
+                                                                                    placeholder="From Date" required>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <p class="mt-2 mb-2">Validate To
+                                                                                <span style="color: red;">*</span>
+                                                                            </p>
+                                                                            <div class="form-group">
+                                                                                <input type="text"
+                                                                                    id="toDate"
+                                                                                    class="form-control datetimepicker"
+                                                                                    placeholder="Validate To" required>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-md-4">
+                                                                            <p>Max Use Time</p>
+                                                                            <div class="form-group">
+                                                                                <input type="number" step="any"
+                                                                                    v-model="max_use" name="max_use"
+                                                                                    class="form-control" required />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <p>Active</p>
+                                                                            <div class="form-group">
+                                                                                <div class="radio inlineblock m-r-20">
+                                                                                    <input type="radio" class="with-gap"
+                                                                                        id="active_1" v-model="isActive"
+                                                                                        :value="true">
+                                                                                    <label for="active_1">Yes</label>
+                                                                                </div>
+                                                                                <div class="radio inlineblock">
+                                                                                    <input type="radio" id="active_0"
+                                                                                        v-model="isActive"
+                                                                                        :value="false" class="with-gap">
+                                                                                    <label for="active_0">No</label>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <div class="row clearfix">
+                                                                <div class="col-sm-6">
+                                                                    <h6 class="mt-2 mb-2">Apply For All Client
+                                                                    </h6>
+                                                                    <div class="row">
+                                                                        <div class="col-md-12">
+
+                                                                            <div class="form-group">
+                                                                                <div class="radio inlineblock m-r-20">
+                                                                                    <input type="radio" class="with-gap"
+                                                                                        id="add_point_apply_1"
+                                                                                        v-model="apply_for_all"
+                                                                                        :value="true">
+                                                                                    <label
+                                                                                        for="add_point_apply_1">Yes</label>
+                                                                                </div>
+                                                                                <div class="radio inlineblock">
+                                                                                    <input type="radio"
+                                                                                        id="add_point_apply_0"
+                                                                                        v-model="apply_for_all"
+                                                                                        :value="false" class="with-gap">
+                                                                                    <label
+                                                                                        for="add_point_apply_0">No</label>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        <div class="col-sm-8" v-if="!apply_for_all">
+                                                                            <div class="form-group">
+                                                                                <input type="text" class="form-control"
+                                                                                    @keyup="getPhoneNumber($event, phoneNumber)"
+                                                                                    v-model="phoneNumber"
+                                                                                    placeholder="Phone no.">
+                                                                            </div>
+                                                                            <span class="badge badge-primary"
+                                                                                style="font-size: 12px; cursor: pointer;margin-right: 5px;"
+                                                                                v-for="(number, index) in phone"
+                                                                                :key="index">{{number}} <span
+                                                                                    aria-hidden="true"
+                                                                                    @click="removePhoneNumber(index)">&times;</span></span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                            <div class="row clearfix mt-3">
+                                                                <div class="col-sm-12">
+                                                                    <button type="submit" @click="updateItem"
+                                                                        class="btn btn-primary btn-round">Update</button>
+                                                                    <button v-if="showComplete"
+                                                                        @click="propcessCompleted" type="button"
+                                                                        class="btn btn-primary btn-round">Complete</button>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+            </section>
+
+            <script src="<%= host %>/data/location.js"></script>
+
+            <script>
+
+                new Vue({
+                    el: '#property_type_section',
+                    data: {
+                        couponID: '<%= data.couponID %>',
+                        searchText: '',
+                        branch: '',
+                        allListItem: [],
+                        phone: [],
+                        location: '',
+                        phoneNumber: '',
+                        name: '',
+                        CouponCode: '',
+                        min_purchase: 0,
+                        type_section: null,
+                        errorResponse: null,
+                        successResponse: null,
+                        isDisable: false,
+                        isLoading: true,
+                        searchQueryString: '',
+                        validity_from: '',
+                        validity_to: '',
+                        currentDate: '',
+                        max_use: 1,
+                        max_amount: 0,
+                        percentage: 0,
+                        apply_for_all: false,
+                        isActive: true,
+                        users: [],
+                        showComplete: false,
+                        adminAccess: []
+                    },
+                    mounted() {
+                        this.getCurrentDate()
+                        this.updateInformationAutoFill()
+                        this.checkBranchInfo()
+                        this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+                    },
+                    methods: {
+                        checkBranchInfo() {
+                            if (localStorage.getItem('branch')) {
+                                let branchID = localStorage.getItem('branch')
+
+                                let requestLink = '/api/branch/data/' + branchID
+                                getType(requestLink).then((result) => {
+                                    if (result.auth === true) {
+                                        this.branch = {
+                                            id: result.response.data.id,
+                                            name: result.response.data.name
+                                        }
+                                    } else {
+                                        localStorage.removeItem('branch')
+                                        localStorage.setItem('referrerURL', window.location.href)
+                                        location.href = '<%= host %>' + '/product/branch/select'
+                                    }
+                                })
+                            } else {
+                                localStorage.removeItem('branch')
+                                localStorage.setItem('referrerURL', window.location.href)
+                                location.href = '<%= host %>' + '/product/branch/select'
+                            }
+                        },
+                        getPhoneNumber(e, phoneNo) {
+                            if (e.keyCode == 188) {
+                                let phoneNumberData = phoneNo.trim().split(',')[0]
+                                let requestLink = '/api/coupon-code/user/' + phoneNumberData
+                                let token = localStorage.getItem('token')
+
+                                getSecureData(requestLink, token).then((result) => {
+                                    if (result.auth === false) {
+                                        this.errorResponse = result.response
+                                        this.phoneNumber = ''
+                                    } else {
+                                        let index = this.phone.findIndex((number) => number == Number(phoneNumberData))
+                                        if (index == -1) {
+                                            this.phone.push(phoneNumberData)
+                                            this.phoneNumber = ''
+                                            this.users.push(result.response.data[0]._id)
+                                        } else {
+                                            alert(phoneNumberData + ' already inserted')
+                                            this.phoneNumber = ''
+                                        }
+                                    }
+                                })
+
+                            }
+                        },
+                        removePhoneNumber(removeindex) {
+                            this.phone = this.phone.filter((value, index) => index !== removeindex)
+                        },
+                        clear_notifications() {
+                            this.errorResponse = null
+                            this.successResponse = null
+                        },
+                        add_type_section() {
+                            this.remove_type_section()
+                            this.type_section = 'add'
+                        },
+                        remove_type_section() {
+                            this.type_section = null
+                            this.phoneNumber = ''
+                            this.phone = []
+                            this.name = ''
+                            this.max_use = 1
+                            this.max_amount = 0
+                            this.percentage = 0
+                            this.apply_for_all = false
+                            this.min_purchase = 0
+                            this.CouponCode = ''
+                            this.getCurrentDate()
+                        },
+
+                        updateInformationAutoFill() {
+                            let requestLink = '/api/coupon-code/single/' + this.couponID
+                            let token = localStorage.getItem('token')
+
+                            getSecureData(requestLink, token).then((result) => {
+                                if (result.auth === true) {
+                                    this.CouponCode = result.response.data.code
+                                    this.percentage = result.response.data.percentage
+                                    this.max_amount = result.response.data.max_amount
+                                    this.max_use = result.response.data.max_use_time
+                                    this.min_purchase = result.response.data.total_order_amount_min
+                                    this.isActive = result.response.data.isActive
+                                    this.apply_for_all = result.response.data.isAssignedAllUser
+                                    this.validity_to = result.response.data.validity_to
+                                    this.validity_from = result.response.data.validity_from
+
+                                    let index = this.validity_from.indexOf("T")
+                                    let dateFrom = this.validity_from.substring(0, index)
+                                    this.validity_from = dateFrom
+
+                                    let index2 = this.validity_to.indexOf("T")
+                                    let dateTo = this.validity_to.substring(0, index2)
+                                    this.validity_to = dateTo
+
+                                    $("#fromDate").val(this.validity_from)
+                                    $("#toDate").val(this.validity_to)
+
+                                    if (this.apply_for_all == false) {
+                                        let requestLink2 = '/api/coupon-code/phone' +
+                                            '?userIds=' + result.response.data.users
+                                        getSecureData(requestLink2, token).then((res) => {
+                                            if (res.auth === true) {
+                                                this.phone = res.response.data
+
+                                                this.phone.map((phonenumber) => {
+                                                    let requestLink = '/api/coupon-code/user/' + phonenumber
+                                                    let token = localStorage.getItem('token')
+
+                                                    getSecureData(requestLink, token).then((result) => {
+                                                        if (result.auth === false) {
+                                                            this.errorResponse = result.response
+                                                            this.phoneNumber = ''
+                                                        } else {
+                                                            this.users.push(result.response.data[0]._id)
+                                                        }
+                                                    })
+                                                })
+
+                                            }
+                                        })
+                                    }
+                                }
+                            })
+                        },
+                        generateCoupon() {
+                            var result = '';
+                            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                            var charactersLength = characters.length;
+                            for (var i = 0; i < 10; i++) {
+                                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                            }
+                            this.CouponCode += result;
+                        },
+                        updateItem() {
+                            this.clear_notifications()
+                            this.isDisable = true
+                            this.isLoading = true
+                            let requestLink = '/api/coupon-code'
+                            let token = localStorage.getItem('token')
+
+                            this.validity_from = $("#fromDate").val()
+                            this.validity_to = $("#toDate").val()
+
+
+                            var today = new Date();
+                            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+
+                            if (this.percentage == 0 && this.max_amount == 0) {
+                                return alert('please give a percentage or a max amount')
+                            }
+                            if (this.apply_for_all == false && this.phone.length == 0) {
+                                return alert('Please give phone number of users')
+                            }
+
+                            let itemInfo = {
+                                code: this.CouponCode,
+                                coupon_code_id: this.couponID,
+                                percentage: this.percentage,
+                                max_amount: this.max_amount,
+                                validity_from: this.validity_from + ' ' + time,
+                                validity_to: this.validity_to + ' ' + time,
+                                total_order_amount_min: this.min_purchase,
+                                isAssignedAllUser: this.apply_for_all,
+                                isActive: this.isActive,
+                                max_use_time: this.max_use,
+                                users: this.users
+                            }
+
+                            updateTypeInfo(requestLink, itemInfo, token).then((result) => {
+                                if (result.auth === false) {
+                                    this.errorResponse = result.response
+                                    $('html, body').animate({
+                                        scrollTop: 0
+                                    }, 'slow', function () { });
+                                } else {
+                                    this.successResponse = result.response
+                                    this.productID = this.successResponse.data._id
+                                    this.formDisplay = false
+                                    this.isLoading = false
+                                    this.showComplete = true
+                                }
+                                this.isDisable = false
+                            })
+                        },
+                        getCurrentDate() {
+                            var today = new Date();
+                            var dd = String(today.getDate()).padStart(2, '0');
+                            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                            var yyyy = today.getFullYear();
+
+                            today = yyyy + '-' + mm + '-' + dd;
+
+                            this.currentDate = today
+
+                        },
+                        changeBranch() {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        },
+                        propcessCompleted() {
+                            location.href = '<%= host %>/dashboard/coupon_code/list'
+                        }
+
+                    }
+                })
+            </script>
+
+            <% include ../../partials/footer %>
+                <script>
+                    $(function () {
+                        //Datetimepicker plugin
+                        $('.datetimepicker').bootstrapMaterialDatePicker({
+                            format: 'YYYY-MM-DD',
+                            clearButton: true,
+                            weekStart: 1,
+                            time: false,
+                            minDate: new Date()
+                        });
+                    });
+                </script>

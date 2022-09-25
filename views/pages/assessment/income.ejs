@@ -1,0 +1,460 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<!-- Main Content -->
+<section class="content" id="property_type_section">
+
+    <% include ../../partials/content/header %>
+
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="body">
+                        <div class="row justify-content-center clearfix">
+                            <div class="col-lg-5">
+                                <div v-if="type_section === 'delete'">
+                                    <div v-if="errorResponse!==null">
+                                        <div class="alert alert-danger" v-for="error in errorResponse">
+                                            {{error.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-if="successResponse!==null">
+                                        <div class="alert alert-success">
+                                            {{successResponse.msg}}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="container" v-if="type_section === 'add'">
+                                <div class="row clearfix">
+                                    <div class="col-lg-6 offset-lg-3">
+                                        <div class="card" style="border: 1px solid #9b6fc1;">
+                                            <div class="header">
+                                                <h2><strong>Create</strong> Income </h2>
+                                                <ul class="header-dropdown m-r--5">
+                                                    <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                            role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                                class="material-icons">close</i></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="body">
+                                                <div v-if="errorResponse!==null">
+                                                    <div class="alert alert-danger" v-for="error in errorResponse">
+                                                        {{error.msg}}
+                                                        <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div v-if="successResponse!==null">
+                                                    <div class="alert alert-success">
+                                                        {{successResponse.msg}}
+                                                        <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="row clearfix">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <select class="form-control"
+                                                                @change="getPropertyOfProject(project)"
+                                                                v-model="project">
+                                                                <option value="">-- Select Project --</option>
+                                                                <option v-for="(projectInfo, index) in allProject"
+                                                                    :key="index" :value="projectInfo._id">
+                                                                    {{projectInfo.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <select class="form-control" v-model="property">
+                                                                <option value="" :selected="property==''">-- Select
+                                                                    Property --</option>
+                                                                <option v-for="(propertyInfo, index) in allProperty"
+                                                                    :key="index" :value="propertyInfo._id">
+                                                                    {{propertyInfo.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <select class="form-control" v-model="type">
+                                                                <option value="">-- Select Income Type --</option>
+                                                                <option v-for="(incomeType, index) in incomeTypes"
+                                                                    :key="index" :value="incomeType._id">
+                                                                    {{incomeType.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <input type="number" min="1" v-model="price"
+                                                                class="form-control" placeholder="Price">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <input type="number" min="1" v-model="quantity"
+                                                                class="form-control" placeholder="Quantity">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <textarea rows="4" placeholder="Type Notes" v-model="notes"
+                                                                class="form-control no-resize"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row clearfix">
+                                                    <div class="col-sm-12">
+                                                        <button type="submit" :disabled="isDisable"
+                                                            @click="addProjectType"
+                                                            class="btn btn-primary btn-round">Submit</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container" v-if="type_section == 'edit'">
+                                <div class="row clearfix">
+                                    <div class="col-lg-6 offset-lg-3">
+                                        <div class="card" style="border: 1px solid #9b6fc1;">
+                                            <div class="header">
+                                                <h2><strong>Edit</strong> Income Type </h2>
+                                                <ul class="header-dropdown m-r--5">
+                                                    <li> <a href="javascript:void(0);" @click="remove_type_section"
+                                                            role="button" aria-haspopup="true" aria-expanded="false"><i
+                                                                class="material-icons">close</i></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="body">
+                                                <div v-if="errorResponse!==null">
+                                                    <div class="alert alert-danger" v-for="error in errorResponse">
+                                                        {{error.msg}}
+                                                        <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div v-if="successResponse!==null">
+                                                    <div class="alert alert-success">
+                                                        {{successResponse.msg}}
+                                                        <button type="button" class="close" data-dismiss="alert"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="row clearfix">
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <select class="form-control"
+                                                                @change="getPropertyOfProject(project)"
+                                                                v-model="editProject">
+                                                                <option value="">-- Select Project --</option>
+                                                                <option v-for="(projectInfo, index) in allProject"
+                                                                    :key="index" :value="projectInfo._id">
+                                                                    {{projectInfo.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <select class="form-control" v-model="editProperty">
+                                                                <option value="" :selected="property==''">-- Select
+                                                                    Property --</option>
+                                                                <option v-for="(propertyInfo, index) in allProperty"
+                                                                    :key="index" :value="propertyInfo._id">
+                                                                    {{propertyInfo.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <select class="form-control" v-model="editType">
+                                                                <option value="">-- Select Income Type --</option>
+                                                                <option v-for="(incomeType, index) in incomeTypes"
+                                                                    :key="index" :value="incomeType._id">
+                                                                    {{incomeType.name}}</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <input type="number" min="1" v-model="editPrice"
+                                                                class="form-control" placeholder="Price">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <input type="number" min="1" v-model="editQuantity"
+                                                                class="form-control" placeholder="Quantity">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="form-group">
+                                                            <textarea rows="4" placeholder="Type Notes"
+                                                                v-model="editNotes"
+                                                                class="form-control no-resize"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row clearfix">
+                                                    <div class="col-sm-12">
+                                                        <button type="submit" :disabled="isDisable"
+                                                            @click="updateProjectType"
+                                                            class="btn btn-primary btn-round">Submit</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-if="isLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive" v-else>
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Income Type</th>
+                                        <th>Project</th>
+                                        <th>Property</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(incomeDetail, index) in incomeDetails.data" :key="incomeDetail._id">
+                                        <td>{{ index + 1 }}</td>
+                                        <td style="text-transform: capitalize;">{{incomeDetail.type.name}}</td>
+                                        <td style="text-transform: capitalize;">{{incomeDetail.project.name}}</td>
+                                        <td style="text-transform: capitalize;">{{incomeDetail.property.name}}</td>
+                                        <td style="text-transform: capitalize;">{{incomeDetail.price}}</td>
+                                        <td style="text-transform: capitalize;">{{incomeDetail.quantity}}</td>
+                                        <td>
+                                            <button :disabled="isDisable" @click="edit_income_section(incomeDetail._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini"><i
+                                                    class="zmdi zmdi-edit"></i></button>
+                                            <button :disabled="isDisable" @click="deleteProjectType(incomeDetail._id)"
+                                                class="btn btn-icon btn-neutral btn-icon-mini"><i
+                                                    class="zmdi zmdi-delete"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+<script>
+    new Vue({
+        el: '#property_type_section',
+        data: {
+            allProject: [],
+            allProperty: [],
+            incomeDetails: [],
+            incomeTypes: [],
+            type_section: null,
+            project: '',
+            property: '',
+            type: '',
+            price: null,
+            quantity: 1,
+            notes: null,
+            editIncomeID: '',
+            editProject: '',
+            editProperty: '',
+            editType: '',
+            editPrice: null,
+            editQuantity: null,
+            editNotes: null,
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: true
+        },
+        mounted() {
+            this.getProjects()
+            this.getIncomeTypes()
+            this.getAllIncomeData()
+        },
+        methods: {
+            getProjects() {
+                let requestLink = '/api/project'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allProject = result.response.data
+                    }
+                })
+            },
+            getIncomeTypes() {
+                let requestLink = '/api/assessment/income/type'
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.incomeTypes = result.response.data
+                    }
+                })
+            },
+            getPropertyOfProject(projectID) {
+                let requestLink = '/api/property/select'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        let propertyInfo = result.response.data.filter(property => property.project ===
+                            projectID)
+                        this.allProperty = propertyInfo
+                    }
+                })
+            },
+            getAllIncomeData() {
+                let requestLink = '/api/assessment/income'
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.incomeDetails = result.response
+                        this.isLoading = false
+                    }
+                })
+            },
+            clear_notifications() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            add_type_section() {
+                this.clear_notifications()
+                this.type_section = 'add'
+            },
+            edit_income_section(incomeID) {
+                this.editIncomeID = incomeID
+                this.clear_notifications()
+                this.isDisable = true
+                this.type_section = 'edit'
+                let requestLink = '/api/assessment/income/single/' + incomeID
+                let token = localStorage.getItem('token')
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth === true) {
+                        this.editProject = result.response.data.project._id
+                        this.getPropertyOfProject(this.editProject)
+                        this.editProperty = result.response.data.property._id
+                        this.editType = result.response.data.type._id
+                        this.editPrice = result.response.data.price
+                        this.editQuantity = result.response.data.quantity
+                        this.editNotes = result.response.data.notes
+                    }
+                    this.isDisable = false
+                })
+            },
+            remove_type_section() {
+                this.clear_notifications()
+                this.type_section = null
+                this.editIncomeID = null
+            },
+            addProjectType() {
+                this.clear_notifications()
+                let requestLink = '/api/assessment/income'
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+
+                addNewType(requestLink, {
+                    project: this.project,
+                    property: this.property,
+                    type: this.type,
+                    price: this.price,
+                    quantity: this.quantity,
+                    notes: this.notes
+                }, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.addTypeValue = ''
+                        this.addTypeDetails = ''
+                        this.successResponse = result.response
+                        this.getAllIncomeData()
+                    }
+                    this.isDisable = false
+                    this.isLoading = false
+                })
+            },
+            updateProjectType() {
+                this.clear_notifications()
+                let requestLink = '/api/assessment/income'
+                this.isDisable = true
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                updateTypeInfo(requestLink, {
+                    income_id: this.editIncomeID,
+                    project: this.editProject,
+                    property: this.editProperty,
+                    type: this.editType,
+                    price: this.editPrice,
+                    quantity: this.editQuantity,
+                    notes: this.editNotes
+                }, token).then((result) => {
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.editTypeValue = ''
+                        this.editTypeDetails = ''
+                        this.successResponse = result.response
+                        this.getAllIncomeData()
+                    }
+                    this.isDisable = false
+                })
+            },
+            deleteProjectType(incomeID) {
+                this.remove_type_section()
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/assessment/income/'
+                let token = localStorage.getItem('token')
+                deleteType(requestLink, incomeID, token).then((result) => {
+                    this.type_section = 'delete'
+                    if (result.auth === false) {
+                        this.errorResponse = result.response
+                    } else {
+                        this.getAllIncomeData()
+                        this.successResponse = result.response
+                    }
+                    this.isDisable = false
+                })
+            }
+        }
+    })
+</script>
+
+<% include ../../partials/footer %>

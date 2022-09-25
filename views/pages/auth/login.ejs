@@ -1,0 +1,92 @@
+<% include ./layout/header %>
+
+<% include ./layout/nav %>
+   
+    <div class="page-header" id="login_section">
+        <div class="page-header-image" style="background-image:url(<%= host %>/assets/images/login.jpg)"></div>
+        <div class="container">
+            <div class="col-md-12 content-center">
+                <div class="card-plain">
+                    <form class="form" @submit.prevent="loginAuth">
+                        <div class="header">
+                            <div class="logo-container">
+                                <img src="<%= host %>/assets/images/icons/logo.svg"
+                                    alt="">
+                            </div>
+                            <h5>Log in</h5>
+                        </div>
+                        <div class="content">
+                            <div v-if="errorResponse!==null">
+                                <div class="alert alert-danger" v-for="error in errorResponse">
+                                    {{error.msg}}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                      </button>
+                                </div>
+                            </div>
+
+                            <% if (messages.notification) { %>
+                                    <div class="alert alert-<%= JSON.parse(JSON.stringify(messages.notification))[0].type %>">
+                                        <%= JSON.parse(JSON.stringify(messages.notification))[0].msg %>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                          </button>
+                                    </div>
+                            <% } %>
+                            <div class="input-group">
+                                <input type="text" v-model="email" class="form-control" placeholder="Enter Your Email">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-account-circle"></i>
+                                </span>
+                            </div>
+                            <div class="input-group">
+                                <input type="password" v-model="password" placeholder="Password" class="form-control" />
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-lock"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="footer text-center">
+                            <button type="submit" class="btn btn-primary btn-round btn-lg btn-block ">SIGN IN</button>
+                            <h5><a href="/forgot" class="link">Forgot Password?</a></h5>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="container">
+                <div class="copyright">
+                    &copy;
+                    <script>
+                        document.write(new Date().getFullYear())
+                    </script>,
+                    <span>Developed by <a href="<%= companyInfo.development_company_website %>" target="_blank"><%= companyInfo.developer %></a></span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        new Vue({
+            el: '#login_section',
+            data:{
+                email: '',
+                password: '',
+                errorResponse: null
+            },
+            methods:{
+                loginAuth(){
+                    this.errorResponse = null
+                    loginAuth(this.email.toLowerCase(), this.password).then((result) => {
+                        if(result.auth===true){
+                            window.location = '/dashboard'
+                        }else{
+                            this.errorResponse = result.response
+                        }
+                    })
+                }
+            }
+        })
+    </script>
+<% include ./layout/footer %>    

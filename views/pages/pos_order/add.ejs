@@ -1,0 +1,2546 @@
+<% include ../../partials/header %>
+
+<% include ../../partials/nav %>
+
+<% include ../../partials/left-sidebar %>
+
+<style>
+    body {
+        padding-right: 0px !important;
+    }
+    .dueAnountStyle{
+        border: 2px solid #9b6fc1;
+        padding: 10px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+        width: 100%;
+    }
+    .dueAnountStyle h1{
+        padding: 0;
+        margin: 0;
+        color: red;
+        font-size: 42px;
+        text-align: center;
+    }
+</style>
+<div id="add_data_section">
+    <div class="modal fade" id="dualPriceModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Dual Price Products</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                id="infoListTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Barcode</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-show="dual_price_product.length > 0">
+                                    <tr v-for="(product, index) in dual_price_product" :key="index">
+                                        <td>{{index+1}}</td>
+                                        <td>{{product.barcode}}</td>
+                                        <td>{{product.name}}</td>
+                                        <td>{{product.sell.toFixed(2)}}</td>
+                                        <td>{{product.quantity.toFixed(2)}}</td>
+                                        <td>
+                                            <button type="button" @click="addProductToCartFromDualPrice(product.barcode, product.sell)"
+                                                v-if="checkSearchedDataInCartForDualPrice(product._id, product.sell)==0"
+                                                style="border: 0;padding: 2;color: #4b2a68;cursor:pointer;background:none"><i
+                                                    class="zmdi zmdi-shopping-cart"></i></button>        
+                                            <button type="button" v-if="checkSearchedDataInCartForDualPrice(product._id, product.sell)==1"
+                                                style="border: 0;padding: 2;color: #4b2a68;cursor:pointer;background:none"><i
+                                                    class="zmdi zmdi-check"></i></button>
+                                            <span v-if="checkSearchedDataInCartForDualPrice(product._id, product.sell)==2" class="badge badge-primary" style="font-size: 12px; cursor: pointer; margin-right: 5px; text-transform: capitalize;">not allowed</span>        
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="searchModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="title" id="defaultModalLabel">Search Products</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <div class="mb-2">
+                                    <label for="nameRadio">
+                                        <input type="radio" v-model="searchType" value="name" name="searchType" id="nameRadio"/> Product Name
+                                    </label>
+                                    <label for="barcodeRadio" class="ml-2">
+                                        <input type="radio" v-model="searchType" value="barcode" name="searchType" id="barcodeRadio"/> Barcode
+                                    </label>
+                                </div>
+                                <input style="width: 100%;" type="text" v-model="searchText"
+                                    @keyup="getSearchedItems($event, searchText)" class="form-control"
+                                    placeholder="Search..." id="modalSearchField">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12" v-if="isSearchLoading">
+                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12" v-else v-show="!isSearchLoading">
+                            <table class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                id="infoListTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Barcode</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-show="allSearchedData.length > 0">
+                                    <tr v-for="(product, index) in allSearchedData" :key="index">
+                                        <td>{{index+1}}</td>
+                                        <td>{{product.barcode}}</td>
+                                        <td>{{product.name}}</td>
+                                        <td>
+                                            <div>
+                                                {{product.price.sell.toFixed(2)}}
+                                            </div>
+                                            <div v-if="product.second_price.quantity>0">
+                                                <hr/>
+                                                {{product.second_price.sell.toFixed(2)}}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>{{product.quantity.toFixed(2)}}</div>
+                                            <div v-if="product.second_price.quantity>0">
+                                                <hr/>
+                                                {{product.second_price.quantity.toFixed(2)}}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button" @click="addProductToCartFromSearch(product)"
+                                                v-if="!checkSearchedDataInCart(product._id)"
+                                                style="border: 0;padding: 2;color: #4b2a68;cursor:pointer;background:none"><i
+                                                    class="zmdi zmdi-shopping-cart"></i></button>
+                                            <button type="button" v-else
+                                                style="border: 0;padding: 2;color: #4b2a68;cursor:pointer;background:none"><i
+                                                    class="zmdi zmdi-check"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="searchedItemCount.loadMore==true">
+                                        <td colspan="6">
+                                            <button class="btn btn-primary" @click="getSearchData(searchText)">Load
+                                                more</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tbody v-show="allSearchedData.length == 0">
+                                    <tr>
+                                        <td colspan="6">No data found</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12" v-show="allSearchedData.length > 0">
+                            <p class="text-primary">Total <strong>{{this.searchedItemCount.total}}</strong> searched
+                                data found.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" @click="searchReset" data-dismiss="modal"
+                        class="btn btn-primary waves-effect">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="content">
+
+        <% include ../../partials/content/header %>
+
+        <div class="container-fluid">
+
+            <div class="row clearfix">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="header">
+                            <h2><strong>POS</strong> Sell Information</h2>
+                            <div class="row">
+                                <div class="col-sm-12 text-center">
+                                    <p class="text-center text-primary">Your current branch is :
+                                        <strong>{{branch.name}}</strong></p>
+                                    <a class="btn btn-primary" target="_blank"
+                                        href="<%= host %>/dashboard/pos/order/create?tabID=<%= Date.now()+Math.floor(Math.random()*(99-10+1)+10) %>">Open
+                                        Another
+                                        POS Selling Tab</a>
+                                    <button @click="changeBranch" class="btn btn-primary">Change Branch</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="body">
+                            <div class="row">
+                                <div class="col-lg-6 offset-lg-3">
+                                    <% include ../notification/message %>
+                                </div>
+                            </div>
+                            <div class="row clearfix">
+                                <div class="col-lg-8">
+                                    <p class="m-0 p-0 text-primary text-center" v-if="personalDiscountData!==null">Personal discount is assigned for <strong>{{personalDiscountData.name}}</strong></p>
+                                    <p class="m-0 p-0 text-primary text-center" v-if="salesPersonData!==null">This sell is assigned to <strong>{{salesPersonData.name}}</strong></p>
+                                    <div class="cart_management">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Product Barcode</h6>
+                                        </div>
+                                        <div class="row form-inline">
+                                            <div class="col-sm-10">
+                                                <div class="form-group pl-3">
+                                                    <input style="width: 100%;" id="borcodeInputField" type="text" v-model="barcode"
+                                                        @keyup="getBarCode($event, barcode)" class="form-control"
+                                                        placeholder="Product Barcode" :disabled="isDone">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <button type="submit" data-toggle="modal" data-target="#searchModal"
+                                                    class="btn btn-primary waves-effect m-r-20" data-backdrop="static"
+                                                    data-keyboard="false" :disabled="isDone"><i class="zmdi zmdi-search"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12" v-if="isLoading">
+                                            <div class="spinner-border text-primary mt-4" style="margin: 0 auto"
+                                                role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12" v-else>
+                                            <h6 class="mt-2 mb-2">Product Details</h6>
+                                            <div class="dueAnountStyle" v-if="posInformationData!=''">
+                                                <h1>{{posInformationData}}</h1>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table
+                                                    class="table td_2 table-striped table-hover js-basic-example dataTable text-center"
+                                                    id="infoListTable">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>SN</th>
+                                                            <th>Barcode</th>
+                                                            <th>Name</th>
+                                                            <th>Price</th>
+                                                            <th>Qty</th>
+                                                            <th>Total</th>
+                                                            <td></td>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody v-if="cart.length > 0 ">
+                                                        <tr v-for="(product, index) in cart" key="index">
+                                                            <td>{{index+1}}</td>
+                                                            <td :id="'barcode_'+product._id">{{product.code}}</td>
+                                                            <td>{{product.name}}</td>
+                                                            <td>
+                                                                {{product.price}} tk.</td>
+                                                            <td>
+                                                                <input type="number" min="1" style="width: 70px;"
+                                                                    @change="updateQuantity($event, product._id, product.price, index)"
+                                                                    :id="'quantity_'+product._id" max="1000"
+                                                                    class="form-control quantityInputField" :value="product.quantity">
+                                                            </td>
+                                                            <td :id="'total_price_'+product._id">
+                                                                {{(product.price*product.quantity).toFixed(2)}}
+                                                                tk.
+                                                            </td>
+                                                            <td>
+                                                                <div @click="removeFromCart($event, product._id)"
+                                                                    title="remove" v-show="!isOrderComplete"><i class="zmdi zmdi-close"></i>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tbody v-else>
+                                                        <tr>
+                                                            <td class="text-center" colspan="7">No data found here</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot v-if="cart.length > 0">
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">Sub Total :
+                                                            </th>
+                                                            <th class="text-right">{{subTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">VAT : </th>
+                                                            <th class="text-right">{{vat.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">Order Total : </th>
+                                                            <th class="text-right">{{orderTotal.toFixed(2)}} TK.</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">-Discount : </th>
+                                                            <th class="text-right">
+                                                                {{(productDiscount + otherDiscount).toFixed(2)}}
+                                                                TK.
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th class="text-right" colspan="5">Due Amount : </th>
+                                                            <th class="text-right">
+                                                                {{(orderTotal-Number((productDiscount + otherDiscount).toFixed(2))).toFixed(2)}}
+                                                                TK.</th>
+                                                        </tr>
+                                                        <tr v-if="clientData!=null">
+                                                            <th class="text-right" colspan="5">Apply Points : </th>
+                                                            <th class="text-right"><input type="number" step="any"
+                                                                    min="0" max="100000" v-model="pointApply"
+                                                                    class="form-control"
+                                                                    @change="changePointValue(pointApply)" :disabled="isOrderComplete">
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-if="specialDiscountData!=null">
+                                                            <th class="text-right" colspan="5">Special Discount: </th>
+                                                            <th class="text-right">
+                                                                <form @submit.prevent="changeSpecialDiscountValue">
+                                                                    <div class="form-group">
+                                                                        <select class="form-control mb-2" v-model="special_discount_info.specialDiscountID" required>
+                                                                            <option value="">== select ==</option>
+                                                                            <option :value="discountInfo._id" v-for="(discountInfo, index) in specialDiscountData" @key="index">== {{discountInfo.name}} ==</option>
+                                                                        </select>
+                                                                        <input type="text" v-model="special_discount_info.costomer_contact" class="form-control" placeholder="contact no." required>
+                                                                    </div>
+                                                                </form>
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-if="personalDiscountData!=null">
+                                                            <th class="text-right" colspan="5">Personal Discount (%) : </th>
+                                                            <th class="text-right"><input type="number" step="any"
+                                                                    min="0" :max="personalDiscountData.max_discount_percentage" v-model="personalDiscountApply"
+                                                                    class="form-control"
+                                                                    @change="changePersonalDiscountValue(personalDiscountApply)" :disabled="isOrderComplete">
+                                                            </th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th colspan="3"></th>
+                                                            <th colspan="4" class="text-right">
+                                                                <select v-model="paymentType" id="paymentTypeField"
+                                                                    @change="changePaymentType($event, paymentType)"
+                                                                    class="form-control" :disabled="isOrderComplete">
+                                                                    <option value="">-- Payment Type --</option>
+                                                                    <option value="cash">Cash</option>
+                                                                    <option value="card">Card</option>
+                                                                    <option value="mobile banking">Mobile Banking
+                                                                    </option>
+                                                                </select>
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-show="cash==true">
+                                                            <th class="text-right" colspan="4">Cash Payment : </th>
+                                                            <th class="text-right" colspan="3"><input type="number"
+                                                                    @keypress="cashCalculation($event, cash_amount, 'cash')"
+                                                                    step="any" min="1" max="9999999" class="form-control"
+                                                                    v-model="cash_amount" :disabled="isOrderComplete">
+                                                            </th>
+                                                        </tr>
+                                                        <tr v-show="card==true">
+                                                            <th class="text-right" colspan="3">Card Payment : </th>
+                                                            <th colspan="2">
+                                                                <select v-model="selectedCard"
+                                                                    class="form-control text-uppercase" :disabled="isOrderComplete">
+                                                                    <option value="">-- Type --</option>
+                                                                    <option :value="cardName" v-for="(cardName, index) in cards" @key="index">{{cardName}}</option>
+                                                                </select>
+                                                            </th>
+                                                            <th class="text-right" colspan="2"><input type="number"
+                                                                    @keypress="cashCalculation($event, card_amount, 'card')"
+                                                                    step="any" min="1" max="9999999" class="form-control"
+                                                                    v-model="card_amount" :disabled="isOrderComplete">
+                                                            </th>
+                                                            
+                                                        </tr>
+                                                        <tr v-show="mobile_banking==true">
+                                                            <th class="text-right" colspan="3">Mobile Banking Payment :
+                                                            </th>
+                                                            <th colspan="2">
+                                                                <select v-model="selectedMobileBanking"
+                                                                    class="form-control text-uppercase" :disabled="isOrderComplete">
+                                                                    <option value="">-- Type --</option>
+                                                                    <option :value="mobileBankingName" v-for="(mobileBankingName, index) in mobileBankings" @key="index">{{mobileBankingName}}</option>
+                                                                </select>
+                                                            </th>
+                                                            <th class="text-right" colspan="2"><input type="number"
+                                                                    @keypress="cashCalculation($event, mobile_banking_amount, 'mobile banking')"
+                                                                    step="any" min="1" max="9999999" class="form-control"
+                                                                    v-model="mobile_banking_amount" :disabled="isOrderComplete">
+                                                            </th>
+                                                            
+                                                        </tr>
+                                                        <tr v-if="payment.length > 0">
+                                                            <th class="text-right" colspan="6">
+                                                                <span class="badge badge-primary" style="font-size: 12px; cursor: pointer; margin-right: 5px;" v-for="(paymentInfo, index) in payment" :key="index">{{paymentInfo.method=='cash'?paymentInfo.method:paymentInfo.type}} - {{paymentInfo.amount.toFixed(2)}} <span aria-hidden="true" v-show="isDone!=true" @click="removePayment(index)">x</span></span> = {{paidAmountField.toFixed(2)}}
+                                                            </th>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="apply_personal_discount" v-if="branch.special_discount_active==true">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Special Discount</h6>
+                                            <div class="form-check">
+                                                <input type="checkbox" @change="specialDiscountDataDetails" v-model="special_discount_select" class="form-check-input" id="checkInToApply">
+                                                <label class="form-check-label" for="checkInToApply">Check in to apply special discount</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="apply_sales_person" v-if="branch.sales_person_active==true">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Sales Person Sell</h6>
+                                        </div>
+                                        <form @submit.prevent="salesPersonDataDetails">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" v-model="salesPhone" class="form-control"
+                                                        placeholder="Phone no. or Sales ID">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <button type="submit" class="btn btn-primary">Apply</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="apply_personal_discount" v-if="branch.personal_discount_active==true">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Personal Discount</h6>
+                                        </div>
+                                        <form @submit.prevent="personalDiscountDataDetails">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" v-model="personPhone" class="form-control"
+                                                        placeholder="Phone no. or Person ID">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <button type="submit" class="btn btn-primary">Apply</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="apply_person_information_pos" v-if="branch.point_apply_active==true">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2">Apply Client Points</h6>
+                                        </div>
+                                        <form @submit.prevent="clientDataDetails">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" v-model="clientPhone" class="form-control"
+                                                        placeholder="Phone no. or Client ID" id="findClientData">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <button type="submit" class="btn btn-primary">Apply</button>
+                                            </div>
+                                        </form>
+                                        <div class="col-md-12">
+                                            <ul class="list-group" v-if="clientData!=null">
+                                                <li class="list-group-item text-center"><strong>Point Earned:</strong>
+                                                    {{clientData.points.toFixed(2)}} <br/> <button type="button" @click="updateNewClientInfo" class="btn btn-sm btn-primary" v-show="adminAccess.length>0?adminAccess.includes('pos client update'):false">edit</button></li>
+                                                <li class="list-group-item"><strong>Client ID:</strong>
+                                                    {{clientData.clientID}}</li>
+                                                <li class="list-group-item"><strong>Name:</strong> {{clientData.name}}
+                                                </li>
+                                                <li class="list-group-item"><strong>Phone:</strong> {{clientData.phone}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.email!=''">
+                                                    <strong>Email:</strong> {{clientData.email}}
+                                                </li>
+                                                <li class="list-group-item" v-if="clientData.address!=''">
+                                                    <strong>Address:</strong>
+                                                    {{clientData.address}}</li>
+                                                <li class="list-group-item" v-if="clientData.notes!=''">
+                                                    <strong>Notes:</strong> {{clientData.notes}}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="purchase_person_info" v-if="branch.point_apply_active==true" v-show="adminAccess.length>0?adminAccess.includes('pos client add'):false">
+                                        <div class="col-sm-12">
+                                            <h6 class="mt-2 mb-2" v-if="isEditable==true">Update POS Client Information</h6>
+                                            <h6 class="mt-2 mb-2" v-else>Add POS Client Information</h6>
+                                        </div>
+                                        <form @submit.prevent="isEditable==true?updateClientData():addNewClient()">
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" v-model="clientID"
+                                                            placeholder="Client ID (required)" id="clientIDInputField" :disabled="isEditable" v-show="!isEditable">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" v-model="name"
+                                                        placeholder="Name (required)">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" v-model="phone"
+                                                        placeholder="Phone no. (required)">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <input type="email" class="form-control" v-model="email"
+                                                        placeholder="Email">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <textarea class="form-control" v-model="address"
+                                                        placeholder="Address"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <textarea class="form-control" v-model="notes"
+                                                        placeholder="Notes"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <button type="submit" v-if="isEditable==true" class="btn btn-primary float-right" id="updateClientButton" :disabled="isDisable">Update</button>
+                                                <button type="submit" v-else class="btn btn-primary float-right" id="addClientButton" :disabled="isDisable">Add</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <br/>
+                                    <br/>
+                                    <br/>
+                                    <div style="margin-left: 25%;">
+                                        <canvas id="sdcQRcode"></canvas>
+                                    </div>		
+                                </div>
+                            </div>
+
+                            <div class="row clearfix" v-show="cart.length>0">
+                                <div class="col-lg-6 text-center">
+                                    <h2 v-show="calculationResult > 0" style="color: darkred;">You need to pay change
+                                        {{this.calculationResult.toFixed(2)}}
+                                        TK.</h2>
+                                    <h2 v-show="calculationResult < 0" style="color: darkred;">Client need to pay more
+                                        {{this.calculationResult.toFixed(2)}}
+                                        TK.</h2>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <hr />
+                                    <label class="checkbox">
+                                        <input type="checkbox" id="useDefaultPrinter" /> <strong>Print to Default
+                                            printer</strong>
+                                    </label>
+                                    <p>or...</p>
+                                    <div id="installedPrinters">
+                                        <label for="installedPrinterName">Select an installed Printer:</label>
+                                        <select name="installedPrinterName" id="installedPrinterName"></select>
+                                    </div>
+                                    <br /><br />
+                                    <button type="submit" @click="orderComplete" v-show="!isDone"
+                                        class="btn btn-primary btn-round" id="completeSellButton" :disabled="isDoneClicked">Done</button>
+                                    <button type="submit" v-show="isDone" @click="printAgain"
+                                        class="btn btn-primary btn-round">Reprint</button>
+                                    <button @click="clear_fields" type="button"
+                                        class="btn btn-default btn-round btn-simple" id="fullResetButton">Reset</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    var clientPrinters = null;
+    var _this = this;
+    var self;
+    //WebSocket settings
+    JSPM.JSPrintManager.auto_reconnect = true;
+    JSPM.JSPrintManager.start();
+    JSPM.JSPrintManager.WS.onStatusChanged = function () {
+        if (jspmWSStatus()) {
+            //get client installed printers
+            JSPM.JSPrintManager.getPrinters().then(function (myPrinters) {
+                clientPrinters = myPrinters
+                var options = '';
+                for (var i = 0; i < myPrinters.length; i++) {
+                    options += '<option>' + myPrinters[i] + '</option>';
+                }
+                $('#installedPrinterName').html(options);
+            });
+        }
+    };
+
+    //Check JSPM WebSocket status
+    function jspmWSStatus() {
+        if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Open)
+            return true;
+        else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Closed) {
+            alert(
+                'JSPrintManager (JSPM) is not installed or not running! Download JSPM Client App from https://neodynamic.com/downloads/jspm'
+            );
+            return false;
+        } else if (JSPM.JSPrintManager.websocket_status == JSPM.WSStatus.Blocked) {
+            alert('JSPM has blocked this website!');
+            return false;
+        }
+    }
+</script>
+
+<script>
+    let tabID = "<%= tabID %>";
+    let isProcessing = false;
+    new Vue({
+        el: '#add_data_section',
+        data: {
+            searchPageNo: 1,
+            searchedItemCount: {
+                total: 0,
+                loadMore: false
+            },
+            allSearchedData: [],
+            isSearchLoading: false,
+            searchText: '',
+            orderID: null,
+	        invoiceNo: null,
+	        invoiceResponse: null,
+            orderType: 'sell',
+            branch: '',
+            barcode: '',
+            clientID: '',
+            name: '',
+            phone: '',
+            address: '',
+            notes: '',
+            cart: [],
+            subTotal: 0,
+            vat: 0,
+            pointApply: 0,
+            orderTotal: 0,
+            productDiscount: 0,
+            otherDiscount: 0,
+            personalDiscountApply: 0,
+            personalDiscountAmount: 0,
+            specialDiscountAmount: 0,
+            specialDiscountTypeId: '',
+            discountPercentage: 0,
+            paymentType: '',
+            clientPhone: '',
+            personPhone: '',
+            salesPhone: '',
+            name: '',
+            phone: '',
+            email: '',
+            address: '',
+            notes: '',
+            calculationResult: 0,
+            paidAmountField: 0,
+            showPaidAmountField: false,
+            clientData: null,
+            salesPersonData: null,
+            personalDiscountData: null,
+            specialDiscountData: null,
+            errorResponse: null,
+            successResponse: null,
+            isDisable: false,
+            isLoading: false,
+            card: false,
+            card_amount: 0,
+            cash: false,
+            cash_amount: 0,
+            mobile_banking: false,
+            mobile_banking_amount: 0,
+            payment: [],
+            applyPointDiscountAmount: 0,
+            isDone: false,
+            adminInfo: null,
+            cards:[],
+            selectedCard: '',
+            mobileBankings:[],
+            selectedMobileBanking: '',
+            isOrderComplete: false,
+            isDoneClicked: false,
+            posInformationData: '',
+            searchType: 'name',
+            isEditable: false,
+            allCardsInfo: [],
+            allMobileBankingInfo: [],
+            paymentDiscount: 0,
+            fractionalDiscount: 0,
+            appliedPaymentDiscount: false,
+            orderDiscount: 0,
+            special_discount_select: false,
+            special_discount_info: {
+                specialDiscountID: '',
+                costomer_contact: '',
+                discount_apply: 0
+            },
+            adminAccess: [],
+            sdc_device_ip: '',
+            dual_price_product: []
+        },
+        mounted() {
+            this.checkBranchInfo()
+            this.getBranchInfo()
+            // this.getCartInfoForAdmin()
+            this.getCardsData()
+            this.getMobileBankingData()
+            authChecker(localStorage.getItem('token')).then((result) => {
+                this.adminInfo = result.response.data
+                this.sdc_device_ip = this.adminInfo.sdcDeviceInfo.filter(branchInfo=>{
+                    return branchInfo.branchID == localStorage.getItem('branch')
+                })[0]
+            })
+            this.adminAccess = '<%= data.adminInfo.admin_roles %>'.split(',')
+        },
+        methods: {
+            checkBranchAccessPointApply(pointApply){
+                var accessID = prompt("Please enter your pos manager access", "");
+
+                if (accessID == null || accessID == "") {
+                    alert('Your are not authorized for access')
+                    this.pointApply = 0
+                } else {
+                    let requestLink = '/api/branch/access/auth'
+                    let token = localStorage.getItem('token')
+                    let branchID = localStorage.getItem('branch')
+
+                    let itemInfo = {
+                        branch: branchID,
+                        managerID: accessID
+                    }
+
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.response.data == true) {
+                            if (pointApply > this.clientData.points || pointApply <= this.clientData.use_points_on) {
+                                alert("This client don't have enough amount points to apply")
+                            } else {
+                                this.pointApply = pointApply
+                                this.otherDiscount -= this.applyPointDiscountAmount
+                                this.applyPointDiscountAmount = Number((parseFloat(pointApply) *
+                                    parseFloat(this
+                                        .branch.point_expand)).toFixed(2))
+                                this.otherDiscount += this.applyPointDiscountAmount
+                                this.calculateTotalDetails()
+                                this.removePaymentDiscount()
+                            }
+                        } else {
+                            alert('Your password is not authorized for access')
+                            this.pointApply = 0
+                        }
+                    })
+                }
+            },
+            removePaymentDiscount(){
+                this.payment = []
+                this.otherDiscount -= this.paymentDiscount
+                this.paymentDiscount = 0
+                this.paidAmountField = 0
+                this.posInformationData = ''
+                this.appliedPaymentDiscount = false
+            },
+            removeAppliedPoints(){
+                this.otherDiscount -= this.applyPointDiscountAmount
+                this.applyPointDiscountAmount = 0
+                this.clientData = null
+                this.pointApply = 0 
+                this.clientID = ''
+                this.posInformationData = ''
+            },
+            removePersonalDiscount(){
+                this.otherDiscount -= this.personalDiscountAmount
+                this.personalDiscountAmount = 0
+                this.personalDiscountApply = 0
+                this.personalDiscountData = null
+                this.personPhone = ''
+                this.posInformationData = ''
+            },
+            removeSpecialDiscount(){
+                this.otherDiscount -= this.specialDiscountAmount
+                this.specialDiscountAmount = 0
+                this.special_discount_info = {
+                    specialDiscountID: '',
+                    costomer_contact: '',
+                    discount_apply: 0
+                }
+                this.specialDiscountTypeId = 0
+                this.specialDiscountData = null
+                this.posInformationData = ''
+            },
+            checkBranchAccessPersonalDiscountApply(discountPercentageApply){
+                var accessID = prompt("Please enter your pos manager access", "");
+
+                if (accessID == null || accessID == "") {
+                    alert('Your are not authorized for access')
+                    this.personalDiscountApply = 0
+                } else {
+                    let requestLink = '/api/branch/access/auth'
+                    let token = localStorage.getItem('token')
+                    let branchID = localStorage.getItem('branch')
+
+                    let itemInfo = {
+                        branch: branchID,
+                        managerID: accessID
+                    }
+
+                    addNewType(requestLink, itemInfo, token).then(async(result) => {
+                        if (result.response.data == true) {
+                            if (discountPercentageApply > this.personalDiscountData.max_discount_percentage) {
+                                alert("This percentage can't be applied by this person")
+                            } else {
+                                this.otherDiscount -= this.personalDiscountAmount
+                                let dueAmount = this.orderTotal
+
+                                let adjustPersonalDiscountDue = this.cart.map(productInfo=>{
+                                    dueAmount -= (productInfo.discount*productInfo.quantity)
+                                    if(productInfo.personalDiscountAvailable==false){
+                                        dueAmount -= ((productInfo.subtotal -(productInfo.discount*productInfo.quantity)) + ((productInfo.subtotal - (productInfo.discount*productInfo.quantity)) * (productInfo.vat/100)))
+                                    }
+                                })
+                                await Promise.all(adjustPersonalDiscountDue)
+
+                                this.personalDiscountAmount = Number((dueAmount*(discountPercentageApply/100)).toFixed(2))
+                                if(this.personalDiscountAmount > this.personalDiscountData.max_amount && this.personalDiscountData.max_amount != null){
+                                    this.personalDiscountAmount = Number(this.personalDiscountData.max_amount.toFixed(2)) 
+                                }
+
+                                this.otherDiscount += this.personalDiscountAmount
+
+                                this.removePaymentDiscount()
+                                this.calculateTotalDetails()
+                            }
+                        } else {
+                            alert('Your password is not authorized for access')
+                            this.personalDiscountApply = 0
+                        }
+                    })
+                }
+            },
+            checkBranchAccessSpecialDiscountApply(){
+                var accessID = prompt("Please enter your pos manager access", "");
+
+                if (accessID == null || accessID == "") {
+                    alert('Your are not authorized for access')
+                    this.personalDiscountApply = 0
+                } else {
+                    let requestLink = '/api/branch/access/auth'
+                    let token = localStorage.getItem('token')
+                    let branchID = localStorage.getItem('branch')
+
+                    let itemInfo = {
+                        branch: branchID,
+                        managerID: accessID
+                    }
+
+                    addNewType(requestLink, itemInfo, token).then(async(result) => {
+                        if (result.response.data == true) {
+                            this.specialDiscountTypeId = this.special_discount_info.specialDiscountID
+
+                            let specialDiscountInfoSelected = this.specialDiscountData.filter(specialDiscountInfo=>{
+                                return specialDiscountInfo._id == this.special_discount_info.specialDiscountID
+                            })
+
+                            if (specialDiscountInfoSelected[0].wantToDefineContactNo == true) {
+                                if(specialDiscountInfoSelected[0].specific_customer.includes(this.special_discount_info.costomer_contact.trim())){
+                                    this.otherDiscount -= this.specialDiscountAmount
+                                    let dueAmount = this.orderTotal - (this.productDiscount + this.otherDiscount)
+    
+                                    this.specialDiscountAmount = Number((dueAmount*(specialDiscountInfoSelected[0].max_discount_percentage/100)).toFixed(2))
+                                    this.special_discount_info.discount_apply = specialDiscountInfoSelected[0].max_discount_percentage
+                                    if(this.specialDiscountAmount > specialDiscountInfoSelected[0].max_amount && specialDiscountInfoSelected[0].max_amount != null){
+                                        this.specialDiscountAmount = Number(specialDiscountInfoSelected[0].max_amount.toFixed(2)) 
+                                    }
+    
+                                    this.otherDiscount += this.specialDiscountAmount
+    
+                                    this.removePaymentDiscount()
+                                    this.calculateTotalDetails()
+                                }else{
+                                    alert('your contact no is not valid for this type of special discount')
+                                }
+                            } else {
+                                this.otherDiscount -= this.specialDiscountAmount
+                                let dueAmount = this.orderTotal - (this.productDiscount + this.otherDiscount)
+
+                                this.specialDiscountAmount = Number((dueAmount*(specialDiscountInfoSelected[0].max_discount_percentage/100)).toFixed(2))
+                                if(this.specialDiscountAmount > specialDiscountInfoSelected[0].max_amount && specialDiscountInfoSelected[0].max_amount != null){
+                                    this.specialDiscountAmount = Number(specialDiscountInfoSelected[0].max_amount.toFixed(2)) 
+                                }
+
+                                this.otherDiscount += this.specialDiscountAmount
+
+                                this.removePaymentDiscount()
+                                this.calculateTotalDetails()
+                            }
+                        } else {
+                            alert('Your password is not authorized for access')
+                            this.personalDiscountApply = 0
+                        }
+                    })
+                }
+            },
+            getCardsData(){
+                let requestLink = '/api/lookup/info/data/search/card_name'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.allCardsInfo = result.response.data
+                            result.response.data.map(purposeInfo=>{
+                                this.cards.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            getMobileBankingData(){
+                let requestLink = '/api/lookup/info/data/search/mobile_banking'
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.allMobileBankingInfo = result.response.data
+                            result.response.data.map(purposeInfo=>{
+                                this.mobileBankings.push(purposeInfo.title)
+                            })
+                        }
+                    })
+            },
+            searchReset() {
+                this.searchPageNo = 1
+                this.searchedItemCount = {
+                    total: 0,
+                    loadMore: false
+                }
+                this.allSearchedData = []
+            },
+            clearResponseMessage() {
+                this.errorResponse = null
+                this.successResponse = null
+            },
+            changeBranch() {
+                localStorage.removeItem('branch')
+                location.href = '<%= host %>' + '/product/branch/select'
+            },
+            updateQuantity(e, cart_id, price, index) {
+                this.removeAppliedPoints()
+                this.removePersonalDiscount()
+                this.removeSpecialDiscount()
+                this.special_discount_select = false
+                this.isOrderComplete = true
+                let requestLink = '/api/pos/cart/quantity-update?tabID=' + tabID
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+
+                let itemInfo = {
+                    branch: branchID,
+                    cart_id: cart_id,
+                    quantity: $("#quantity_" + cart_id).val()
+                }
+
+                let updateQty = Number($("#quantity_" + cart_id).val())
+
+                let requestLinkProductDetails = '/api/product/single/barcode/'+$("#barcode_" + cart_id).text()+'?branch='+localStorage.getItem('branch')
+
+                getType(requestLinkProductDetails).then((result) => {
+                    if (result.auth === true) {
+                        if(result.response.data.unitType.fractionAllowed==false){
+                            if(updateQty % 1!=0){
+                                alert('Fractional quantity invalid for this product')
+                                itemInfo.quantity = parseInt(updateQty)
+                            }
+                        }
+
+                        if(result.response.data.second_price.quantity > 0 && result.response.data.second_price.sell == price) {
+                            if(result.response.data.second_price.quantity < itemInfo.quantity ){
+                                alert("Your stock don't have enough quantity to sell this product.")
+                                itemInfo.quantity = Number(result.response.data.second_price.quantity.toFixed(3))
+                            }
+                        }else{
+                            if(result.response.data.quantity < itemInfo.quantity ){
+                                alert("Your stock don't have enough quantity to sell this product.")
+                                itemInfo.quantity = Number(result.response.data.quantity.toFixed(3))
+                            }
+                        }
+
+                        updateTypeInfo(requestLink, itemInfo, token).then((result) => {
+                            if (result.auth == true) {
+                                $("#total_price_" + cart_id).text((parseFloat(itemInfo.quantity) *
+                                    price).toFixed(
+                                    2));
+                                this.cart = result.response
+                                this.posInformationData = this.cart[index].quantity +' @ '+ this.cart[index].price
+                                this.isOrderComplete = false
+                                this.calculateTotalDetails()
+                            }
+                        })
+                    }
+                })
+            },
+            addProductToCartFromDualPrice(barcode, sell_price) {
+                this.addItem(barcode, sell_price)
+            },
+            addProductToCartFromSearch(product) {
+                if(product.second_price.quantity>0){
+                    this.dual_price_product = [{
+                        _id: product._id,
+                        barcode: product.barcode,
+                        name: product.name,
+                        purchase: product.price.purchase,
+                        sell: product.price.sell,
+                        quantity: product.quantity
+                    }, {
+                        _id: product._id,
+                        barcode: product.barcode,
+                        name: product.name,
+                        purchase: product.second_price.purchase,
+                        sell: product.second_price.sell,
+                        quantity: product.second_price.quantity
+                    }]
+                    $("#searchModal").modal('hide')                
+                    $("#dualPriceModal").modal('show')                
+                }else{
+                    this.addItem(product.barcode)
+                    this.isSearchLoading = true
+                    setTimeout(() => {
+                        this.getSearchData(this.searchText)
+                    }, 2000)               
+                }
+            },
+            getBarCode(e, barcode) {
+                if (e.keyCode == 13) {
+                    let requestLink = '/api/product/single/barcode/dual-price-check/' + barcode + '?branch='+ this.branch.id
+                    getType(requestLink).then((result) => {
+                        if(result.auth== true){
+                            if(!result.response.dual_price){
+                                this.addItem(barcode)
+                            }else{
+                                this.dual_price_product = [{
+                                    _id: result.response.data._id,
+                                    barcode: result.response.data.barcode,
+                                    name: result.response.data.name,
+                                    purchase: result.response.data.price.purchase,
+                                    sell: result.response.data.price.sell,
+                                    quantity: result.response.data.quantity
+                                }, {
+                                    _id: result.response.data._id,
+                                    barcode: result.response.data.barcode,
+                                    name: result.response.data.name,
+                                    purchase: result.response.data.second_price.purchase,
+                                    sell: result.response.data.second_price.sell,
+                                    quantity: result.response.data.second_price.quantity
+                                }]
+                                $("#dualPriceModal").modal('show')
+                            }
+                        }
+                    })
+                }
+            },
+            checkBranchInfo() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+
+                    let requestLink = '/api/branch/data/' + branchID
+                    getType(requestLink).then((result) => {
+                        if (result.auth === true) {
+                            this.branch = {
+                                id: result.response.data._id,
+                                name: result.response.data.name,
+                                address: result.response.data.address,
+                                thana: result.response.data.thana.name,
+                                district: result.response.data.district.name,
+                                phone: result.response.data.phone,
+                                taxIdentificationNo: result.response.data.taxIdentificationNo,
+                                flat_order: result.response.data.flat_order,
+                                point_bench_mark: result.response.data.point_settings.bench_mark,
+                                point_purchase: result.response.data.point_settings.purchase,
+                                point_expand: result.response.data.point_settings.expand,
+                                use_points_on: result.response.data.point_settings.use_points_on,
+                                point_apply_active: result.response.data.point_apply_active,
+                                personal_discount_active: result.response.data.personal_discount_active,
+                                special_discount_active: result.response.data.special_discount_active,
+                                sales_person_active: result.response.data.sales_person_active,
+                                pos_slip_notes: result.response.data.pos_slip_notes, 
+                            }
+                            this.getCartInfoForAdmin()
+                        } else {
+                            localStorage.removeItem('branch')
+                            localStorage.setItem('referrerURL', window.location.href)
+                            location.href = '<%= host %>' + '/product/branch/select'
+                        }
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    localStorage.setItem('referrerURL', window.location.href)
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getCartInfoForAdmin() {
+                if (localStorage.getItem('branch')) {
+                    let branchID = localStorage.getItem('branch')
+                    let token = localStorage.getItem('token')
+
+                    this.isLoading = true
+
+                    let requestLink = '/api/pos/cart?branch=' + branchID + '&tabID=' + tabID
+                    getSecureData(requestLink, token).then((result) => {
+                        if (result.auth === true) {
+                            this.cart = result.response.data
+                            this.calculateTotalDetails()
+                        }
+                        this.isLoading = false
+                    })
+                } else {
+                    localStorage.removeItem('branch')
+                    location.href = '<%= host %>' + '/product/branch/select'
+                }
+            },
+            getBranchInfo() {
+                let requestLink = '/api/branch'
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        this.allBranch = result.response.data
+                    }
+                })
+            },
+            clear_fields() {
+                this.isDone = false
+                this.orderID = null
+		        this.invoiceNo = null
+                this.invoiceResponse = null
+                this.personalDiscountData = null
+                this.salesPersonData = null
+                this.personalDiscountApply = 0
+                this.personalDiscountAmount = 0
+                this.discountPercentage = 0
+                this.personPhone = ''
+                this.salesPerson = ''
+                this.barcode = ''
+                this.name = ''
+                this.phone = ''
+                this.address = ''
+                this.notes = ''
+                this.subTotal = 0
+                this.vat = 0
+                this.pointApply = 0
+                this.orderTotal = 0
+                this.productDiscount = 0
+                this.otherDiscount = 0
+                this.paymentType = ''
+                this.clientPhone = ''
+                this.calculationResult = 0
+                this.paidAmountField = 0
+                this.showPaidAmountField = false
+                this.clientData = null
+                this.errorResponse = null
+                this.successResponse = null
+                this.isDisable = false
+                this.isLoading = true
+                this.card = false
+                this.card_amount = 0
+                this.cash = false
+                this.cash_amount = 0
+                this.mobile_banking = false
+                this.mobile_banking_amount = 0
+                this.payment = []
+                this.applyPointDiscountAmount = 0
+                this.posInformationData = ''
+                this.fractionalDiscount = 0
+                this.appliedPaymentDiscount = false
+                this.orderDiscount = 0
+                this.special_discount_select = false
+                this.paymentDiscount = 0
+                this.specialDiscountAmount = 0
+                
+                //clear the QR code of SDC
+                var canvas= document.getElementById('sdcQRcode');
+                var context = canvas.getContext('2d');
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                this.removeAllFromCart()
+                this.isOrderComplete = false
+            },
+            addItem(barcode, sell_price=null) {
+                this.removeAppliedPoints()
+                this.removePersonalDiscount()
+                this.removeSpecialDiscount()
+                this.special_discount_select = false
+                this.isDisable = true
+                this.isLoading = true
+                let requestLink = '/api/pos/cart?tabID=' + tabID
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+
+                let itemInfo = {
+                    branch: branchID,
+                    barcode: barcode.trim(),
+                    sell_price
+                }
+
+                if(!isProcessing){
+                    isProcessing = true
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.auth == true) {
+                            if(result.response.stockout){
+                                alert("You can't add more quantity than product stock")
+                            }
+                            this.cart = result.response.data
+                            let addedInfoInCart = this.cart.filter(productInfo=>productInfo.code == barcode)
+                            if(addedInfoInCart.length>0){
+                                this.posInformationData = addedInfoInCart[0].quantity.toFixed(3) +' @ '+ addedInfoInCart[0].price
+                            }else{
+                                this.posInformationData = this.cart[0].quantity.toFixed(3) +' @ '+ this.cart[0].price
+                            }
+                            this.calculateTotalDetails()
+                            this.barcode = ''
+                            this.errorResponse = null
+                        } else {
+                            alert(result.response[0].msg)
+                            this.errorResponse = result.response
+                        }
+                        this.isLoading = false
+                        isProcessing = false
+                    })
+                }
+            },
+            calculateTotalDetails() {
+                let vat = 0
+                let subtotal = 0
+                let discount = 0
+
+                this.cart.map(product => {
+                    vat += (((product.vat / 100) * (product.price - product.discount)) * product
+                        .quantity)
+                    subtotal += (product.price * product.quantity)
+                    discount += product.discount * product.quantity
+
+                })
+
+                this.subTotal = subtotal
+                this.vat = vat
+                this.orderTotal = subtotal + vat
+                this.productDiscount = discount
+
+                if (this.branch.flat_order.activity == true) {
+                    this.orderDiscount = 0
+                    let discountPercentage = 0;
+                    let isFlatAmount = false;
+                    this.branch.flat_order.data.map((order) => {
+                        if (order.min_amount < this.orderTotal) {
+                            discountPercentage = order.discount
+                            isFlatAmount = order.isFlatAmount
+                        }
+                    })
+
+                    if(isFlatAmount==false){
+                        this.orderDiscount = Number(((discountPercentage / 100) * this.orderTotal).toFixed(2))
+                    }else{
+                        this.orderDiscount = Number(discountPercentage.toFixed(2))
+                    }
+
+                    this.otherDiscount += this.orderDiscount
+                }
+
+                this.otherDiscount -= this.fractionalDiscount
+
+                let dueAmount = this.orderTotal - (this.productDiscount + this.otherDiscount)
+
+                this.fractionalDiscount = Number((dueAmount - parseInt(dueAmount)).toFixed(2))
+                
+                this.otherDiscount += this.fractionalDiscount
+            },
+            updateNewClientInfo(){
+                var accessID = prompt("Please enter your pos manager access", "");
+
+                if (accessID == null || accessID == "") {
+                    // window.history.back()
+                } else {
+                    let requestLink = '/api/branch/access/auth'
+                    let token = localStorage.getItem('token')
+                    let branchID = localStorage.getItem('branch')
+
+                    let itemInfo = {
+                        branch: branchID,
+                        managerID: accessID
+                    }
+
+                    addNewType(requestLink, itemInfo, token).then((result) => {
+                        if (result.response.data == true) {
+                            this.isEditable = true
+                            this.clientID = this.clientData.clientID
+                            this.name = this.clientData.name
+                            this.phone = this.clientData.phone
+                            this.email = this.clientData.email
+                            this.address = this.clientData.address
+                            this.notes = this.clientData.notes
+                        } else {
+                            alert('Your password is not authorized for access')
+                            //window.history.back()
+                        }
+                    })
+                }
+            },
+            updateClientData(){
+                this.clearResponseMessage()
+                isProcessing = true
+                this.isDisable = true
+                let requestLink = '/api/pos/client'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    clientID: this.clientID,
+                    name: this.name,
+                    phone: this.phone,
+                    email: this.email,
+                    address: this.address,
+                    notes: this.notes
+                }
+
+                updateTypeInfo(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth == true) {
+                        this.successResponse = result.response
+                        this.isEditable = false
+                        this.clearClientInfo()
+                    } else {
+                        this.errorResponse = result.response
+                    }
+                    isProcessing = false
+                    this.isDisable = false
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+            },
+            clearClientInfo(){
+                this.clientData = null
+                this.clientID = ''
+                this.name = ''
+                this.phone = ''
+                this.email = ''
+                this.address = ''
+                this.notes = ''
+            },
+            addNewClient() {
+                this.clearResponseMessage()
+                isProcessing = true
+                this.isDisable = true
+                let requestLink = '/api/pos/client'
+                let token = localStorage.getItem('token')
+
+                let itemInfo = {
+                    clientID: this.clientID,
+                    name: this.name,
+                    branch: localStorage.getItem('branch'),
+                    phone: this.phone,
+                    email: this.email,
+                    address: this.address,
+                    notes: this.notes
+                }
+
+                addNewType(requestLink, itemInfo, token).then((result) => {
+                    if (result.auth == true) {
+                        this.successResponse = result.response
+                        this.clearClientInfo()
+                    } else {
+                        this.errorResponse = result.response
+                    }
+                    isProcessing = false
+                    this.isDisable = false
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+            },
+            changePointValue(pointApply) {
+                this.checkBranchAccessPointApply(pointApply)
+            },
+            changePersonalDiscountValue(personalDiscountApply) {
+                this.checkBranchAccessPersonalDiscountApply(personalDiscountApply)
+            },
+            changeSpecialDiscountValue() {
+                this.checkBranchAccessSpecialDiscountApply()
+            },
+            removeFromCart(e, cart_id) {
+                this.removeAppliedPoints()
+                this.removePersonalDiscount()
+                this.removeSpecialDiscount()
+                this.isLoading = true
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/pos/cart/' + cart_id + '/remove?branch=' + branchID + '&tabID=' + tabID
+
+                deleteType(requestLink, '', token).then((result) => {
+                    if (result.auth == true) {
+                        this.cart = result.response.data
+                        this.removePaymentDiscount()
+                        this.calculateTotalDetails()
+                    }
+                    this.isLoading = false
+                })
+            },
+            removeAllFromCart() {
+                /*this.removeAppliedPoints()
+                this.removePersonalDiscount()
+                this.removeSpecialDiscount()*/
+                this.isLoading = true
+                isProcessing = true
+
+                let token = localStorage.getItem('token')
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/pos/cart/delete?branch=' + branchID + '&tabID=' + tabID
+
+                if (this.isOrderComplete === false) {
+                    let requestLink2 = '/api/pos/cart/no-payment-reset?tabID=' + tabID
+
+                    let itemInfo = {
+                        branch: branchID,
+                        items: this.cart
+                    }
+
+                    addNewType(requestLink2, itemInfo, token).then((result) => {
+                        if (result.auth == false) {
+                            this.errorResponse = result.response
+                        }else{
+                            deleteType(requestLink, '', token).then((result) => {
+                                if (result.auth == true) {
+                                    this.cart = result.response
+                                    this.calculateTotalDetails()
+                                }
+                                isProcessing = false
+                                this.isLoading = false
+                            })
+                        }
+                    })
+                }else{
+                    deleteType(requestLink, '', token).then((result) => {
+                        if (result.auth == true) {
+                            this.cart = result.response
+                            this.calculateTotalDetails()
+                        }
+                        isProcessing = false
+                        this.isLoading = false
+                    })
+                }
+            },
+            changePaymentType(e, paymentType) {
+                if (paymentType == 'cash') {
+                    this.cash = true
+                } else if (paymentType == 'card') {
+                    this.card = true
+                } else if (paymentType == 'mobile banking') {
+                    this.mobile_banking = true
+                } else {
+                    this.cash = false
+                    this.card = false
+                    this.mobile_banking = false
+                    this.removePaymentDiscount()
+                    this.paymentCalculationMessage()
+                }
+            },
+            checkSearchedDataInCartForDualPrice(id, price) {
+                let flag = 0
+
+                for (let i = 0; i < this.cart.length; i++) {
+                    if (this.cart[i].product._id == id) {
+                        if(this.cart[i].price == price){
+                            flag = 1
+                        }else{
+                            flag = 2
+                        }
+                        break;
+                    }
+                }
+
+                return flag
+            },
+            checkSearchedDataInCart(id) {
+                let flag = 0
+
+                for (let i = 0; i < this.cart.length; i++) {
+                    if (this.cart[i].product._id == id) {
+                        flag = 1
+                    }
+                }
+
+                if (flag == 1) {
+                    return true
+                } else {
+                    return false
+                }
+            },
+            getSearchData(searchText) {
+                let branchID = localStorage.getItem('branch')
+                let requestLink = '/api/product/cart/search/list/' + this.searchPageNo +
+                    '?type='+this.searchType+'&text=' + searchText +
+                    '&branch=' +
+                    branchID
+                this.isSearchLoading = true
+                getType(requestLink).then((result) => {
+                    if (result.auth === true) {
+                        result.response.data.map((product) => {
+                            this.allSearchedData.push(product)
+                        })
+                        this.searchedItemCount = {
+                            total: result.response.total,
+                            loadMore: result.response.loadMore
+                        }
+                        this.searchPageNo = this.searchPageNo + 1
+                    }
+                    this.isSearchLoading = false
+                })
+            },
+            getSearchedItems(e, searchText) {
+                this.allSearchedData = []
+                this.searchPageNo = 1
+                if (e.keyCode === 13) {
+                    this.getSearchData(searchText)
+                }
+            },
+            async paymentCalculationMessage(){
+                this.paidAmountField = 0
+                this.otherDiscount -= this.paymentDiscount
+                this.paymentDiscount = 0
+                
+                let paymentArray = this.payment.map((payment) => {
+                    this.paidAmountField += payment.amount
+                    this.paymentDiscount += payment.discount
+                });
+
+                await Promise.all(paymentArray)
+                this.otherDiscount += this.paymentDiscount
+
+                this.paidAmountField = Number(this.paidAmountField.toFixed(2))
+
+                this.calculationResult = this.paidAmountField - (Number(this.orderTotal.toFixed(2)) -
+                    Number((Number(this
+                        .productDiscount.toFixed(2)) +
+                        Number(this.otherDiscount.toFixed(2)))).toFixed(2))
+
+                this.posInformationData = 'Paid: ' + this.paidAmountField.toFixed(2) + '  Change: '+ this.calculationResult.toFixed(2)
+            },
+            removePayment(index){
+                if(this.payment[index].discount > 0) {
+                    this.appliedPaymentDiscount = false
+                }
+                this.payment.splice(index, 1)
+                this.paymentCalculationMessage()
+            },
+            resetPaymentTypeSelection(){
+                this.cash = false
+                this.cash_amount = ''
+                this.card = false
+                this.card_amount = ''
+                this.mobile_banking = false
+                this.mobile_banking_amount = ''
+                this.paymentType = ''
+            },
+            cashCalculation(e, paidValue, type) {
+                let dueAmountToPay = Number((this.orderTotal -
+                (this
+                    .productDiscount +
+                    this.otherDiscount) - this.paidAmountField).toFixed(2))
+                
+                paidValue = Number(Number(paidValue).toFixed(2))
+                
+                if(String(paidValue).length > 6){
+                    alert("You can't input more than 7 digit number.")
+                    return false
+                }
+                             
+                if (e.keyCode === 13) {
+                    if(type=='card'){
+                        if(this.selectedCard!=''){
+                            if(paidValue>dueAmountToPay){
+                                alert("You can't pay more than due amount with card payment.")
+                                return 0
+                            }else{
+                                let discountInfo = this.allCardsInfo.filter(cardInfo => cardInfo.title == this.selectedCard)
+                                let cardDiscount = 0
+    
+                                if(this.appliedPaymentDiscount==false){
+                                    if(discountInfo.length>0){
+                                        if(paidValue >= discountInfo[0].min_payment_amount && discountInfo[0].discount_percentage > 0){
+                                            cardDiscount = paidValue * (discountInfo[0].discount_percentage/100)
+                                            if(cardDiscount > discountInfo[0].max_discount_amount && discountInfo[0].max_discount_amount != null){
+                                                cardDiscount = discountInfo[0].max_discount_amount
+                                            }
+                                        }
+                                    }
+    
+                                    cardDiscount = Number(cardDiscount.toFixed(2))
+
+                                    if(cardDiscount > 0){
+                                        this.appliedPaymentDiscount = true
+                                    }
+                                }
+                            
+                                this.payment.push({
+                                    method: type,
+                                    discount: cardDiscount,
+                                    amount: Number((paidValue - cardDiscount).toFixed(2)),
+                                    type:this.selectedCard
+                                })
+                            }
+                        }else{
+                            alert("Please select a card type.")
+                            return 0
+                        } 
+                    }
+
+                    if(type=='mobile banking'){
+                        if(this.selectedMobileBanking!=''){
+                            if(paidValue>dueAmountToPay){
+                                alert("You can't pay more than due amount with mobile banking payment.")
+                                return 0
+                            }else{
+                                let discountInfo = this.allMobileBankingInfo.filter(mobileBankingInfo => mobileBankingInfo.title == this.selectedMobileBanking)
+                                let mobileBankingDiscount = 0
+    
+                                if(this.appliedPaymentDiscount==false){
+                                    if(discountInfo.length>0){
+                                        if(paidValue >= discountInfo[0].min_payment_amount && discountInfo[0].discount_percentage > 0){
+                                            mobileBankingDiscount = paidValue * (discountInfo[0].discount_percentage/100)
+                                            if(mobileBankingDiscount > discountInfo[0].max_discount_amount && discountInfo[0].max_discount_amount != null){
+                                                mobileBankingDiscount = discountInfo[0].max_discount_amount
+                                            }
+                                        }
+                                    }
+        
+                                    mobileBankingDiscount = Number(mobileBankingDiscount.toFixed(2))
+
+                                    if(mobileBankingDiscount > 0){
+                                        this.appliedPaymentDiscount = true
+                                    }
+                                }
+
+                                this.payment.push({
+                                    method: type,
+                                    discount: mobileBankingDiscount,
+                                    amount: Number((paidValue - mobileBankingDiscount).toFixed(2)),
+                                    type: this.selectedMobileBanking
+                                })
+                            }
+                        }else{
+                            alert("Please select a mobile banking type.")
+                            return 0
+                        }
+                    }
+
+                    if(type=='cash'){
+                        this.payment.push({
+                            method: type,
+                            discount: 0,
+                            amount: parseFloat(paidValue)
+                        })
+                    }
+
+                    this.resetPaymentTypeSelection()
+                    this.paymentCalculationMessage()
+                }
+            },
+            clientDataDetails() {
+                this.clearResponseMessage()
+                let token = localStorage.getItem('token')
+
+                let requestLink = '/api/pos/client/' + this.clientPhone
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth == true) {
+                        if (result.response.data != null) {
+                            this.clientData = result.response.data
+                        } else {
+                            alert("No POS client found")
+                        }
+                    }
+                })
+            },
+            personalDiscountDataDetails() {
+                this.clearResponseMessage()
+                let token = localStorage.getItem('token')
+
+                let requestLink = '/api/personal-discount/search/' + this.personPhone
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth == true) {
+                        if (result.response.data != null) {
+                            let responseData = result.response.data
+                            if(responseData.active==false){
+                                alert("This personal discount currently not active from backoffice settings.")
+                            }else{
+                                this.personalDiscountData = result.response.data
+                            }
+                        } else {
+                            alert("No personal discount person found")
+                        }
+                    }else{
+                        this.errorResponse = result.response
+                        this.personPhone = ''
+                        this.personalDiscountData = null
+                    }
+                })
+            },
+            specialDiscountDataDetails(){
+                this.removeSpecialDiscount()
+                this.removePaymentDiscount()
+                this.clearResponseMessage()
+                let token = localStorage.getItem('token')
+
+                if(this.special_discount_select == true){
+                    let requestLink = '/api/special-discount/active/list/all'
+                    getSecureData(requestLink, token).then((result) => {
+                        if (result.auth == true) {
+                            this.specialDiscountData = result.response.data
+                        }else{
+                            this.errorResponse = result.response
+                            this.specialDiscountData = null
+                        }
+                    })
+                }else{
+                    this.calculateTotalDetails()
+                }
+            },
+            salesPersonDataDetails() {
+                this.clearResponseMessage()
+                let token = localStorage.getItem('token')
+
+                let requestLink = '/api/sales-person/search/' + this.salesPhone
+                getSecureData(requestLink, token).then((result) => {
+                    if (result.auth == true) {
+                        if (result.response.data != null) {
+                            let responseData = result.response.data
+                            if(responseData.active==false){
+                                alert("This sales person currently not active from backoffice settings.")
+                            }else{
+                                if(result.response.data.branch._id!==localStorage.getItem('branch')){
+                                    alert("This sales person is not assigned for this branch.")
+                                }else{
+                                    this.salesPersonData = result.response.data
+                                }
+                            }
+                        } else {
+                            alert("No sales person found")
+                        }
+                    }
+                })
+            },
+            addZero(num) {
+                return (num >= 0 && num < 10) ? "0" + num : num + "";
+            },
+            async printAgain(o) {
+                this.clearResponseMessage()
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount).toFixed(2));
+
+                let earnPointByOrder = 0
+
+                if (this.branch.point_bench_mark < dueAmount) {
+                    earnPointByOrder = parseFloat((dueAmount / this.branch.point_purchase).toFixed(2))
+                }
+
+                let cash_pay = 0
+                let cash_flag = 0
+                let card_pay = 0
+                let card_flag = 0
+                let mobile_banking_pay = 0
+                let mobile_banking_flag = 0
+
+                let paymentCalculation = this.payment.map((payment, index) => {
+                    cmds += newLine;
+                    if (payment.method == 'cash') {
+                        cash_flag = 1
+                        cash_pay += payment.amount
+                    }
+
+                    if (payment.method == 'card') {
+                        card_flag = 1
+                        card_pay += payment.amount
+                    }
+
+                    if (payment.method == 'mobile banking') {
+                        mobile_banking_flag = 1
+                        mobile_banking_pay += payment.amount
+                    }
+                })
+
+                await Promise.all(paymentCalculation)
+
+                let sdcQRcode = null
+                
+                if(this.invoiceNo){
+                    try {
+                        let canvas = bwipjs.toCanvas('sdcQRcode', {
+                                bcid:        'qrcode',       // Barcode type
+                                text:        this.invoiceResponse.qrCode,    // Text to encode
+                                width:       30,               // 3x scaling factor
+                                height:      30,              // Bar height, in millimeters
+                                includetext: false,            // Show human-readable text
+                                textxalign:  'center',        // Always good to set this
+                        });
+                        sdcQRcode = canvas.toDataURL('image/png')
+                    } catch (e) {
+                                    // `e` may be a string or Error object
+                    }
+                }
+
+                var now = new Date();
+                var strDateTime = [
+                    [this.addZero(now.getDate()),
+                        this.addZero(now.getMonth() + 1),
+                        now.getFullYear()
+                    ].join("/"),
+                    [this.addZero(now.getHours()),
+                        this.addZero(now.getMinutes())
+                    ].join(":"),
+                    now.getHours() >= 12 ? "PM" : "AM"
+                ].join(" ");
+                if (jspmWSStatus()) {
+                    //Create a ClientPrintJob
+                    var cpj = new JSPM.ClientPrintJob();
+                    //Set Printer type (Refer to the help, there many of them!)
+                    if ($('#useDefaultPrinter').prop('checked')) {
+                        cpj.clientPrinter = new JSPM.DefaultPrinter();
+                    } else {
+                        cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                            .val());
+                    }
+                    //Set content to print...
+                    //Create ESP/POS commands for sample label
+                    var esc = '\x1B'; //ESC byte in hex notation
+                    var newLine = '\x0A'; //LF byte in hex notation
+
+                    var cmds = esc + "@"; //Initializes the printer (ESC @)
+                    cmds += esc + '!' +
+                        '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                    cmds += newLine;
+                    cmds += '\x1B' + '\x61' + '\x31';
+                    cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                    cmds += newLine;
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += '\x1B' + '\x61' + '\x31';
+                    cmds += this.branch.name;
+                    cmds += newLine;
+                    cmds += '------------- reprinted slip -------------';
+                    cmds += '\x0A'; //LF byte in hex notation
+                    cmds += '\x1B'+'@';
+                    cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                        ', ' + this.branch
+                        .district + '.';
+                    cmds += newLine;
+                    cmds += 'Contact no. ' + this.branch.phone;
+                    cmds += newLine;
+                    cmds += 'VAT REG no. ' + this.branch.taxIdentificationNo;
+                    if(this.clientData){
+                        cmds += newLine;
+                        cmds += 'Customer name ' + this.clientData.name;
+                        cmds += newLine;
+                        cmds += 'Contact no. ' + this.clientData.phone;
+                    }
+                    cmds += newLine;
+                    cmds += 'POS operator name: ' + this.adminInfo.name;
+                    cmds += newLine;
+                    cmds += 'Date: ' + strDateTime;
+                    cmds += newLine;
+                    cmds += 'Invoice no. ' + this.orderID;
+                    cmds += newLine;
+                    cmds += 'Slip type: ' + this.orderType;
+                    cmds += newLine;
+                    cmds += 'Number of item: ' + this.cart.length;
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    cmds += '#Qty      #Price      #Dis       #Subtotal';
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    this.cart.map(product => {
+                        cmds += esc + '!' +
+                                    '\x00'; //Character font A selected (ESC ! 0)
+                        cmds += '\x0A'; //LF byte in hex notation
+                        cmds += '\x1B'+'@';    
+                        cmds += product.code+'-'+product.name;
+                        cmds += newLine;
+                        cmds += esc + '!' +
+                                    '\x00'; //Character font A selected (ESC ! 0)
+                        cmds += '\x1B' + '\x61' + '\x31';    
+                        cmds += product.quantity + '  x   ' + product
+                                    .price.toFixed(2) +
+                                    '  ' + (product.discount * product.quantity).toFixed(2) + '  ' + (product.price *
+                                    product.quantity).toFixed(2);
+                        cmds += '\x0A'; //LF byte in hex notation
+                        cmds += '\x1B'+'@';
+                        cmds += '------------------------------------------';             
+                    })
+                    cmds += newLine;
+                    cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '++VAT(App. items only up to 5%):  ' + this.vat.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                    -Discount:    ' + (this
+                            .productDiscount +
+                            this.otherDiscount).toFixed(2);
+                    cmds += newLine;
+                    cmds += '                                ----------';
+                    cmds += newLine;
+                    cmds += '                   Amount Due:    ' + dueAmount.toFixed(2);
+                    cmds += newLine;
+                    cmds += '                         Paid:    ' + this.paidAmountField.toFixed(
+                        2);
+                    cmds += newLine;
+                    cmds += '                       Change:    ' + (parseFloat(this
+                            .paidAmountField) -
+                        parseFloat(dueAmount)).toFixed(2);
+                    cmds += newLine;
+                    cmds += 'Payment Mode:                             ';
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    if (cash_flag == 1) {
+                        cmds += 'CASH:                             ' + cash_pay.toFixed(2);
+                        cmds += newLine;
+                    }
+                    if (card_flag == 1) {
+                        cmds += 'CARD:                             ' + card_pay.toFixed(2);
+                        cmds += newLine;
+                    }
+                    if (mobile_banking_flag == 1) {
+                        cmds += 'MOBILE BANKING:                   ' + mobile_banking_pay.toFixed(2);
+                        cmds += newLine;
+                    }
+                    if (this.clientData !== null) {
+                        cmds += '------------------------------------------';
+                        if (this.pointApply > 0) {
+                            cmds += newLine;
+                            cmds += 'Bonus Point Used : ' + this.pointApply;
+                        }
+                        cmds += newLine;
+                        cmds += 'Current Bonus Point Earned : ' + earnPointByOrder;
+                        cmds += newLine;
+                        cmds += 'Total Bonus Point Remaining : ' + (parseFloat(this.clientData
+                                .points - this.pointApply) +
+                            parseFloat(
+                                earnPointByOrder)).toFixed(2);
+                        cmds += newLine;
+                    }
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += 'Total Discount :     ' + this.productDiscount.toFixed(2);
+                    cmds += newLine;
+                    cmds += 'Other Discount :     ' + this.otherDiscount.toFixed(2);
+                    cmds += newLine;
+                    cmds += '------------------------------------------';
+                    cmds += newLine;
+                    cmds += 'You Have Saved :     ' + (this.productDiscount + this
+                            .otherDiscount).toFixed(2) +
+                        ' Taka';
+                    cmds += newLine + newLine;
+                    cmds += this.branch.pos_slip_notes;
+                    cmds += newLine + newLine;
+		            if(this.invoiceNo){
+                        cmds += "Coupon invoice no. "+this.invoiceNo;
+                        cmds += newLine + newLine;
+                        cmds += esc + '!' + '\x00';
+                    }else{
+                        cmds += newLine + newLine;
+                        cmds += newLine + newLine;
+                        cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                        cmds += "\x1b" + "\x69";
+                    }
+
+                    cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+                    //cmds += esc + '!' +'\x18'; //Emphasized + Double-height mode selected (ESC ! (16 + 8)) 24 dec => 18 hex
+                    //cmds += '# ITEMS SOLD 2';
+                    //cmds += newLine + newLine;
+                    //cmds += newLine + newLine;
+                    //cmds += newLine + newLine;
+                    //cmds += newLine + newLine;
+                    //cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                    //cmds += "\x1b" + "\x69";
+                    //cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+                    //cmds += '11/03/13';
+
+                    cpj.printerCommands = cmds;
+                    //Send print job to printer!
+                    cpj.sendToClient();
+
+                    if(this.invoiceNo){
+                        //create ClientPrintJob
+                        cpj = new JSPM.ClientPrintJob();
+
+                        //Set Printer info
+                        var myPrinter = new JSPM.InstalledPrinter($('#installedPrinterName').val());
+                        cpj.clientPrinter = myPrinter;
+
+                        var print_settings = '';
+                        print_settings += '-PX=0';
+                        print_settings += '-PY=0';
+                        print_settings += '-PW=1';
+                        print_settings += '-PH=1';
+                        print_settings += '-PO=L';
+
+                        //Set Image file
+                        var my_file = null;
+                        var file_name;
+                        var file_ext;
+                        var file_url = sdcQRcode;
+
+                        if (file_url.length > 0) {
+                            file_ext = '.png';
+                            file_name = 'qr_code';
+                            file_name += print_settings + file_ext;
+
+                            my_file = new JSPM.PrintFile(file_url, JSPM.FileSourceType.URL, file_name, 1);
+                        } else {
+                            alert('Must specify a local file or a URL!');
+                            return;
+                        }
+
+                        //add file to ClientPrintJob
+                        cpj.files.push(my_file);
+
+                        //Send print job to printer!
+                        cpj.sendToClient();
+                    }
+                }
+            },
+            async orderComplete(o) {
+                this.clearResponseMessage()
+                this.isDoneClicked = true
+                isProcessing = true
+                self = this
+                let dueAmount = Number(this.orderTotal.toFixed(2)) - Number((this.productDiscount +
+                    this.otherDiscount).toFixed(2));
+
+                let earnPointByOrder = 0
+
+                if (this.branch.point_bench_mark < dueAmount && this.clientData!=null) {
+                    earnPointByOrder = parseFloat((dueAmount / this.branch.point_purchase).toFixed(2))
+                }
+
+                let branchID = localStorage.getItem('branch')
+
+                let itemInfo = {
+                    branch: branchID,
+                    payment: this.payment,
+                    vat: Number(this.vat.toFixed(2)),
+                    order_discount: {
+                        product: Number(this.productDiscount.toFixed(2)),
+                        others: Number(this.otherDiscount.toFixed(2))
+                    },
+                    point_value: this.branch.point_expand,
+                    used_points: Number(this.pointApply),
+                    earned_point: earnPointByOrder,
+                    fractionalDiscount: this.fractionalDiscount,
+                    orderDiscount: this.orderDiscount,
+                    paymentDiscountAmount: this.paymentDiscount,
+                    specialDiscountAmount: this.specialDiscountAmount,
+                }
+
+                if(this.salesPersonData){
+                    itemInfo.salesPerson = this.salesPersonData._id
+                }
+
+                if(this.personalDiscountData){
+                    itemInfo.discountPerson = this.personalDiscountData._id
+                    itemInfo.personalDiscountPercentage = Number(this.personalDiscountApply)
+                    itemInfo.personalDiscountAmount = this.personalDiscountAmount
+                }
+
+                if(this.specialDiscountData){
+                    itemInfo.special_discount_info = this.special_discount_info
+                }
+
+                if(this.clientData){
+                    itemInfo.customer = {
+                        name: this.clientData.name, 
+                        address: this.clientData.address, 
+                        phone: this.clientData.phone 
+                    }
+                }
+
+                if(this.sdc_device_ip.sdcIP){
+                    let goodsInfo = [];
+
+                    this.cart.map(async productInfo =>{
+                                goodsInfo.push({
+                                    "code": String(productInfo.code),
+                                    "hsCode": "",
+                                    "item": productInfo.name.replace(/[^a-zA-Z ]/g, ""),
+                                    "price": String(productInfo.price - productInfo.discount),
+                                    "qty": productInfo.quantity.toFixed(2),
+                                    //"sd_category": "13801",
+                                    "sd_category": productInfo.nbr_sd_code.trim(),
+                                    //"vat_category": "13501"
+                                    "vat_category": productInfo.nbr_vat_code.trim()
+                                });
+                    })
+
+                    let dt1 = {
+                        "buyerInfo": this.clientData ? this.clientData.phone : "",
+                        "currency_code": "BDT",
+                        "goodsInfo": goodsInfo,
+                        "payType": "PAYTYPE_CASH",
+                        "taskID": String(Date.now()) + String(Math.floor(Math.random() * 100)) + String(Math.floor(Math.random() * 100)) 
+                    }
+
+                    let sdcRequestInfo = {
+                        dt1,
+                        "cashierID": this.adminInfo._id,
+                        "type": "SDCA0000",
+                        "device_ip": this.sdc_device_ip.sdcIP && this.sdc_device_ip.sdcIP.trim(),
+                        "request_key": "12345"
+                    }
+
+                    axios.post('http://119.40.87.22:88/sell_request.php', sdcRequestInfo)
+                    .then(function (response) { 
+                        let encryptedInfo = {
+                            "encrypt_data": response.data.data,
+                            "request_key": "12345"
+                        }  
+                        axios.post('http://119.40.87.22:88/response_decode.php', encryptedInfo)
+                        .then(function (responseData) { 
+                            let sdcReponseDetails;
+                            
+                            try{
+                                sdcReponseDetails = JSON.parse(String(JSON.stringify(responseData.data)).substr(0, String(JSON.stringify(responseData.data)).lastIndexOf(`}`)) + `}`)
+                            }catch(e){
+                                sdcReponseDetails = JSON.parse(responseData.data.substr(0, responseData.data.lastIndexOf(`}`)) + "}")
+                            }
+
+                            if(sdcReponseDetails.code == "0000"){
+                                itemInfo.nbrDeviceInfo = {
+                                    isWritten: true,
+                                    invoiceNo: JSON.parse(sdcReponseDetails.data).invoiceNo,
+                                    invoiceResponse: JSON.stringify(sdcReponseDetails)
+                                }
+                                self.printSellSlip(itemInfo, sdcReponseDetails, dueAmount, earnPointByOrder)
+                            }else{
+                                alert("SDC device error: " + sdcReponseDetails.msg)
+                                this.isDoneButtonClicked = false
+                                this.isDone = false
+                            }
+                        })
+                    })
+                }else{
+                    self.printSellSlip(itemInfo, null, dueAmount, earnPointByOrder)
+                }
+                
+            },
+            printSellSlip(itemInfo, sdcReponseDetails, dueAmount, earnPointByOrder){
+                let requestLink = '/api/pos/order?tabID=' + tabID
+                let token = localStorage.getItem('token')
+                
+                addNewType(requestLink, itemInfo, token).then(async (result) => {
+                    this.isDoneClicked = false
+                    
+                    if(sdcReponseDetails!=null){
+                        this.invoiceNo = JSON.parse(sdcReponseDetails.data).invoiceNo
+                        this.invoiceResponse = JSON.parse(sdcReponseDetails.data)
+                    }
+
+                    if (result.auth == true) {
+                        this.isDone = true
+                        this.orderID = result.response.order_id
+
+                        let sdcQRcode = null
+                        if(this.invoiceNo){
+                            try {
+                                let canvas = bwipjs.toCanvas('sdcQRcode', {
+                                        bcid:        'qrcode',       // Barcode type
+                                        text:        this.invoiceResponse.qrCode,    // Text to encode
+                                        width:       30,               // 3x scaling factor
+                                        height:      30,              // Bar height, in millimeters
+                                        includetext: false,            // Show human-readable text
+                                        textxalign:  'center',        // Always good to set this
+                                    });
+                                    sdcQRcode = canvas.toDataURL('image/png')
+                            } catch (e) {
+                                    // `e` may be a string or Error object
+                            }
+                        }
+
+                        this.successResponse = result.response
+                        if (this.clientData != null) {
+                            let pointUpdateRequestLink = '/api/pos/client/point-update'
+                            let adminToken = localStorage.getItem('token')
+
+                            let pointItemInfo = {
+                                id: this.clientData._id,
+                                points: this.clientData.points + earnPointByOrder - this.pointApply
+                            }
+                            updateTypeInfo(pointUpdateRequestLink, pointItemInfo, adminToken).then((
+                                result) => {
+                                if (result.auth == true) {}
+                            })
+                        }
+
+                        let cash_pay = 0
+                        let cash_flag = 0
+                        let card_pay = 0
+                        let card_flag = 0
+                        let mobile_banking_pay = 0
+                        let mobile_banking_flag = 0
+
+                        let paymentCalculation = this.payment.map((payment, index) => {
+                            cmds += newLine;
+                            if (payment.method == 'cash') {
+                                cash_flag = 1
+                                cash_pay += payment.amount
+                            }
+
+                            if (payment.method == 'card') {
+                                card_flag = 1
+                                card_pay += payment.amount
+                            }
+
+                            if (payment.method == 'mobile banking') {
+                                mobile_banking_flag = 1
+                                mobile_banking_pay += payment.amount
+                            }
+                        })
+
+                        await Promise.all(paymentCalculation)
+
+                        var now = new Date();
+                        var strDateTime = [
+                            [this.addZero(now.getDate()),
+                                this.addZero(now.getMonth() + 1),
+                                now.getFullYear()
+                            ].join("/"),
+                            [this.addZero(now.getHours()),
+                                this.addZero(now.getMinutes())
+                            ].join(":"),
+                            now.getHours() >= 12 ? "PM" : "AM"
+                        ].join(" ");
+                        if (jspmWSStatus()) {
+                            //Create a ClientPrintJob
+                            var cpj = new JSPM.ClientPrintJob();
+                            //Set Printer type (Refer to the help, there many of them!)
+                            if ($('#useDefaultPrinter').prop('checked')) {
+                                cpj.clientPrinter = new JSPM.DefaultPrinter();
+                            } else {
+                                cpj.clientPrinter = new JSPM.InstalledPrinter($('#installedPrinterName')
+                                    .val());
+                            }
+                            //Set content to print...
+                            //Create ESP/POS commands for sample label
+                            var esc = '\x1B'; //ESC byte in hex notation
+                            var newLine = '\x0A'; //LF byte in hex notation
+
+                            var cmds = esc + "@"; //Initializes the printer (ESC @)
+                            cmds += esc + '!' +
+                                '\x22'; //Emphasized + Double-height + Double-width mode selected (ESC ! (8 + 16 + 32)) 56 dec => 38 hex
+                            cmds += newLine;
+                            cmds += '\x1B' + '\x61' + '\x31';
+                            cmds += '<%= companyInfo.full_name.toUpperCase() %>'; //text to print
+                            cmds += newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += '\x1B' + '\x61' + '\x31';
+                            cmds += this.branch.name;
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += '\x0A'; //LF byte in hex notation
+                            cmds += '\x1B'+'@';
+                            cmds += 'Location: ' + this.branch.address + ', ' + this.branch.thana +
+                                ', ' + this.branch
+                                .district + '.';
+                            cmds += newLine;
+                            cmds += 'Contact no. ' + this.branch.phone;
+                            cmds += newLine;
+                            cmds += 'VAT REG no. ' + this.branch.taxIdentificationNo;
+                            if(this.clientData){
+                                cmds += newLine;
+                                cmds += 'Customer name: ' + this.clientData.name;
+                                cmds += newLine;
+                                cmds += 'Contact no. ' + this.clientData.phone;
+                            }
+                            cmds += newLine;
+                            cmds += 'POS operator name: ' + this.adminInfo.name;
+                            cmds += newLine;   
+                            cmds += 'Date: ' + strDateTime;
+                            cmds += newLine;
+                            cmds += 'Invoice no. ' + this.orderID;
+                            cmds += newLine;
+                            cmds += 'Slip type: ' + this.orderType;
+                            cmds += newLine;
+                            cmds += 'Number of item: ' + this.cart.length;
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                            cmds += '#Qty      #Price      #Dis       #Subtotal';
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            this.cart.map(product => {
+                                cmds += esc + '!' +
+                                            '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';    
+                                cmds += product.code+'-'+product.name;
+                                cmds += newLine;
+                                cmds += esc + '!' +
+                                            '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += '\x1B' + '\x61' + '\x31';    
+                                cmds += product.quantity + '  x   ' + product
+                                            .price.toFixed(2) +
+                                            '  ' + (product.discount * product.quantity).toFixed(2) + '  ' + (product.price *
+                                            product.quantity).toFixed(2);
+                                cmds += '\x0A'; //LF byte in hex notation
+                                cmds += '\x1B'+'@';
+                                cmds += '------------------------------------------';             
+                            })
+                            cmds += newLine;
+                            cmds += 'Subtotal Without VAT:             ' + this.subTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '++VAT(App. items only up to 5%):  ' + this.vat.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '                 Total Amount:    ' + this.orderTotal.toFixed(2);
+                            cmds += newLine;
+                            cmds += '                    -Discount:    ' + (this
+                                    .productDiscount + this.otherDiscount)
+                                .toFixed(2);
+                            cmds += newLine;
+                            cmds += '                                ----------';
+                            cmds += newLine;
+                            cmds += '                   Amount Due:    ' + dueAmount.toFixed(2)
+                            cmds += newLine;
+                            cmds += '                         Paid:    ' + this.paidAmountField.toFixed(
+                                2);
+                            cmds += newLine;
+                            cmds += '                       Change:    ' + (parseFloat(this
+                                    .paidAmountField) -
+                                parseFloat(dueAmount)).toFixed(2);
+                            cmds += newLine;
+                            cmds += 'Payment Mode:                             ';
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            if (cash_flag == 1) {
+                                cmds += 'CASH:                             ' + cash_pay.toFixed(2);
+                                cmds += newLine;
+                            }
+                            if (card_flag == 1) {
+                                cmds += 'CARD:                             ' + card_pay.toFixed(2);
+                                cmds += newLine;
+                            }
+                            if (mobile_banking_flag == 1) {
+                                cmds += 'MOBILE BANKING:                   ' + mobile_banking_pay.toFixed(2);
+                                cmds += newLine;
+                            }
+                            if (this.clientData !== null) {
+                                cmds += '------------------------------------------';
+                                if (this.pointApply > 0) {
+                                    cmds += newLine;
+                                    cmds += 'Bonus Point Used : ' + this.pointApply;
+                                }
+                                cmds += newLine;
+                                cmds += 'Current Bonus Point Earned : ' + earnPointByOrder;
+                                cmds += newLine;
+                                cmds += 'Total Bonus Point Remaining : ' + (parseFloat(this.clientData
+                                        .points - this.pointApply) +
+                                    parseFloat(
+                                        earnPointByOrder)).toFixed(2);
+                                cmds += newLine;
+                            }
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += 'Total Discount :     ' + this.productDiscount.toFixed(2);
+                            cmds += newLine;
+                            cmds += 'Other Discount :     ' + this.otherDiscount.toFixed(2);
+                            cmds += newLine;
+                            cmds += '------------------------------------------';
+                            cmds += newLine;
+                            cmds += 'You Have Saved :     ' + (this.productDiscount + this
+                                    .otherDiscount).toFixed(2) +
+                                ' Taka';
+                            cmds += newLine + newLine;
+                            cmds += this.branch.pos_slip_notes;
+                            cmds += newLine + newLine;
+                            if(this.invoiceNo){
+                                cmds += "Coupon invoice no. "+this.invoiceNo;
+                                cmds += newLine + newLine;
+                                cmds += esc + '!' + '\x00';
+                            }else{
+                                cmds += newLine + newLine;
+                                cmds += newLine + newLine;
+                                cmds += esc + '!' + '\x00'; //Character font A selected (ESC ! 0)
+                                cmds += "\x1b" + "\x69";
+                            }
+
+                            cmds += '\x10' + '\x14' + '\x01' + '\x00' + '\x05';
+
+                            cpj.printerCommands = cmds;
+                            //Send print job to printer!
+                            cpj.sendToClient(); 
+                
+                            if(this.invoiceNo){
+                                    //create ClientPrintJob
+                                    cpj = new JSPM.ClientPrintJob();
+
+                                    //Set Printer info
+                                    var myPrinter = new JSPM.InstalledPrinter($('#installedPrinterName').val());
+                                    cpj.clientPrinter = myPrinter;
+
+                                    var print_settings = '';
+                                    print_settings += '-PX=0';
+                                    print_settings += '-PY=0';
+                                    print_settings += '-PW=1';
+                                    print_settings += '-PH=1';
+                                    print_settings += '-PO=L';
+
+                                    //Set Image file
+                                    var my_file = null;
+                                    var file_name;
+                                    var file_ext;
+                                    var file_url = sdcQRcode;
+
+                                    if (file_url.length > 0) {
+                                        file_ext = '.png';
+                                        file_name = 'qr_code';
+                                        file_name += print_settings + file_ext;
+
+                                        my_file = new JSPM.PrintFile(file_url, JSPM.FileSourceType.URL, file_name, 1);
+                                    } else {
+                                        alert('Must specify a local file or a URL!');
+                                        return;
+                                    }
+
+                                    //add file to ClientPrintJob
+                                    cpj.files.push(my_file);
+
+                                    //Send print job to printer!
+                                    cpj.sendToClient();
+                            }
+                        }
+
+                        this.isOrderComplete = true
+
+                    } else {
+                        this.errorResponse = result.response
+                    }
+                    
+                    isProcessing = false
+                    
+                    $('html, body').animate({
+                        scrollTop: 0
+                    }, 'slow', function () {});
+                })
+            }
+        }
+    })
+</script>
+
+<script>
+    $("#borcodeInputField").focus()
+    document.body.addEventListener('keyup', function (e) {
+        e.preventDefault();
+        if (e.ctrlKey && e.keyCode == 66) {
+          // crt + b
+          $("#borcodeInputField").focus()
+        }
+
+        if (e.ctrlKey && e.keyCode == 67) {
+            // crt + c
+            $("#clientIDInputField").focus() 
+        }
+
+        if (e.ctrlKey && e.keyCode == 81) {
+            // crt + q
+            $(".quantityInputField").first().focus()
+        }
+
+        if ((e.altKey && e.keyCode== 80) || e.keyCode == 255) {
+            // alt + p or y
+            $("#paymentTypeField").focus()
+        }
+
+        if ((e.altKey && e.keyCode== 65)) {
+            // alt + a
+            if(!isProcessing){
+                $("#addClientButton").click()
+            }
+        }
+
+        if ((e.altKey && e.keyCode== 83)) {
+            // alt + s
+            $("#findClientData").focus()
+        }
+
+        if (e.keyCode == 119) {
+            // w
+            if(!isProcessing){
+                $("#fullResetButton").click()
+            }
+        }
+
+        if (e.altKey && e.keyCode== 67) {
+            // alt + c
+            if(!isProcessing){
+                $("#completeSellButton").click()
+            }
+        }
+
+        if (e.shiftKey && e.keyCode== 70) {
+            // shift + f
+            $("#modalSearchField").focus()
+        }
+
+        if (e.shiftKey && e.keyCode== 68) {
+            // shift + d
+            $("#searchModal").modal('hide')
+        }
+
+        if (e.keyCode == 113) {
+            // q
+            $("#searchModal").modal('show')
+            setTimeout(()=>{
+                $("#modalSearchField").focus()
+            }, 500)
+        }
+    });
+</script>
+
+<% include ../../partials/footer %>
+
+<script>
+    $("#add_data_section" ).on( 'wheel', function() {
+        $('input[type=number]').on('mousewheel',function(e){ $(this).blur(); });
+     });
+</script>
