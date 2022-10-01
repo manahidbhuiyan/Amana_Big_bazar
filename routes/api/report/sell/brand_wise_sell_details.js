@@ -10,8 +10,6 @@ const config = require('config');
 const jwt = require('jsonwebtoken');
 const excel = require('node-excel-export');
 
-
-
 var pdf = require("pdf-creator-node");
 var fs = require('fs');
 var path = require('path');

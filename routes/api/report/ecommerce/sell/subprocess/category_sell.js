@@ -103,6 +103,9 @@ process.on('message', async (msg) => {
             branch_address : branchInfo.address,
             allCategoryData : reportData = reportData.filter(data => data.branch_serialNo === branchInfo.serialNo)
         })
+        // console.log("branchWiseSell",branchWiseSell)
+        // console.log("reportData",reportData)
+        // console.log("totalSupplierQuantity",totalSoldQuantity)
 
     })
 

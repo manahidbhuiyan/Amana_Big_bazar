@@ -34,7 +34,6 @@ process.on('message', async (msg) => {
         }
     }).populate('supplier', '_id name contact').populate('admin', 'name').populate('branch', 'name address').populate('products.product._id', 'name price')
 
-    
     let allProducts = []
     let allProductBarcodes = []
     let searchProductIndex = []
@@ -53,8 +52,6 @@ process.on('message', async (msg) => {
     let totalDisposalQuantity = 0
     let totalDisposalCostQuantity = 0
     let totalProfit = 0
-
-
 
     let supplierRecevingParentArray = supplierRecevingData.map(async (productList, index) => {
         let supplierRecevingChildArray = productList.products.map(async (productInfo, index) => {

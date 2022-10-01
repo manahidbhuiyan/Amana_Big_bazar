@@ -590,6 +590,10 @@
                                 <li id="ecommerceSalesReportVisible" <% if(breadcumb.main.text==='ecommerce report' && breadcumb.sub.length>0){ %>
                                     <% if(breadcumb.sub[0].text==='sales report'){ %> class="active" <% } %> <% } %>><a
                                             href="<%= host %>/dashboard/report/ecommerce/sales_report">Sales Reports</a></li>
+                                <li id="ecommerceAnalysisReportVisible" <% if(breadcumb.main.text==='ecommerce report' && breadcumb.sub.length>0){ %>
+                                    <% if(breadcumb.sub[0].text==='analysis'){ %> class="active" <% } %> <% } %>><a
+                                            href="<%= host %>/dashboard/report/ecommerce/analysis">Analysis Reports</a></li>
+
                             </ul>
                     </li>
 
@@ -1037,6 +1041,11 @@
                     if (!this.adminRoles.includes('ecommerce cash memo report')) {
                         $("#ecommerceCashMemoReportVisible").remove()
                     }
+                    if (!this.adminRoles.includes('ecommerce analysis report')){
+                        $("ecommerceAnalysisReportVisible").remove()
+                    }
+
+
 
                     // my create menu 
                     

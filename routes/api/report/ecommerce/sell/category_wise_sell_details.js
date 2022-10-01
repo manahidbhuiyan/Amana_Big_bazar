@@ -263,13 +263,17 @@ router.get('/category/sell/:adminID/:from/:to/:category', [
 
         child.on('message', async (response) => {
             const {
-                allCategoryData,
+                branchWiseSellDetails,
+                sellList,
                 totalSupplierQuantity,
                 totalSupplierCostAmount,
                 totalSupplierEarnAmount,
                 totalGp,
-                categories
+                categories,
+                categoriesOfBranch
             } = response
+
+            // console.log("branchWiseSellDetails",branchWiseSellDetails)
 
             let branch = await Branch.findById(req.query.branch).select('_id name address serialNo');
             var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -280,9 +284,9 @@ router.get('/category/sell/:adminID/:from/:to/:category', [
                 branch_id: branch.serialNo,
                 branch_name: branch.name,
                 branch_address: branch.address,
-                supplier_name: categories[0].name,
-                supplier_serialNo: categories[0].serialNo,
-                data: allCategoryData,
+                supplier_name: categoriesOfBranch[0].name,
+                supplier_serialNo: categoriesOfBranch[0].serialNo,
+                data: sellList,
                 totalSupplierQuantity: totalSupplierQuantity,
                 totalSupplierCostAmount: totalSupplierCostAmount,
                 totalSupplierEarnAmount: totalSupplierEarnAmount,
@@ -420,7 +424,7 @@ router.get('/category/sell/:adminID/:from/:to/:category', [
             const merges = [
                 { start: { row: 1, column: 1 }, end: { row: 1, column: 7 } }
             ]
-
+            // console.log("sellList",reportFullDataset)
             // Create the excel report.
             // This function will return Buffer
             const report = excel.buildExport(
@@ -430,7 +434,7 @@ router.get('/category/sell/:adminID/:from/:to/:category', [
                         heading: heading,
                         merges: merges,
                         specification: specification, // <- Report specification
-                        data: reportFullDataset.data // <-- Report data
+                        data: sellList // <-- Report data
                     }
                 ]
             );

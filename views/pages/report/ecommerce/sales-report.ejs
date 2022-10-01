@@ -686,14 +686,64 @@ include ../../../partials/left-sidebar %>
           var link = document.createElement('a');
           link.target = "_blank";
 
-          if (this.SelectedSupplier == '') {
-              link.href = "/api/report/ecommerce/category/sell/list/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + itemInfo.branch;
+          if (this.SelectedSupplier == 'all') {
+
+            if (this.selectedBranch == 'all'){
+              itemInfo.category = this.SelectedSupplier.id
+              link.href =
+                      "/api/report/ecommerce/category/sell/" +
+                      token +
+                      "/" +
+                      itemInfo.from +
+                      "/" +
+                      itemInfo.to +
+                      "?branch=" +
+                      itemInfo.branch;
+            }
+            else{
+              itemInfo.category = this.SelectedSupplier.id
+              itemInfo.branch = this.selectedBranch.id
+              link.href =
+                      "/api/report/ecommerce/category/sell/" +
+                      token +
+                      "/" +
+                      itemInfo.from +
+                      "/" +
+                      itemInfo.to +
+                      "?branch=" +
+                      itemInfo.branch;
+            }
 
           } else {
-            itemInfo.category = this.SelectedSupplier.id
-            itemInfo.branch = this.selectedBranch.id
-              link.href = "/api/report/ecommerce/category/sell/details/" + token + "/" + itemInfo.from + "/" + itemInfo.to + "/" + this.SelectedSupplier.id + "/" + this.selectedBranch.id;
-
+            if (this.selectedBranch == 'all'){
+              itemInfo.category = this.SelectedSupplier.id
+              link.href =
+                      "/api/report/ecommerce/category/sell/" +
+                      token +
+                      "/" +
+                      itemInfo.from +
+                      "/" +
+                      itemInfo.to +
+                      "/" +
+                      itemInfo.category +
+                      "?branch=" +
+                      itemInfo.branch;
+            }
+            else{
+              itemInfo.category = this.SelectedSupplier.id
+              itemInfo.branch = this.selectedBranch.id
+              link.href =
+                      "/api/report/ecommerce/category/sell/" +
+                      token +
+                      "/" +
+                      itemInfo.from +
+                      "/" +
+                      itemInfo.to +
+                      "/" +
+                      itemInfo.category +
+                      "?branch=" +
+                      itemInfo.branch;
+            }
           }
 
           //link.download = 'all_customer_summery.pdf';

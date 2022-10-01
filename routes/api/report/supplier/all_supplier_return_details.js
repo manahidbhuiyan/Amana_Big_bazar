@@ -283,7 +283,7 @@ router.get('/all/supplier-return/details/:adminID/:from/:to/:branch', [
             }
 
             // return res.json(reportFullDataset.data)
-
+            console.log("reportFullDataset",reportFullDataset)
             const styles = {
                 headerDark: {
                     fill: {
@@ -397,6 +397,7 @@ router.get('/all/supplier-return/details/:adminID/:from/:to/:branch', [
                     width: 100 // <- width in pixels
                 }
             }
+
             let branchNum = (branch == "all") ? 'All Branch)' : 'Single Branch)'
 
             const heading = [

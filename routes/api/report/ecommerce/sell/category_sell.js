@@ -305,9 +305,9 @@ router.get('/category/sell/:adminID/:from/:to', [
                 netSellAmount: (totalCategoryEarnAmount - totalDiscountAmount),
                 netProfitLoss: ((totalCategoryEarnAmount - totalDiscountAmount) - totalCategoryCostAmount),
                 netProfitLossPercentage: ((Math.abs((totalCategoryEarnAmount - totalDiscountAmount) - totalCategoryCostAmount) / totalCategoryEarnAmount) * 100),
-                data: branchWiseSell
+                branchWiseSell: reportData
             }
-    
+            console.log("reportdata branchwise sell",reportData)
             // return res.json(reportFullDataset.data)
     
             const styles = {
@@ -446,6 +446,8 @@ router.get('/category/sell/:adminID/:from/:to', [
             const merges = [
                 { start: { row: 1, column: 1 }, end: { row: 1, column: 5 } }
             ]
+
+            // console.log("branchWiseSell",branchWiseSell)
     
             // Create the excel report.
             // This function will return Buffer
@@ -456,7 +458,7 @@ router.get('/category/sell/:adminID/:from/:to', [
                         heading: heading,
                         merges: merges,
                         specification: specification, // <- Report specification
-                        data: reportFullDataset.data // <-- Report data
+                        data: reportData // <-- Report data
                     }
                 ]
             );

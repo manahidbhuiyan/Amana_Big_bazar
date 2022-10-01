@@ -3,9 +3,8 @@ var router = express.Router();
 var config = require('config')
 var urlAuth = require('../../../../../middleware/admin/url_auth')
 
-
-/* GET Ecommerce cash memo Page. */
-router.get('/cash_memo', urlAuth('ecommerce cash memo report'), function(req, res, next) {
+/* GET login page. */
+router.get('/analysis', urlAuth('report analysis'), function(req, res, next) {
     const scripts = [
         '/assets/bundles/libscripts.bundle.js',
         '/assets/bundles/vendorscripts.bundle.js',
@@ -33,19 +32,19 @@ router.get('/cash_memo', urlAuth('ecommerce cash memo report'), function(req, re
         },
         sub: [
             {
-                text: 'cash memo',
-                link: config.get('hostname') + '/dashboard/report/ecommerce/cash-memo'
+                text: 'analysis',
+                link: config.get('hostname') + '/dashboard/report/ecommerce/analysis'
             }
         ]
     }
 
     const data = {
         siteTitle: config.get('company').name + " - Report",
-        pageTitle: "ecommerce cash memo report",
+        pageTitle: "Ecommerce Analysis Report",
         adminInfo: req.adminInfo,
     }
 
-    res.render('pages/report/ecommerce/cash_memo', {
+    res.render('pages/report/ecommerce/analysis', {
         scripts: scripts,
         styles: styles,
         breadcumb: breadcumb,

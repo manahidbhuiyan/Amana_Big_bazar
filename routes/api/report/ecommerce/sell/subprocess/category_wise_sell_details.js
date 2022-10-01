@@ -52,13 +52,11 @@ process.on('message', async (msg) => {
                 }
             }).populate('products.product', 'name price')
 
-
         let orderListParentArray = orderListItems.map(async (item, index) => {
-            let branch = item.branch
-            console.log("item branch", item.branch)
-            let orderListChildOneArray = item.products.map(async product => {
-                if (product.category.toString() == categoryInfo._id.toString()) {
 
+            console.log("item ",item.products.length)
+            let orderListChildOneArray = item.products.map(async product => {
+                if (product.category == categoryInfo._id) {
                     if (productBarcodes.includes(product.code)) {
                         sellList[productBarcodes.indexOf(product.code)].quantity += product.quantity
                         sellList[productBarcodes.indexOf(product.code)].purchaseCost += (product.purchase_price * product.quantity)
@@ -66,12 +64,13 @@ process.on('message', async (msg) => {
                     } else {
                         productBarcodes.push(product.code)
                         sellList.push({
-                            branch: item.branch,
                             datetime: ("0" + product.date.getDate()).slice(-2) + ' ' + months[product.date.getMonth()] + ', ' + product.date.getUTCFullYear() + '  ' + product.date.toLocaleTimeString(),
                             barcode: product.code,
                             name: product.name,
                             category_code: categoryInfo._id,
                             category_name: categoryInfo.name,
+                            branch_serialNo : branchInfo.serialNo,
+                            branch_id : branchInfo._id,
                             purchase_price: product.purchase_price,
                             sell_price: product.price.toFixed(2),
                             quantity: product.quantity,
@@ -82,7 +81,6 @@ process.on('message', async (msg) => {
                 }
             })
             await Promise.all(orderListChildOneArray)
-
         })
         await Promise.all(orderListParentArray)
 
@@ -102,16 +100,14 @@ process.on('message', async (msg) => {
             await Promise.all(rearrangeSellListArray)
     })
         await Promise.all(categoryParentArray)
-
         branchWiseSellDetails.push({
             branch_name : branchInfo.name,
             branch_phone : branchInfo.phone,
             branch_serialNo : branchInfo.serialNo,
             branch_address : branchInfo.address,
-            allCategoryData :   sellList,
+            allCategoryData :   sellList = sellList.filter(data => data.branch_serialNo === branchInfo.serialNo && data.branch_id === branchInfo._id ),
         })
 
-        sellList = sellList.filter(sell => sell.branch === branch)
 
         if (totalSupplierEarnAmount != 0) {
             totalGp = (((totalSupplierEarnAmount - totalSupplierCostAmount) / totalSupplierEarnAmount) * 100)
@@ -121,6 +117,7 @@ process.on('message', async (msg) => {
 
     process.send({
         branchWiseSellDetails,
+        sellList,
         totalSupplierQuantity,
         totalSupplierCostAmount,
         totalSupplierEarnAmount,
