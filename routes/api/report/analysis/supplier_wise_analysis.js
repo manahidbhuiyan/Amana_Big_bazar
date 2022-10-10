@@ -98,7 +98,7 @@ router.post('/single/supplier/analysis', [
                         class="table-border">
                         <tr>
                             <th style="font-size: 8px; text-align: left; width: 9% ;padding-left: 3px">Barcode</th>
-                            <th style="font-size: 8px; text-align: left; width: 13%">Item Description</th>
+                            <th style="font-size: 8px; text-align: left; width: 13%">Item Name</th>
                             <th style="font-size: 8px; text-align: right;">Avg cost</th>
                             <th style="font-size: 8px; text-align: right;">S.Price</th>
                             <th style="font-size: 8px; text-align: right;">Rec.Qty</th>

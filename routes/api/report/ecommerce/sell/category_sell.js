@@ -252,6 +252,9 @@ router.get('/category/sell/:adminID/:from/:to', [
 
         let from = req.params.from
         let to = req.params.to
+        let branch = req.query.branch
+
+        console.log("branch2",branch)
 
         from = new Date(from)
         from.setHours(0)
@@ -268,7 +271,7 @@ router.get('/category/sell/:adminID/:from/:to', [
         const msg = {
             from,
             to,
-            branch: req.query.branch,
+            branch,
             type: 'excel'
         }
 
@@ -307,7 +310,7 @@ router.get('/category/sell/:adminID/:from/:to', [
                 netProfitLossPercentage: ((Math.abs((totalCategoryEarnAmount - totalDiscountAmount) - totalCategoryCostAmount) / totalCategoryEarnAmount) * 100),
                 branchWiseSell: reportData
             }
-            console.log("reportdata branchwise sell",reportData)
+            // console.log("reportdata branchwise sell",reportData)
             // return res.json(reportFullDataset.data)
     
             const styles = {

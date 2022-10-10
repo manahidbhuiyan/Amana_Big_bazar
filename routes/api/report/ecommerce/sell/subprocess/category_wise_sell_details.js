@@ -54,7 +54,6 @@ process.on('message', async (msg) => {
 
         let orderListParentArray = orderListItems.map(async (item, index) => {
 
-            console.log("item ",item.products.length)
             let orderListChildOneArray = item.products.map(async product => {
                 if (product.category == categoryInfo._id) {
                     if (productBarcodes.includes(product.code)) {
@@ -83,7 +82,6 @@ process.on('message', async (msg) => {
             await Promise.all(orderListChildOneArray)
         })
         await Promise.all(orderListParentArray)
-
 
             let rearrangeSellListArray = sellList.map((sellInfo, index) => {
                 totalSupplierEarnAmount += sellInfo.sellCost
