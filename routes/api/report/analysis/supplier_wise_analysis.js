@@ -82,7 +82,7 @@ router.post('/single/supplier/analysis', [
             const {
                 allDataInfo
             } = response
-
+            // console.log("allDataInfo",allDataInfo)
             var html = fs.readFileSync(path.join(__dirname, '..', '..', '..', '..', 'reports', 'analysis', 'supplier_wise_analysis.html'), 'utf8');
 
             var options = {
@@ -94,20 +94,23 @@ router.post('/single/supplier/analysis', [
                     contents: {
                         first: ' ',
                         default: `
-                        <table cellspacing=0 cellpadding=0 width="780px" style="margin: 0 auto;"
+                        <table cellspacing=0 cellpadding=0 width="950px" style="margin: 0 auto;"
                         class="table-border">
-                        <tr>
-                            <th style="font-size: 8px; text-align: left; width: 9% ;padding-left: 3px">Barcode</th>
-                            <th style="font-size: 8px; text-align: left; width: 13%">Item Name</th>
-                            <th style="font-size: 8px; text-align: right;">Avg cost</th>
+                        <tr style="width: 100%">
+                            <th style="font-size: 8px; text-align: left; width: 11.5%; padding-left: 3px" >Barcode</th>
+                            <th style="font-size: 8px; text-align: left; width: 15%; ">Item Name</th>
+                            <th style="font-size: 8px; text-align: right;">P.Cost</th>
                             <th style="font-size: 8px; text-align: right;">S.Price</th>
-                            <th style="font-size: 8px; text-align: right;">Rec.Qty</th>
-                            <th style="font-size: 8px; text-align: right;">Rec.Amt</th>
+                            
                             <th style="font-size: 8px; text-align: right;">S.Qty</th>
                             <th style="font-size: 8px; text-align: right;">S.C.Amt</th>
                             <th style="font-size: 8px; text-align: right;">S.Amt</th>
+                           
                             <th style="font-size: 8px; text-align: right;">ST.Qty</th>
                             <th style="font-size: 8px; text-align: right;">ST.Amt</th>
+                             
+                            <th style="font-size: 8px; text-align: right;">Rec.Qty</th>
+                            <th style="font-size: 8px; text-align: right;">Rec.Amt</th>
                             <th style="font-size: 8px; text-align: right;">Ret.Qty</th>
                             <th style="font-size: 8px; text-align: right;">Ret.Amt</th>
                             <th style="font-size: 8px; text-align: right;">D.Qty</th>
@@ -130,7 +133,8 @@ router.post('/single/supplier/analysis', [
             var document = {
                 html: html,
                 data: allDataInfo,
-                path: "./public/reports/supplier_wise_analysis.pdf"
+                path: "./public/reports/supplier_wise_analysis.pdf",
+                // type: "",
             };
 
             pdf.create(document, options)
@@ -307,76 +311,76 @@ router.get('/single/supplier/analysis/:adminID/:from/:to/:supplier', [
                     width: 200 // <- width in pixels
                 },
                 name: { // <- the key should match the actual data key
-                    displayName: 'Item Description', // <- Here you specify the column header
+                    displayName: 'Item Name', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 300 // <- width in pixels
                 },
-                purchase: { // <- the key should match the actual data key
+                purchase_price: { // <- the key should match the actual data key
                     displayName: 'Cost Price', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                sell: { // <- the key should match the actual data key
+                sell_price: { // <- the key should match the actual data key
                     displayName: 'Sell Price', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                quantity: { // <- the key should match the actual data key
-                    displayName: 'Receive Quantity', // <- Here you specify the column header
-                    headerStyle: styles.headerDark, // <- Header style
-                    width: 200 // <- width in pixels
-                },
-                total: { // <- the key should match the actual data key
-                    displayName: 'Receive Amount', // <- Here you specify the column header
-                    headerStyle: styles.headerDark, // <- Header style
-                    width: 200 // <- width in pixels
-                },
-                total_sell_no: { // <- the key should match the actual data key
+                totalSellProduct: { // <- the key should match the actual data key
                     displayName: 'Sold Quantity', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                total_cost_amount: { // <- the key should match the actual data key
+                totalCostAmount: { // <- the key should match the actual data key
                     displayName: 'Sold Cost Amount', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                total_sell_amount: { // <- the key should match the actual data key
+                totalSellAmount: { // <- the key should match the actual data key
                     displayName: 'Sold Amount', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                stockQuantity: { // <- the key should match the actual data key
+                currentStock: { // <- the key should match the actual data key
                     displayName: 'Stock Quantity', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                stockCostAmount: { // <- the key should match the actual data key
+                stockCost: { // <- the key should match the actual data key
                     displayName: 'Stock Amount', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                total_return_no: { // <- the key should match the actual data key
+                totalReceivingProduct: { // <- the key should match the actual data key
+                    displayName: 'Receive Quantity', // <- Here you specify the column header
+                    headerStyle: styles.headerDark, // <- Header style
+                    width: 200 // <- width in pixels
+                },
+                totalReceivingAmount: { // <- the key should match the actual data key
+                    displayName: 'Receive Amount', // <- Here you specify the column header
+                    headerStyle: styles.headerDark, // <- Header style
+                    width: 200 // <- width in pixels
+                },
+                totalReturnProduct: { // <- the key should match the actual data key
                     displayName: 'Return Quantity', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                total_return_amount: { // <- the key should match the actual data key
+                totalReturnAmount: { // <- the key should match the actual data key
                     displayName: 'Return Amount', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                total_disposal_no: { // <- the key should match the actual data key
+                totalDisposalProduct: { // <- the key should match the actual data key
                     displayName: 'Disposal Quantity', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                total_disposal_amount: {
+                totalDisposalAmount: {
                     displayName: 'Disposal Amount', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
                 },
-                gp: {
+                gpValue: {
                     displayName: 'Gross Profit(%)', // <- Here you specify the column header
                     headerStyle: styles.headerDark, // <- Header style
                     width: 200 // <- width in pixels
@@ -395,13 +399,13 @@ router.get('/single/supplier/analysis/:adminID/:from/:to/:supplier', [
                 [''],
                 [''],
                 ['Grand Total:', ' ', ' ', ' ',
-                    grandTotal.totalQuantity,
-                    grandTotal.totalCostAmount,
                     grandTotal.totalSoldQuantity,
                     grandTotal.totalSoldCostAmount,
                     grandTotal.totalSoldEarnAmount,
                     grandTotal.totalStockQuantity,
                     grandTotal.totalStockCostQuantity,
+                    grandTotal.totalReceivingQuantity,
+                    grandTotal.totalReceivingCostQuantity,
                     grandTotal.totalReturnQuantity,
                     grandTotal.totalReturnCostQuantity,
                     grandTotal.totalDisposalQuantity,
@@ -420,11 +424,13 @@ router.get('/single/supplier/analysis/:adminID/:from/:to/:supplier', [
             const report = excel.buildExport(
                 [ // <- Notice that this is an array. Pass multiple sheets to create multi sheet report
                     {
-                        name: 'Suppler wise analysis From: ' + reportFullDataset.fromDate + ' To: ' + reportFullDataset.toDate, // <- Specify sheet name (optional)
+                        name: 'Suppler wise analysis From: ' + reportFullDataset.fromDate + ' To: ' + reportFullDataset.toDate + 'hellloo', // <- Specify sheet name (optional)
+                        address: 'Dhaka Bangladesh',
                         heading: heading,
                         merges: merges,
                         specification: specification, // <- Report specification
-                        data: reportFullDataset.data // <-- Report data
+                        data: reportFullDataset.data, // <-- Report data
+                        heading: heading,
                     }
                 ]
             );

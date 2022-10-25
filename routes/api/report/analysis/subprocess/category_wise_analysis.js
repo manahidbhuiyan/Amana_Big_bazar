@@ -60,20 +60,20 @@ process.on('message', async (msg) => {
     let categoryProductArray = categoryWiseProducts.map(async (categoryPorductList) => {
         let supplierRecevingParentArray = supplierRecevingData.map(async (productList, index) => {
             let supplierRecevingChildArray = productList.products.map(async (productInfo, index) => {
-                if (String(productInfo.product._id) == String(categoryPorductList._id)) {
+                if (String(productInfo.product) == String(categoryPorductList._id)) {
                     if (searchProductIndex.includes(productInfo.product.barcode)) {
                         var productIndex = searchProductIndex.indexOf(productInfo.product.barcode);
                         var previousQuantity = Number(allProducts[productIndex].quantity);
-                        totalSealValue += (productInfo.product._id.price.sell * productInfo.product.quantity)
+                        totalSealValue += (productInfo.product.price.sell * productInfo.product.quantity)
                         allProducts[productIndex].quantity = (type == 'pdf') ? (Number(allProducts[productIndex].quantity) + productInfo.product.quantity).toFixed(2) : (Number(allProducts[productIndex].quantity) + productInfo.product.quantity)
 
                         allProducts[productIndex].stock = (type == 'pdf') ? (Number(productInfo.product.stock) + productInfo.product.quantity).toFixed(2) : (Number(productInfo.product.stock) + productInfo.product.quantity)
 
                         allProducts[productIndex].free = (type == 'pdf') ? (Number(allProducts[productIndex].free) + productInfo.product.free).toFixed(2) : (Number(allProducts[productIndex].free) + productInfo.product.free)
 
-                        allProducts[productIndex].sell = (type == 'pdf') ? (((Number(allProducts[productIndex].sell) * previousQuantity) + (Number(productInfo.product._id.price.sell) * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity)).toFixed(2) : (((Number(allProducts[productIndex].sell) * previousQuantity) + (Number(productInfo.product._id.price.sell) * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity))
+                        allProducts[productIndex].sell = (type == 'pdf') ? (((Number(allProducts[productIndex].sell) * previousQuantity) + (Number(productInfo.product.price.sell) * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity)).toFixed(2) : (((Number(allProducts[productIndex].sell) * previousQuantity) + (Number(productInfo.product.price.sell) * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity))
 
-                        allProducts[productIndex].purchase = (type == 'pdf') ? (((Number(allProducts[productIndex].purchase) * previousQuantity) + (productInfo.product._id.price.purchase * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity)).toFixed(2) : (((Number(allProducts[productIndex].purchase) * previousQuantity) + (productInfo.product._id.price.purchase * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity))
+                        allProducts[productIndex].purchase = (type == 'pdf') ? (((Number(allProducts[productIndex].purchase) * previousQuantity) + (productInfo.product.price.purchase * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity)).toFixed(2) : (((Number(allProducts[productIndex].purchase) * previousQuantity) + (productInfo.product.price.purchase * productInfo.product.quantity)) / Number(allProducts[productIndex].quantity))
 
                         allProducts[productIndex].total = (type == 'pdf') ? (Number(allProducts[productIndex].quantity) * Number(allProducts[productIndex].purchase)).toFixed(2) : (Number(allProducts[productIndex].quantity) * Number(allProducts[productIndex].purchase))
 
@@ -209,11 +209,11 @@ process.on('message', async (msg) => {
                             }
                         }).populate('admin', 'name').populate('branch', 'name address').populate('products._id', 'name price')
 
-                        let supplierDisposalParentArray = supplierDisposalData.map(supplierDisposalInfo => {
+                        let supplierDisposalParentArray = suppl3ierDisposalData.map(supplierDisposalInfo => {
                             supplierDisposalInfo.products.map(disposalProduct => {
                                 if (disposalProduct.barcode == productInfo.product.barcode) {
                                     totalDisposedProduct += Number(disposalProduct.disposal)
-                                    totalDisposedAmount += (Number(disposalProduct.disposal) * productInfo.product._id.price.purchase)
+                                    totalDisposedAmount += (Number(disposalProduct.disposal) * productInfo.product.price.purchase)
                                 }
                             })
                         })
@@ -230,11 +230,11 @@ process.on('message', async (msg) => {
                             let barcodeIndex = allProductBarcodes.indexOf(productInfo.product.barcode)
                             allProducts[barcodeIndex].quantity = (type == 'pdf') ? (Number(allProducts[barcodeIndex].quantity) + productInfo.product.quantity).toFixed(2) : (Number(allProducts[barcodeIndex].quantity) + productInfo.product.quantity)
 
-                            allProducts[barcodeIndex].purchaseCost = (type == 'pdf') ? (Number(allProducts[barcodeIndex].purchaseCost) + (productInfo.product.quantity * productInfo.product._id.price.purchase)).toFixed(2) : (Number(allProducts[barcodeIndex].purchaseCost) + (productInfo.product.quantity * productInfo.product._id.price.purchase))
+                            allProducts[barcodeIndex].purchaseCost = (type == 'pdf') ? (Number(allProducts[barcodeIndex].purchaseCost) + (productInfo.product.quantity * productInfo.product.price.purchase)).toFixed(2) : (Number(allProducts[barcodeIndex].purchaseCost) + (productInfo.product.quantity * productInfo.product.price.purchase))
 
                             allProducts[barcodeIndex].stockQuantity = (type == 'pdf') ? (Number(allProducts[barcodeIndex].stockQuantity) + productInfo.product.quantity).toFixed(2) : (Number(allProducts[barcodeIndex].stockQuantity) + productInfo.product.quantity)
 
-                            allProducts[barcodeIndex].stockCostAmount = (type == 'pdf') ? (Number(allProducts[barcodeIndex].stockQuantity) * productInfo.product._id.price.purchase).toFixed(2) : (Number(allProducts[barcodeIndex].stockQuantity) * productInfo.product._id.price.purchase)
+                            allProducts[barcodeIndex].stockCostAmount = (type == 'pdf') ? (Number(allProducts[barcodeIndex].stockQuantity) * productInfo.product.price.purchase).toFixed(2) : (Number(allProducts[barcodeIndex].stockQuantity) * productInfo.product.price.purchase)
                         } else {
                             allProducts.push({
                                 serial: allProducts.length + 1,
@@ -242,13 +242,13 @@ process.on('message', async (msg) => {
                                 name: productInfo.product.name,
                                 stock: (type == 'pdf') ? (productInfo.product.stock + productInfo.product.quantity).toFixed(2) : (productInfo.product.stock + productInfo.product.quantity),
                                 stockCost: (type == 'pdf') ? ((productInfo.product.stock + productInfo.product.quantity) * productInfo.product.price.purchase).toFixed(2) : ((productInfo.product.stock + productInfo.product.quantity) * productInfo.product.price.purchase),
-                                sell: (type == 'pdf') ? (productInfo.product._id.price.sell).toFixed(2) : (productInfo.product._id.price.sell),
+                                sell: (type == 'pdf') ? (productInfo.product.price.sell).toFixed(2) : (productInfo.product.price.sell),
                                 quantity: (type == 'pdf') ? (productInfo.product.quantity).toFixed(2) : (productInfo.product.quantity),
-                                purchase: (type == 'pdf') ? (productInfo.product._id.price.purchase).toFixed(2) : (productInfo.product._id.price.purchase),
-                                purchaseCost: (type == 'pdf') ? (productInfo.product.quantity * productInfo.product._id.price.purchase).toFixed(2) : (productInfo.product.quantity * productInfo.product._id.price.purchase),
+                                purchase: (type == 'pdf') ? (productInfo.product.price.purchase).toFixed(2) : (productInfo.product.price.purchase),
+                                purchaseCost: (type == 'pdf') ? (productInfo.product.quantity * productInfo.product.price.purchase).toFixed(2) : (productInfo.product.quantity * productInfo.product.price.purchase),
                                 stockQuantity: (type == 'pdf') ? ((productInfo.product.stock + productInfo.product.quantity) - totalSellProduct - totalReturnedProduct - totalDisposedProduct).toFixed(2) : ((productInfo.product.stock + productInfo.product.quantity) - totalSellProduct - totalReturnedProduct - totalDisposedProduct),
 
-                                stockCostAmount: (type == 'pdf') ? (((productInfo.product.stock + productInfo.product.quantity) - totalSellProduct - totalDisposedProduct - totalReturnedProduct) * productInfo.product._id.price.purchase).toFixed(2) : (((productInfo.product.stock + productInfo.product.quantity) - totalSellProduct - totalDisposedProduct - totalReturnedProduct) * productInfo.product._id.price.purchase),
+                                stockCostAmount: (type == 'pdf') ? (((productInfo.product.stock + productInfo.product.quantity) - totalSellProduct - totalDisposedProduct - totalReturnedProduct) * productInfo.product.price.purchase).toFixed(2) : (((productInfo.product.stock + productInfo.product.quantity) - totalSellProduct - totalDisposedProduct - totalReturnedProduct) * productInfo.product.price.purchase),
 
                                 free: (type == 'pdf') ? (productInfo.product.free).toFixed(2) : (productInfo.product.free),
                                 total: (type == 'pdf') ? (productInfo.product.total).toFixed(2) : (productInfo.product.total),
